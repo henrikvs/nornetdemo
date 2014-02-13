@@ -1,0 +1,34 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2014-01-30T13:07:42
+#
+#-------------------------------------------------
+
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = prototype
+TEMPLATE = app
+
+
+SOURCES += main.cpp\
+        mainwindow.cpp \
+    interactiveopen.cpp \
+    sslform.cpp \
+    dialog.cpp
+
+HEADERS  += mainwindow.h \
+    interactiveopen.h \
+    sslform.h \
+    dialog.h
+
+FORMS    += mainwindow.ui \
+    sslform.ui \
+    dialog.ui
+
+RESOURCES += \
+    res.qrc
+
+OTHER_FILES += \
+    notes.txt
