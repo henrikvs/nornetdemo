@@ -16,12 +16,30 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     interactiveopen.cpp \
     sslform.cpp \
-    dialog.cpp
+    dialog.cpp \
+    experiment.cpp \
+    experimentupdate.cpp \
+    nodeupdate.cpp \
+    node.cpp \
+    communicator.cpp \
+    connection.cpp \
+    connectionupdate.cpp \
+    shell.cpp \
+    sshconnection.cpp
 
 HEADERS  += mainwindow.h \
     interactiveopen.h \
     sslform.h \
-    dialog.h
+    dialog.h \
+    experiment.h \
+    experimentupdate.h \
+    nodeupdate.h \
+    node.h \
+    communicator.h \
+    connection.h \
+    connectionupdate.h \
+    shell.h \
+    sshconnection.h
 
 FORMS    += mainwindow.ui \
     sslform.ui \
