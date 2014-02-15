@@ -15,6 +15,17 @@ include(src/libs/libs.pri)
 include(src/GUI/GUI.pri)
 include(src/shell/shell.pri)
 
+
+#release: DESTDIR = build/release
+#debug:   DESTDIR = build/debug
+
+#OBJECTS_DIR = ${buildDir}/.obj
+#MOC_DIR = ${buildDir}/.moc
+#RCC_DIR = ${buildDir}/.qrc
+#UI_DIR = ${buildDir}/.ui
+
+
+
 RESOURCES += \
     res.qrc
 
