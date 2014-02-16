@@ -4,14 +4,6 @@ SSHConnection::SSHConnection()
 {
 }
 
-SSHConnection::SSHConnection(QString username, QString domain, QString password = QString())
-{
-    loggedIn = false;
-    this->program = "C:/Users/Henrik/Downloads/plink.exe";
-    this->username = username;
-    this->domain = domain;
-    this->password = password;
-}
 
 /*
 void SSHConnection::connectOutput(QObject &receiver, const char *slot)
@@ -19,12 +11,14 @@ void SSHConnection::connectOutput(QObject &receiver, const char *slot)
     QObject::connect(&process, SIGNAL(process->readyRead()), &receiver, slot);
 }*/
 
-void SSHConnection::makeConnection()
+void SSHConnection::makeConnection(QString username, QString domain, QString password = QString())
 {
+    loggedIn = false;
+    this->program = "C:/Users/Henrik/Downloads/plink.exe";
     QStringList arguments;
     arguments << username + "@" + domain;
     process.setParent(this);
-    QObject::connect(&process, SIGNAL(process->readyRead()), this, SLOT(newOutput()));
+    QObject::connect(&process, SIGNAL(readyRead()), this, SLOT(newOutput()));
 
     process.start(program, arguments);
 
@@ -32,15 +26,24 @@ void SSHConnection::makeConnection()
 
     } else {
         process.waitForStarted();
-        process.write(password.toLocal8Bit().data());
-        process.write("\n");
+        execute(password);
     }
 
 }
 
 void SSHConnection::execute(QString command)
 {
+    QByteArray array = command.toLocal8Bit();
+    const char *chars = array.data();
+    process.write(chars);
+    process.write("\n");
+}
 
+QString SSHConnection::readAll()
+{
+    QByteArray arr = process.readAll();
+    qDebug() << arr;
+    return arr;
 }
 
 void SSHConnection::newOutput()

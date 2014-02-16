@@ -3,16 +3,17 @@
 
 #include <QProcess>
 #include <QObject>
-
+#include <QDebug>
 class SSHConnection : public QObject
 {
     Q_OBJECT
 public:
     SSHConnection();
-    SSHConnection(QString username, QString domain, QString password);
     //void connectOutput(QObject &receiver, const char *slot);
-    void makeConnection();
+    void makeConnection(QString username, QString domain, QString password);
     void execute(QString command);
+    QString readAll();
+
 
 private:
     QProcess process;

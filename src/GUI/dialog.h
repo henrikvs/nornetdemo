@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QProcess>
+#include "sshconnection.h"
 
 namespace Ui {
 class Dialog;
@@ -18,13 +19,13 @@ public:
 
 private slots:
     void on_connectButton_clicked();
-    void programStarted();
+    void newOutput(QString output);
 
     void on_enterButton_clicked();
 
 private:
     Ui::Dialog *ui;
-    QProcess myProcess;
+    SSHConnection connection;
 };
 
 #endif // DIALOG_H

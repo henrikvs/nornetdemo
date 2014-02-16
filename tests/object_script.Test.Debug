@@ -1,0 +1,16 @@
+INPUT(
+./debug\main.o
+./debug\testsshconnection.o
+./debug\communicator.o
+./debug\connection.o
+./debug\connectionupdate.o
+./debug\experiment.o
+./debug\experimentupdate.o
+./debug\node.o
+./debug\nodeupdate.o
+./debug\sshconnection.o
+./debug\moc_testsshconnection.o
+./debug\moc_communicator.o
+./debug\moc_node.o
+./debug\moc_sshconnection.o
+);

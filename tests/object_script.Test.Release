@@ -1,0 +1,16 @@
+INPUT(
+./release\main.o
+./release\testsshconnection.o
+./release\communicator.o
+./release\connection.o
+./release\connectionupdate.o
+./release\experiment.o
+./release\experimentupdate.o
+./release\node.o
+./release\nodeupdate.o
+./release\sshconnection.o
+./release\moc_testsshconnection.o
+./release\moc_communicator.o
+./release\moc_node.o
+./release\moc_sshconnection.o
+);

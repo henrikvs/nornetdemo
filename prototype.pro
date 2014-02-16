@@ -16,6 +16,7 @@ include(src/GUI/GUI.pri)
 include(src/shell/shell.pri)
 
 
+
 #release: DESTDIR = build/release
 #debug:   DESTDIR = build/debug
 
