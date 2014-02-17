@@ -49,6 +49,7 @@
      <string>Tests</string>
     </property>
     <addaction name="actionSSL"/>
+    <addaction name="actionRegex_test"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -64,6 +65,11 @@
   <action name="actionSSL">
    <property name="text">
     <string>SSL test</string>
+   </property>
+  </action>
+  <action name="actionRegex_test">
+   <property name="text">
+    <string>Regex test</string>
    </property>
   </action>
  </widget>

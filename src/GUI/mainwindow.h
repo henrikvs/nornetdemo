@@ -18,6 +18,8 @@ public:
 private slots:
     void on_actionSSL_triggered();
 
+    void on_actionRegex_test_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

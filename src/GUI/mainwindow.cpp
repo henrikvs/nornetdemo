@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "regexwindow.h"
 #include "ui_mainwindow.h"
 #include "dialog.h"
 
@@ -41,5 +42,11 @@ void MainWindow::on_actionSSL_triggered()
 
     qDebug() << "Test";
     Dialog *form = new Dialog(this);
+    form->show();
+}
+
+void MainWindow::on_actionRegex_test_triggered()
+{
+    RegexWindow *form = new RegexWindow(this);
     form->show();
 }
