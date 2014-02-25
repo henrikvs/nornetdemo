@@ -1,6 +1,5 @@
 #ifndef DIALOG_H
 #define DIALOG_H
-
 #include <QDialog>
 #include <QProcess>
 #include "sshconnection.h"

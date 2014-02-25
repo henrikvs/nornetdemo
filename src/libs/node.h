@@ -15,6 +15,7 @@ public:
     QString location;
     void findLocation();
     QString sliverName;
+    QString sliceName;
 
 private:
     QList<Connection> connections;

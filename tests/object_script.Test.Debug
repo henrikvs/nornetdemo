@@ -1,5 +1,6 @@
 INPUT(
 ./debug\main.o
+./debug\testregexhelper.o
 ./debug\testsshconnection.o
 ./debug\communicator.o
 ./debug\connection.o
@@ -8,9 +9,12 @@ INPUT(
 ./debug\experimentupdate.o
 ./debug\node.o
 ./debug\nodeupdate.o
+./debug\regexhelper.o
 ./debug\sshconnection.o
+./debug\moc_testregexhelper.o
 ./debug\moc_testsshconnection.o
 ./debug\moc_communicator.o
 ./debug\moc_node.o
+./debug\moc_regexhelper.o
 ./debug\moc_sshconnection.o
 );

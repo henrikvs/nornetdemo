@@ -2,7 +2,7 @@
 #define REGEXWINDOW_H
 
 #include <QDialog>
-#include "textinterpreter.h"
+#include "regexhelper.h"
 namespace Ui {
 class RegexWindow;
 }
@@ -23,7 +23,7 @@ private slots:
 
 private:
     Ui::RegexWindow *ui;
-    TextInterpreter interp;
+    RegexHelper interp;
 };
 
 #endif // REGEXWINDOW_H

@@ -32,3 +32,12 @@ RESOURCES += \
 
 OTHER_FILES += \
     notes.txt
+
+FORMS += \
+    dnsform.ui
+
+HEADERS += \
+    dnsform.h
+
+SOURCES += \
+    dnsform.cpp

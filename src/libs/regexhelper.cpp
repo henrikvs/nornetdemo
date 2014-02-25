@@ -1,20 +1,19 @@
-#include "textinterpreter.h"
+#include "regexhelper.h"
 #include <QDebug>
-TextInterpreter::TextInterpreter()
+RegexHelper::RegexHelper()
 {
 }
 
-void TextInterpreter::addRegex(QString exp, QString id)
+void RegexHelper::addRegex(QString exp, QString id)
 {
     if (exp != "") {
         regs[id] = QRegExp(exp);
     }
 }
 
-void TextInterpreter::slotNewInput(QString input)
+void RegexHelper::slotNewInput(QString input)
 {
-    QHashIterator<QString, QRegExp> i(regs);
-
+    QMapIterator<QString, QRegExp> i(regs);
     while (i.hasNext()) {
         i.next();
         QRegExp rx = i.value();
@@ -22,7 +21,6 @@ void TextInterpreter::slotNewInput(QString input)
         while ((pos = rx.indexIn(input, pos)) != -1) {
             emit signalNewMatch(rx.capturedTexts(), i.key());
             pos += rx.matchedLength();
-            qDebug()<< pos;
         }
     }
 

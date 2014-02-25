@@ -1,14 +1,15 @@
 #ifndef TEXTINTERPRETER_H
 #define TEXTINTERPRETER_H
 
-#include <QHash>
+#include <QMap>
+#include <QMapIterator>
 #include <QRegExp>
 #include <QStringList>
-class TextInterpreter : public QObject
+class RegexHelper : public QObject
 {
     Q_OBJECT
 public:
-    TextInterpreter();
+    RegexHelper();
     void addRegex(QString exp, QString id);
 
 signals:
@@ -17,7 +18,7 @@ signals:
 public slots:
     void slotNewInput(QString input);
 private:
-    QHash<QString, QRegExp> regs;
+    QMap<QString, QRegExp> regs;
 };
 
 #endif // TEXTINTERPRETER_H
