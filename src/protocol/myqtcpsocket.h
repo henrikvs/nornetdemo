@@ -2,6 +2,7 @@
 #define MYQTCPSOCKET_H
 
 #include <QTcpSocket>
+#include "connectedinfo.h"
 
 class MyQTcpSocket : public QTcpSocket
 {
@@ -11,8 +12,10 @@ public:
     void addSize(int size);
     bool sizeRead();
     void resetSize();
+    ConnectedInfo getConnectedInfo();
 private:
     int size;
+    ConnectedInfo info;
 
 
 signals:

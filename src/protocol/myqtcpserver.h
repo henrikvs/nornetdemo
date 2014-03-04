@@ -1,17 +1,17 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QObject>
-#include "tcpconnection.h"
 
-class Server : public QTcpServer
+class MyQTcpServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    Server(QObject *parent = 0);
+    MyQTcpServer(QObject *parent = 0);
 
 signals:
+    void newConnection(qintptr socketDescriptor);
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);

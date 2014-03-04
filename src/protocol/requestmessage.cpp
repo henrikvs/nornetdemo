@@ -19,7 +19,7 @@ void RequestMessage::send(QTcpSocket &socket)
 bool RequestMessage::receive(QTcpSocket &socket)
 {
 
-    if (socket.bytesAvailable() < (int)sizeof(quint16)) {
+    if (socket.bytesAvailable() < SIZE_MSGSIZE) {
         return false;
     }
 

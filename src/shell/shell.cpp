@@ -1,8 +1,8 @@
 #include "shell.h"
 #include <QTextStream>
 #include <QString>
-
-Shell::Shell()
+#include <QDebug>
+Shell::Shell(QString terminate) : terminate(terminate)
 {
 
 }
@@ -14,5 +14,7 @@ void Shell::start()
     do {
         line = inStream.readLine();
         emit newOutput(line);
-    } while (line != "exit");
+    } while (line != terminate);
+    qDebug() << "Exiting shell";
+    emit shellClosing();
 }

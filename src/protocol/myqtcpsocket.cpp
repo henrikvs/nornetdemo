@@ -21,3 +21,8 @@ void MyQTcpSocket::resetSize()
 {
     size=-1;
 }
+
+ConnectedInfo MyQTcpSocket::getConnectedInfo()
+{
+    return info;
+}

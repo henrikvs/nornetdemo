@@ -5,6 +5,9 @@
 class RequestMessage
 {
 public:
+    static const int SIZE_MSGSIZE = (int)sizeof(quint16);
+    static const int SIZE_MSGTYPE = (int)sizeof(quint16);
+    enum { MSGTYPE_PING, MSGTYPE_COMMANDREQUEST};
     RequestMessage();
     void send(QTcpSocket &socket);
     bool receive(QTcpSocket &socket);
