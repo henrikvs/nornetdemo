@@ -14,26 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QGraphicsView" name="graphicsView">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>241</width>
-      <height>131</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEdit">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>30</y>
-      <width>201</width>
-      <height>61</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QHBoxLayout" name="horizontalLayout_2"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -41,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -50,6 +31,7 @@
     </property>
     <addaction name="actionSSL"/>
     <addaction name="actionRegex_test"/>
+    <addaction name="actionPing_test"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -70,6 +52,11 @@
   <action name="actionRegex_test">
    <property name="text">
     <string>Regex test</string>
+   </property>
+  </action>
+  <action name="actionPing_test">
+   <property name="text">
+    <string>Ping test</string>
    </property>
   </action>
  </widget>

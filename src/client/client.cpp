@@ -163,10 +163,13 @@ void Client::newStdIn(QString input)
         qDebug() <<interface.allAddresses();
         qDebug() << interface.allInterfaces();
     } else if (tokens[0] == "ping") {
-        protocol->sendPingRequest("192.168.1.1");
+        protocol->sendPingRequest(tokens[1]);
     } else if (tokens[0] == "nodeinfo") {
         qDebug() << "Sending node info";
         protocol->sendNodeInfo(QStringList() << "isp1" << "isp2", "12323");
+    } else if (tokens[0] == "getinfo") {
+        qDebug() << "Getting node info";
+        protocol->sendNodeInfoRequest();
     }
 
 }

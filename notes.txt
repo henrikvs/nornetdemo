@@ -1,5 +1,0 @@
-ssh user@host "/script/to/run < /dev/null > /tmp/mylogfile 2>&1 &" to close the program immediatily after giving the command
-
-ssh user@host command exit: to close the connection after getting the output of the command(s)
-
-interactiveopen: to keep an interactive shell open from within my program

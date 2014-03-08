@@ -2,16 +2,24 @@
 #define NODEINFOMESSAGE_H
 #include "abstractmessage.h"
 
+struct Interface
+{
+    QString interfaceName;
+    QStringList addresses;
+};
+
 struct NodeInfoMessageStruct
 {
-    QStringList ISPConnections;
+    QList<Interface> interfaces;
     QString listeningPort;
 };
 
+
 class NodeInfoMessage : public AbstractMessage
 {
+    Q_OBJECT
 public:
-    NodeInfoMessage();
+    NodeInfoMessage(QObject *parent = 0);
     void serialize(QByteArray *block);
     void read(MyQTcpSocket *socket);
     char getType();

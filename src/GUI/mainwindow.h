@@ -20,6 +20,8 @@ private slots:
 
     void on_actionRegex_test_triggered();
 
+    void on_actionPing_test_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

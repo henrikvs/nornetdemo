@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <QObject>
 #include "dialog.h"
-#include "ui_dialog.h"
+#include "ui_dialog.h" //test
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),

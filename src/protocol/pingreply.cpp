@@ -4,7 +4,7 @@ PingReply::PingReply()
 {
 }
 
-PingReply::PingReply(QString ms)
+PingReply::PingReply(QString ms, QObject *parent) : AbstractMessage(parent)
 {
     data.ms = ms;
 }

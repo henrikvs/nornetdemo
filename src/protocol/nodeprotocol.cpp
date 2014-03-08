@@ -4,6 +4,9 @@
 #include "abstractmessage.h"
 #include "messageheader.h"
 #include "nodeinfomessage.h"
+#include "nodeinforequest.h"
+#include "pingtask.h"
+#include "infotask.h"
 
 
 NodeProtocol::NodeProtocol(MyQTcpSocket *socket, QObject *parent) : QObject(parent), socket(socket), headerRead(false)
@@ -39,9 +42,12 @@ void NodeProtocol::newData()
             PingRequest message;
             message.read(socket);
             qDebug() << "Remote ip: " << message.data.remoteIp;
-            //QString ping =
-            PingReply reply("123");
-            sendMessage(reply);
+
+
+            PingTask *task = new PingTask(message.data.remoteIp);
+            connect(task, &PingTask::newPing, this, &NodeProtocol::sendMessage);
+            connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
+            task->start();
 
         } else if (type == MSGTYPE_PINGREPLY) {
             PingReply message;
@@ -54,11 +60,21 @@ void NodeProtocol::newData()
         } else if (type == MSGTYPE_COMMANDREPLY) {
             PingRequest message;
             message.read(socket);
+        } else if (type == MSGTYPE_NODEINFOREQUEST) {
+            PingRequest message;
+            message.read(socket);
+            InfoTask *task = new InfoTask(this);
+            connect(task, &InfoTask::newInfoMessage, this, &NodeProtocol::sendMessage);
+            connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
+            task->start();
+
         } else if (type == MSGTYPE_NODEINFO) {
             NodeInfoMessage message;
             message.read(socket);
-            qDebug() << "ISPs: " << message.data.ISPConnections;
-            qDebug() << "Port: " << message.data.listeningPort;
+            qDebug() << "Listening port: " << message.data.listeningPort;
+            foreach (Interface interface, message.data.interfaces) {
+                qDebug() << "Interface: " << interface.interfaceName << interface.addresses;
+            }
         }
     }
 
@@ -66,35 +82,41 @@ void NodeProtocol::newData()
 
 void NodeProtocol::sendPingReply(QString ms) {
     PingReply reply(ms);
-    sendMessage(reply);
+    sendMessage(&reply);
 }
 
 void NodeProtocol::sendPingRequest(QString remoteIp) {
     PingRequest message(remoteIp);
-    sendMessage(message);
+    sendMessage(&message);
 }
 
 void NodeProtocol::sendNodeInfo(QStringList isps, QString port) {
     NodeInfoMessage message;
-    message.data.ISPConnections = isps;
+    //message.data.ISPConnections = isps;
     message.data.listeningPort = port;
-    sendMessage(message);
+    sendMessage(&message);
 }
 
-void NodeProtocol::sendMessage(AbstractMessage &message)
+void NodeProtocol::sendNodeInfoRequest() {
+    NodeInfoRequest request;
+    sendMessage(&request);
+}
+
+void NodeProtocol::sendMessage(AbstractMessage *message)
 {
     QByteArray totalData;
     QByteArray messageData;
     MessageHeader header;
 
-    message.serialize(&messageData);
+    message->serialize(&messageData);
     header.data.size = messageData.size();
-    header.data.type = message.getType();
+    header.data.type = message->getType();
     header.serialize(&totalData);
     totalData.append(messageData);
-    qDebug() << "Total size: " << totalData.size();
+    qDebug() << "Sending Total size: " << totalData.size();
     socket->write(totalData);
 
 }
+
 
 

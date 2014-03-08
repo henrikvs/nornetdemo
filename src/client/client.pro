@@ -5,22 +5,23 @@
 #-------------------------------------------------
 
 QT       += core network
-
 QT       -= gui
 
 TARGET = client
-CONFIG   += console
+CONFIG   += console static
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
 include(../shell/shell.pri)
-include(../tasks/tasks/tasks.pro)
+include(../libs/libs.pri)
+include(../tasks/tasks.pri)
 include(../protocol/protocol.pri)
 include(../globals/globals.pri)
 
 INCLUDEPATH += ../shell/
 INCLUDEPATH += ../protocol/
+INCLUDEPATH += ../libs/
 INCLUDEPATH += ../globals/
 
 DEPENDPATH  += ../shell/
