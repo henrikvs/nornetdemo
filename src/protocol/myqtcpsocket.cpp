@@ -1,14 +1,34 @@
 #include "myqtcpsocket.h"
 
-MyQTcpSocket::MyQTcpSocket(QObject *parent) :
-    QTcpSocket(parent)
+MyQTcpSocket::MyQTcpSocket(QObject *parent) : QTcpSocket(parent)
 {
     size = -1;
+    protocol = NULL;
 }
 
 void MyQTcpSocket::addSize(int size)
 {
     this->size = size;
+}
+
+void MyQTcpSocket::setId(int id)
+{
+    this->id = id;
+}
+
+void MyQTcpSocket::setProtocol(NodeProtocol *protocol)
+{
+    this->protocol = protocol;
+}
+
+NodeProtocol *MyQTcpSocket::getNodeProtocol()
+{
+    return protocol;
+}
+
+int MyQTcpSocket::getId()
+{
+    return id;
 }
 
 bool MyQTcpSocket::sizeRead()

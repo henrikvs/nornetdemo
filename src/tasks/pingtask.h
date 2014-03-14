@@ -13,7 +13,7 @@ public:
     explicit PingTask(QString remoteHost, QObject *parent = 0);
     int taskNumber;
 signals:
-    void newPing(PingReply *message);
+    void newPing(PingReply &message);
     void newString(QString string);
     void finished();
 public slots:

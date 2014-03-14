@@ -2,34 +2,43 @@
 #include "myqtcpserver.h"
 #include <QNetworkInterface>
 #include <QCoreApplication>
+#include <QThread>
+#include <QSignalMapper>
 Client::Client(QObject *parent) :
     QObject(parent)
 {
     //connectToFrontEnd("127.0.0.1", 3333);
     //qRegisterMetaType<qintptr>("qintptr");
     server = new MyQTcpServer(this);
+    nextId = 0;
 }
 
 Client::~Client()
 {
+    /*
     qDebug() << "Destructing";
     foreach (MyQTcpSocket *socket, socketList) {
         socket->disconnectFromHost();
         socket->waitForDisconnected();
         socket->close();
         qDebug() << "Disconnected";
-    }
+    }*/
 }
 
 void Client::addConnection(QString ip, int port)
 {
     MyQTcpSocket *socket = new MyQTcpSocket(this);
-    protocol = new NodeProtocol(socket, this);
+    NodeProtocol *protocol = new NodeProtocol(socket, getNextId(), this);
+    protocol->setHostName(ip);
+    protocol->setPort(port);
+    socket->setProtocol(protocol);
     connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
+
     socket->connectToHost(ip, port);
 }
+
 
 void Client::connectToNode(QString ip, int port)
 {
@@ -96,19 +105,33 @@ void Client::stopListening()
 void Client::connected()
 {
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
-    socketList << socket;
+    NodeProtocol *protocol = socket->getNodeProtocol();
+    socketHash[protocol->getId()] = socket;
 
-    qDebug() << "connected";
+
+    qDebug() << "connected: " << protocol->getId();
 }
 
 void Client::newConnection(qintptr socketDescriptor)
 {
-    MyQTcpSocket *socket = new MyQTcpSocket(this);
-    protocol = new NodeProtocol(socket, this);
-    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    MyQTcpSocket *socket = new MyQTcpSocket;
+    int id = getNextId();
+    NodeProtocol *protocol = new NodeProtocol(socket, id);
+    //QThread *thread = new QThread(this);
     socket->setSocketDescriptor(socketDescriptor);
-    socketList << socket;
-    qDebug() << "New connection: " << socket->peerAddress().toString();
+    //socket->moveToThread(thread);
+    //protocol->moveToThread(thread);
+    //thread->start();
+    //connect(thread, SIGNAL(started()), protocol, SLOT());
+    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    socket->setProtocol(protocol);
+    socketHash[id] = socket;
+    qDebug() << "New connection: " << socket->peerAddress().toString() << ": " << protocol->getId();
+}
+
+int Client::getNextId() {
+    nextId++;
+    return nextId;
 }
 
 /*
@@ -136,6 +159,7 @@ void Client::newData()
 void Client::newStdIn(QString input)
 {
     QStringList tokens = input.split(QRegExp("\\s"));
+
     if (tokens[0] == "listen") {
         if (tokens.length() == 3) {
             startListening(tokens[1].toInt(), tokens[2].toInt());
@@ -149,26 +173,35 @@ void Client::newStdIn(QString input)
     } else if (tokens[0] == "connect") {
         addConnection(tokens[1], tokens[2].toInt());
         qDebug() << "Connecting to: " << tokens[1] << ":" << tokens[2];
-    } else if (tokens[0] == "send") {
-        if (socketList.size() > 0) {
-            socketList[0]->write(tokens[1].toLocal8Bit());
-            qDebug() << "Wrote: " << tokens[1];
-        } else {
-            qDebug() << "Not connected";
-        }
     } else if (tokens[0] == "stop" && tokens[1] == "listening") {
         server->close();
     } else if (tokens[0] == "list") {
         QNetworkInterface interface;
         qDebug() <<interface.allAddresses();
         qDebug() << interface.allInterfaces();
+        QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+        int i = 0;
+        foreach (QNetworkInterface interface, interfaces) {
+            Interface interfaceStruct;
+            qDebug() << QString("**Interface: %1 \n").arg(interface.humanReadableName());
+            QList<QNetworkAddressEntry> entries = interface.addressEntries();
+            foreach (QNetworkAddressEntry entry, entries) {
+
+                QHostAddress address = entry.ip();
+                 qDebug() << (QString("%1: Address: %2 \n").arg(QString::number(i), address.toString()));
+                 i++;
+            }
+        }
+
     } else if (tokens[0] == "ping") {
-        protocol->sendPingRequest(tokens[1]);
-    } else if (tokens[0] == "nodeinfo") {
-        qDebug() << "Sending node info";
-        protocol->sendNodeInfo(QStringList() << "isp1" << "isp2", "12323");
+        int socketId = tokens[1].toInt();
+        NodeProtocol *protocol = socketHash[socketId]->getNodeProtocol();
+        protocol->sendPingRequest(tokens[2]);
+
     } else if (tokens[0] == "getinfo") {
         qDebug() << "Getting node info";
+        int socketId = tokens[1].toInt();
+        NodeProtocol *protocol = socketHash[socketId]->getNodeProtocol();
         protocol->sendNodeInfoRequest();
     }
 
@@ -179,8 +212,20 @@ void Client::shutDown()
     qDebug() << "Shutting down";
 }
 
+void Client::newNodeInfo_slot(NodeInfoMessage message, int id)
+{
+    emit newNodeInfo_signal(message, id);
+}
+
+void Client::newPingReply_slot(PingReply message, int id)
+{
+    emit newPingReply_signal(message, id);
+}
+
 
 void Client::error(QAbstractSocket::SocketError error)
 {
-    qDebug() << "connection problem";
+    MyQTcpSocket *socket = (MyQTcpSocket*) sender();
+    NodeProtocol *protocol = socket->getNodeProtocol();
+    emit connectionError(protocol->getHostName(), protocol->getPort());
 }

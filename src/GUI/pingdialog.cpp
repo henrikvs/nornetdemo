@@ -25,7 +25,7 @@ void PingDialog::on_pingButton_clicked()
 
 }
 
-void PingDialog::pingReplySlot(AbstractMessage *reply)
+void PingDialog::pingReplySlot(const AbstractMessage &reply)
 {
     qDebug() << "new ping";
     //ui->pingOutputText->append(reply->data.ms);

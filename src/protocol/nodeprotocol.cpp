@@ -9,7 +9,7 @@
 #include "infotask.h"
 
 
-NodeProtocol::NodeProtocol(MyQTcpSocket *socket, QObject *parent) : QObject(parent), socket(socket), headerRead(false)
+NodeProtocol::NodeProtocol(MyQTcpSocket *socket, int id, QObject *parent) : QObject(parent), socket(socket), headerRead(false), id(id)
 {
 
 }
@@ -52,7 +52,7 @@ void NodeProtocol::newData()
         } else if (type == MSGTYPE_PINGREPLY) {
             PingReply message;
             message.read(socket);
-
+            emit newPingReply(message, getId());
             qDebug() << "Ping:" << message.data.ms;
         } else if (type == MSGTYPE_COMMANDREQUEST) {
             PingRequest message;
@@ -75,6 +75,7 @@ void NodeProtocol::newData()
             foreach (Interface interface, message.data.interfaces) {
                 qDebug() << "Interface: " << interface.interfaceName << interface.addresses;
             }
+            emit newNodeInfo(message, getId());
         }
     }
 
@@ -82,40 +83,65 @@ void NodeProtocol::newData()
 
 void NodeProtocol::sendPingReply(QString ms) {
     PingReply reply(ms);
-    sendMessage(&reply);
+    sendMessage(reply);
 }
 
 void NodeProtocol::sendPingRequest(QString remoteIp) {
     PingRequest message(remoteIp);
-    sendMessage(&message);
+    sendMessage(message);
 }
 
 void NodeProtocol::sendNodeInfo(QStringList isps, QString port) {
     NodeInfoMessage message;
     //message.data.ISPConnections = isps;
     message.data.listeningPort = port;
-    sendMessage(&message);
+    sendMessage(message);
 }
 
 void NodeProtocol::sendNodeInfoRequest() {
     NodeInfoRequest request;
-    sendMessage(&request);
+    sendMessage(request);
 }
 
-void NodeProtocol::sendMessage(AbstractMessage *message)
+void NodeProtocol::sendMessage(const AbstractMessage &message)
 {
     QByteArray totalData;
     QByteArray messageData;
     MessageHeader header;
 
-    message->serialize(&messageData);
+    message.serialize(&messageData);
     header.data.size = messageData.size();
-    header.data.type = message->getType();
+    header.data.type = message.getType();
     header.serialize(&totalData);
     totalData.append(messageData);
     qDebug() << "Sending Total size: " << totalData.size();
     socket->write(totalData);
 
+}
+
+int NodeProtocol::getId()
+{
+    return id;
+}
+
+void NodeProtocol::setHostName(QString name)
+{
+    this->hostName = name;
+}
+
+void NodeProtocol::setPort(int port)
+{
+    this->port = port;
+}
+
+QString NodeProtocol::getHostName()
+{
+    return hostName;
+}
+
+int NodeProtocol::getPort()
+{
+    return port;
 }
 
 

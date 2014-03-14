@@ -9,6 +9,8 @@
 #include "myqtcpserver.h"
 #include "flexiserver.h"
 #include "nodeprotocol.h"
+#include "pingreply.h"
+#include "nodeinfomessage.h"
 
 class Client : public QObject
 {
@@ -25,11 +27,18 @@ public:
     void stopListening();
 private:
     void connectToFrontEnd(QString ip, int port);
-    QList<MyQTcpSocket*> socketList;
+    QHash<int, MyQTcpSocket*> socketHash;
     MyQTcpServer *server;
-    NodeProtocol *protocol;
+    int nextId;
+    int getNextId();
 
 signals:
+    //void newNode_signal(Node node, int node);
+    //void newPing_signal(Node node, ms);
+    //void newReport_signal(Node node);
+    void newPingReply_signal(PingReply message, int id);
+    void newNodeInfo_signal(NodeInfoMessage message, int id);
+    void connectionError(QString hostName, int port);
 
 public slots:
     void connected();
@@ -40,6 +49,8 @@ public slots:
     void error(QAbstractSocket::SocketError error);
     void newStdIn(QString input);
     void shutDown();
+    void newPingReply_slot(PingReply message, int id);
+    void newNodeInfo_slot(NodeInfoMessage message, int id);
 
 };
 

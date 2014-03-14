@@ -3,13 +3,14 @@
 #include "ui_mainwindow.h"
 #include "dialog.h"
 #include "pingdialog.h"
+#include "frontend.h"
+#include "slicemanager.h"
 
 #include <QDebug>
 #include <string>
 #include <iostream>
 #include <stdio.h>
 
-#include <QQuickView>
 #include <QWidget>
 #include <QMap>
 #include <QVBoxLayout>
@@ -32,13 +33,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    FrontEnd *frontEnd = new FrontEnd();
 
+
+/*
     QQuickView *view = new QQuickView();
     //QDeclarativeView *view = new QDeclarativeView;
     QVBoxLayout *layout = new QVBoxLayout(this);
     QWidget *widget = QWidget::createWindowContainer(view, this);
     this->setCentralWidget(widget);
     view->setSource(QUrl("qrc:/images/map.qml"));
+*/
     //layout->addWidget(widget);
     //this->setLayout(layout);
     //container->setFocusPolicy(Qt::TabFocus);

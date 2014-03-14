@@ -10,7 +10,7 @@ MessageHeader::MessageHeader(int size, int type, int seqNum)
     data.type = type;
 }
 
-void MessageHeader::serialize(QByteArray *block)
+void MessageHeader::serialize(QByteArray *block) const
 {
     QDataStream out(block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
@@ -25,7 +25,7 @@ void MessageHeader::read(MyQTcpSocket *socket)
     in >> data.size >> data.type >> data.seqNum;
 }
 
-char MessageHeader::getType()
+char MessageHeader::getType() const
 {
     return 0;
 }

@@ -10,7 +10,7 @@ struct PingRequestStruct
     QString localIp;
 };
 
-class PingRequest : public AbstractMessage
+class PingRequest :public AbstractMessage
 {
 public:
     PingRequest();
@@ -19,9 +19,9 @@ public:
     //void read(MyQTcpSocket *socket);
     PingRequestStruct data;
 
-    void serialize(QByteArray *block);
+    void serialize(QByteArray *block)  const;
     void read(MyQTcpSocket *socket);
-    char getType();
+    char getType() const;
 };
 
 #endif // PINGREQUEST_H

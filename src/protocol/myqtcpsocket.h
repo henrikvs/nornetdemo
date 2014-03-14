@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include "connectedinfo.h"
+class NodeProtocol;
 
 class MyQTcpSocket : public QTcpSocket
 {
@@ -10,12 +11,18 @@ class MyQTcpSocket : public QTcpSocket
 public:
     explicit MyQTcpSocket(QObject *parent = 0);
     void addSize(int size);
+    void setId(int id);
+    void setProtocol(NodeProtocol *protocol);
+    NodeProtocol* getNodeProtocol();
+    int getId();
     bool sizeRead();
     void resetSize();
     ConnectedInfo getConnectedInfo();
 private:
     int size;
     ConnectedInfo info;
+    int id;
+    NodeProtocol *protocol;
 
 
 signals:

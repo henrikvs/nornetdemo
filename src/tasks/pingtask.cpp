@@ -32,6 +32,6 @@ void PingTask::newOutput()
 
 void PingTask::newMatch(QStringList values, QString id)
 {
-    PingReply *reply = new PingReply(values[1], this);
+    PingReply reply(values[1]);
     emit newPing(reply);
 }

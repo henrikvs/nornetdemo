@@ -9,7 +9,7 @@ PingRequest::PingRequest(QString remoteIp)
     data.remoteIp = remoteIp;
 }
 
-void PingRequest::serialize(QByteArray *block)
+void PingRequest::serialize(QByteArray *block) const
 {
     QDataStream out(block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
@@ -24,6 +24,6 @@ void PingRequest::read(MyQTcpSocket *socket)
 
 }
 
-char PingRequest::getType() {
+char PingRequest::getType() const {
     return NodeProtocol::MSGTYPE_PINGREQUEST;
 }

@@ -10,17 +10,16 @@ struct PingReplyStruct
 
 class PingReply : public AbstractMessage
 {
-    Q_OBJECT
 public:
     PingReply();
-    PingReply(QString ms, QObject *parent = 0);
+    PingReply(QString ms);
     //void read(MyQTcpSocket *socket);
     //void serialize(QByteArray *block);
     PingReplyStruct data;
 
-    void serialize(QByteArray *block);
+    void serialize(QByteArray *block)  const;
     void read(MyQTcpSocket *socket);
-    char getType();
+    char getType() const;
 };
 
 #endif // PINGREPLY_H

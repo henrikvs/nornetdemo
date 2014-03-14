@@ -13,25 +13,25 @@ QDataStream &operator>>(QDataStream &in, Interface &interface)
     return in;
 }
 
-NodeInfoMessage::NodeInfoMessage(QObject *parent) : AbstractMessage(parent)
+NodeInfoMessage::NodeInfoMessage()
 {
 }
 
-void NodeInfoMessage::serialize(QByteArray *block)
+void NodeInfoMessage::serialize(QByteArray *block)  const
 {
     QDataStream out(block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
-    out << data.interfaces << data.listeningPort;
+    out << data.interfaces << data.listeningPort << data.sliceName << data.lat << data.lng;
 }
 
 void NodeInfoMessage::read(MyQTcpSocket *socket)
 {
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_5_0);
-    in >> data.interfaces >> data.listeningPort;
+    in >> data.interfaces >> data.listeningPort >> data.sliceName >> data.lat >> data.lng;
 }
 
-char NodeInfoMessage::getType()
+char NodeInfoMessage::getType() const
 {
     return NodeProtocol::MSGTYPE_NODEINFO;
 }

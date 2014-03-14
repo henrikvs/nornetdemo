@@ -12,17 +12,20 @@ struct NodeInfoMessageStruct
 {
     QList<Interface> interfaces;
     QString listeningPort;
+    QString sliceName;
+    QString lat;
+    QString lng;
+
 };
 
 
 class NodeInfoMessage : public AbstractMessage
 {
-    Q_OBJECT
 public:
-    NodeInfoMessage(QObject *parent = 0);
-    void serialize(QByteArray *block);
+    NodeInfoMessage();
+    void serialize(QByteArray *block)  const;
     void read(MyQTcpSocket *socket);
-    char getType();
+    char getType() const;
     NodeInfoMessageStruct data;
 };
 

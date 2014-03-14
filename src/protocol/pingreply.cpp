@@ -4,7 +4,7 @@ PingReply::PingReply()
 {
 }
 
-PingReply::PingReply(QString ms, QObject *parent) : AbstractMessage(parent)
+PingReply::PingReply(QString ms)
 {
     data.ms = ms;
 }
@@ -16,13 +16,13 @@ void PingReply::read(MyQTcpSocket *socket)
     in >> data.ms;
 }
 
-void PingReply::serialize(QByteArray *block)
+void PingReply::serialize(QByteArray *block) const
 {
     QDataStream out(block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_0);
     out << data.ms;
 }
 
-char PingReply::getType() {
+char PingReply::getType() const {
     return NodeProtocol::MSGTYPE_PINGREPLY;
 }

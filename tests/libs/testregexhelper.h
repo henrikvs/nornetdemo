@@ -27,6 +27,10 @@ private slots:
     void testMultipleRegex();
     void testMultipleResults();
     void testDigOutput();
+    void testStatic1();
+    void testStatic2();
+    void testStaticNoRes();
+    void testStaticNoRes2();
     void cleanupTestCase();
 private:
     void testRegex(RegexHelper &regexHelper, QString text, QList<QStringList> expectedResults);

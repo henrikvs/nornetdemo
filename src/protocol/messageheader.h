@@ -16,9 +16,9 @@ public:
     static const int SIZE = sizeof(quint16) + sizeof(quint8) + sizeof(quint32); //Remember to update this
     MessageHeader();
     MessageHeader(int size, int type, int seqNum);
-    void serialize(QByteArray *block);
+    void serialize(QByteArray *block) const;
     void read(MyQTcpSocket *socket);
-    char getType();
+    char getType() const;
     MessageHeaderStruct data;
 };
 

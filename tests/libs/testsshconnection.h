@@ -1,8 +1,8 @@
 #ifndef TESTSSHCONNECTION_H
 #define TESTSSHCONNECTION_H
 
+#include "sshconnection.h"
 #include "AutoTest.h"
-#include "SSHConnection.h"
 
 class TestSSHConnection : public QObject
 {
@@ -12,7 +12,7 @@ private slots:
     void test1();
     void cleanupTestCase();
 private:
-    SSHConnection connection;
+    //SSHConnection connection;
 };
 
 DECLARE_TEST(TestSSHConnection)

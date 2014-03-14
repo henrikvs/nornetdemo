@@ -17,7 +17,7 @@ public:
 
 private slots:
     void on_pingButton_clicked();
-    void pingReplySlot(AbstractMessage *reply);
+    void pingReplySlot(const AbstractMessage &reply);
 
 private:
     Ui::PingDialog *ui;

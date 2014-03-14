@@ -4,8 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network location quick
-
+QT       += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = prototype
@@ -15,7 +14,9 @@ include(src/libs/libs.pri)
 include(src/tasks/tasks.pri)
 include(src/GUI/GUI.pri)
 include(src/shell/shell.pri)
+include(src/frontend/frontend.pri)
 include(src/protocol/protocol.pri)
+include(src/client/client.pri)
 
 
 

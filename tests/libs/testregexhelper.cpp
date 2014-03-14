@@ -57,6 +57,46 @@ void TestRegexHelper::testDigOutput()
 
 }
 
+void TestRegexHelper::testStatic1()
+{
+    QString expectedN = "63 25 4.800";
+    QString expectedE = "10 24 5.760";
+    QString text = "bymarka.uninett.ntnu.nornet. 86400 IN   LOC     63 25 4.800 N 10 24 5.760 E 50.00m 5m 20m 20m";
+    QStringList res = RegexHelper::getFirstGroup(text, "LOC\\s*(\\d.*)\\s+N\\s*(\\d.*)\\s+E");
+
+    qDebug() << "lenght: " << res.size();
+
+    QCOMPARE(res[1], expectedN);
+    QCOMPARE(res[2], expectedE);
+}
+
+void TestRegexHelper::testStatic2()
+{
+    QString expected = "srl-nndemo.kongsbakken.uninett.uit.nornet";
+    QString text = " global options: +cmd 148.4.1.10.in-addr.arpa. 86400  IN      PTR     srl-nndemo.kongsbakken.uninett.uit.nornet.";
+
+
+    QString res = RegexHelper::getFirst(text, "PTR\\s*(\\S*)\\.");
+    QCOMPARE(res, expected);
+}
+
+void TestRegexHelper::testStaticNoRes()
+{
+    QString expected = "";
+    QString text = "this is a text";
+    QString res = RegexHelper::getFirst(text, "(something)");
+    QCOMPARE(res, expected);
+}
+
+void TestRegexHelper::testStaticNoRes2()
+{
+    int expected = 0;
+    QString text = "this is a text";
+    QStringList resText = RegexHelper::getFirstGroup(text, "(any).*(thing).*(here).*");
+    int res = resText.size();
+    QCOMPARE(res, expected);
+}
+
 
 
 void TestRegexHelper::cleanupTestCase()

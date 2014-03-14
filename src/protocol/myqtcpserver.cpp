@@ -1,6 +1,6 @@
 #include "myqtcpserver.h"
 #include <QDebug>
-MyQTcpServer::MyQTcpServer(QObject *parent) : QTcpServer(parent)
+MyQTcpServer::MyQTcpServer(QObject *parent): QTcpServer(parent)
 {
 
 }

@@ -5,6 +5,8 @@
 #include "myqtcpsocket.h"
 #include "abstractmessage.h"
 #include "messageheader.h"
+#include "pingreply.h"
+#include "nodeinfomessage.h"
 #include <QtEndian>
 
 class NodeProtocol : public QObject
@@ -23,16 +25,28 @@ public:
     void sendNodeInfoRequest();
 
 
-    explicit NodeProtocol(MyQTcpSocket *socket, QObject *parent = 0);
+    explicit NodeProtocol(MyQTcpSocket *socket, int id, QObject *parent = 0);
+
+    int getId();
+
+    void setHostName(QString name);
+    void setPort(int port);
+
+    QString getHostName();
+    int getPort();
 signals:
-    //void signalNewRequest(RequestMessage &request);
+    void newPingReply(PingReply message, int id);
+    void newNodeInfo(NodeInfoMessage message, int id);
 public slots:
     void newData();
-    void sendMessage(AbstractMessage *message);
+    void sendMessage(const AbstractMessage &message);
 private:
     MyQTcpSocket *socket;
     MessageHeader header;
     bool headerRead;
+    int id;
+    QString hostName;
+    int port;
 
 };
 

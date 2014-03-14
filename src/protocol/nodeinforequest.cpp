@@ -1,10 +1,10 @@
 #include "nodeinforequest.h"
 #include "nodeprotocol.h"
-NodeInfoRequest::NodeInfoRequest(QObject *parent) : AbstractMessage(parent)
+NodeInfoRequest::NodeInfoRequest()
 {
 }
 
-void NodeInfoRequest::serialize(QByteArray *block)
+void NodeInfoRequest::serialize(QByteArray *block)  const
 {
 
 }
@@ -14,7 +14,7 @@ void NodeInfoRequest::read(MyQTcpSocket *socket)
 
 }
 
-char NodeInfoRequest::getType()
+char NodeInfoRequest::getType() const
 {
 return NodeProtocol::MSGTYPE_NODEINFOREQUEST;
 }

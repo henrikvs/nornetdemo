@@ -2,14 +2,13 @@
 #define NODEINFOREQUEST_H
 #include "abstractmessage.h"
 
-class NodeInfoRequest: public AbstractMessage
+class NodeInfoRequest : public AbstractMessage
 {
-    Q_OBJECT
 public:
-    NodeInfoRequest(QObject *parent = 0);
-    void serialize(QByteArray *block);
+    NodeInfoRequest();
+    void serialize(QByteArray *block)  const;
     void read(MyQTcpSocket *socket);
-    char getType();
+    char getType() const;
 };
 
 #endif // NODEINFOREQUEST_H

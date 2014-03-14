@@ -3,14 +3,13 @@
 
 #include <QByteArray>
 #include "myqtcpsocket.h"
-class AbstractMessage : public QObject
+class AbstractMessage
 {
-    Q_OBJECT
 public:
-    AbstractMessage(QObject *parent = 0);
-    virtual void serialize(QByteArray *block) = 0;
-    virtual void read(MyQTcpSocket *socket) = 0;
-    virtual char getType() = 0;
+    AbstractMessage();
+    virtual void serialize(QByteArray *block) const {};
+    virtual void read(MyQTcpSocket *socket) {};
+    virtual char getType() const { return 0;};
 };
 
 #endif // ABSTRACTMESSAGE_H
