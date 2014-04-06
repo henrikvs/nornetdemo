@@ -1,0 +1,8 @@
+*.pro.user*
+moc_*
+*.o
+build*/
+*.autosave
+release*/
+debug*/
+*~

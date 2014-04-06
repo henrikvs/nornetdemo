@@ -55,7 +55,7 @@ void InfoTask::newReverseDnsOutput()
     revDnsResult += revDnsProcess.readAll();
 }
 
-void InfoTask::revDnsFinished(int retvalue)
+void InfoTask::revDnsFinished(int)
 {
     if (!revDnsProcess.atEnd()) {
         revDnsProcess.close();
@@ -70,6 +70,8 @@ void InfoTask::revDnsFinished(int retvalue)
         connect(&dnsProcess, SIGNAL(finished(int)), this, SLOT(dnsFinished(int)));
     } else {
         qDebug()<< "Failed to do reverse lookup";
+        emit newInfoMessage(message);
+        emit finished();
     }
 }
 

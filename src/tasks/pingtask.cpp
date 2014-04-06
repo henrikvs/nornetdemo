@@ -9,7 +9,7 @@ PingTask::PingTask(QString remoteHost, QObject *parent) :
 
 void PingTask::start()
 {
-    process.start("ping", QStringList() << remoteHost);
+    process.start("sudo ping", QStringList() << remoteHost);
     connect(&process, SIGNAL(readyRead()), this, SLOT(newOutput()));
     connect(&process, SIGNAL(finished(int)), this, SLOT(processFinished(int)));
     connect(this, SIGNAL(newString(QString)), &regex, SLOT(slotNewInput(QString)));

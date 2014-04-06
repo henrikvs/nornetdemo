@@ -2,5 +2,6 @@
     <qresource prefix="/images">
         <file>europe.jpg</file>
         <file>map.qml</file>
+        <file>install.sh</file>
     </qresource>
 </RCC>
