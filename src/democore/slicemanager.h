@@ -8,8 +8,8 @@ class SliceManager
 {
 public:
     SliceManager();
-    QList<Sliver> getSlivers();
-
+    QList<Sliver*> getSlivers();
+    QList<Sliver*> slivers;
 };
 
 #endif // SLICEMANAGER_H

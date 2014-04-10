@@ -8,24 +8,14 @@ QT       += core network
 QT       -= gui
 
 TARGET = demoshell
-CONFIG   += console static
+CONFIG   += console c++11
 CONFIG   -= app_bundle
-QMAKE_CXXFLAGS += -std=c++11
+#QMAKE_CXXFLAGS += -std=c++11
 
 TEMPLATE = app
 
-include(../shell/shell.pri)
 include(../libs/libs.pri)
-include(../tasks/tasks.pri)
-include(../network/network.pri)
-include(../globals/globals.pri)
 include (../democore/democore.pri)
-
-INCLUDEPATH += ../democore/
-INCLUDEPATH += ../shell/
-INCLUDEPATH += ../protocol/
-INCLUDEPATH += ../libs/
-INCLUDEPATH += ../globals/
 
 HEADERS += $$files($$PWD/*.h)
 

@@ -53,8 +53,8 @@ void DemoShell::newStdIn(QString input)
         core->startListening6(tokens[1].toInt());
 
     } else if (tokens[0] == "connect") {
-        core->addSliverConnection(tokens[1], tokens[2].toInt());
-        qDebug() << "Connecting to: " << tokens[1] << ":" << tokens[2];
+        core->addSliverConnection(tokens[1], tokens[2].toInt(),tokens[3]);
+        qDebug() << "Connecting to: " << tokens[1] << ":" << tokens[2] << "name:" << tokens[3];
     /*} else if (tokens[0] == "stop" && tokens[1] == "listening") {
         qDebug() << "stopping listening";
         serverList[tokens[2].toInt()]->close();*/
@@ -80,10 +80,7 @@ void DemoShell::newStdIn(QString input)
         }
 
     } else if (tokens[0] == "ping") {
-        int socketId = tokens[1].toInt();
-
-        AbstractProtocol *protocol = core->getSocket(socketId)->getProtocol();
-        protocol->sendPingRequest(tokens[2]);
+        core->pingHost(tokens[1], tokens[2]);
 
     } else if (tokens[0] == "getinfo") {
         qDebug() << "Getting node info";

@@ -1,7 +1,5 @@
-HEADERS += $$files($$PWD/*.h)
-SOURCES += $$files($$PWD/*.cpp)
+INCLUDEPATH += $$PWD
 
-INCLUDEPATH += src/libs/
-INCLUDEPATH += src/tasks/
-INCLUDEPATH += src/network/ src/network/messages/ src/network/protocols
-INCLUDEPATH += src/client/
+HEADERS += $$files($$PWD/*.h)
+
+SOURCES += $$files($$PWD/*.cpp)

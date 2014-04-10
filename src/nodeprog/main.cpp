@@ -24,15 +24,15 @@ int main(int argc, char *argv[])
     }
     qDebug() << argc;
     nodeprog.startListening6(port.toInt());
-    Shell shell;
-    QThread thread;
-    shell.moveToThread(&thread);
-    QObject::connect(&thread, SIGNAL(started()), &shell, SLOT(start()));
-    QObject::connect(&shell, SIGNAL(newOutput(QString)), &nodeprog, SLOT(newStdIn(QString)), Qt::QueuedConnection);
+    //Shell shell;
+    //QThread thread;
+    //shell.moveToThread(&thread);
+    //QObject::connect(&thread, SIGNAL(started()), &shell, SLOT(start()));
+    //QObject::connect(&shell, SIGNAL(newOutput(QString)), &nodeprog, SLOT(newStdIn(QString)), Qt::QueuedConnection);
 
-    QObject::connect(&shell, SIGNAL(shellClosing()), &thread, SLOT(quit()));
-    QObject::connect(&thread, SIGNAL(finished()), &nodeprog, SLOT(shutDown()));
-    thread.start();
+    //QObject::connect(&shell, SIGNAL(shellClosing()), &thread, SLOT(quit()));
+    //QObject::connect(&thread, SIGNAL(finished()), &nodeprog, SLOT(shutDown()));
+    //thread.start();
     qDebug()<< "Started";
     return a.exec();
 }

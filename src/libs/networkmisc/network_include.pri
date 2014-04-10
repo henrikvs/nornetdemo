@@ -1,0 +1,1 @@
+INCLUDEPATH += $$PWD $$PWD/message $$PWD/protocols

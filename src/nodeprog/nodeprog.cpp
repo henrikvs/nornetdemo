@@ -9,7 +9,7 @@ NodeProg::NodeProg()
 AbstractProtocol *NodeProg::createProtocol(int type, MyQTcpSocket *socket)
 {
     if (type == CONNECTION_TYPE_DEMO) {
-        NodeProtocol *protocol = new NodeProtocol(getNextId(), this);
+        NodeProtocol *protocol = new NodeProtocol(this);
         protocol->setSocket(socket);
         connect(protocol, SIGNAL(exitProgram(int)), this, SLOT(shutDown(int)));
         return protocol;

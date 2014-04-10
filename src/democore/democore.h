@@ -9,34 +9,37 @@
 #include "abstractprotocol.h"
 #include "demoprotocol.h"
 #include "sliver.h"
+
 class DemoCore : public NetworkEntity
 {
     Q_OBJECT
 public:
     DemoCore();
     void connectToSlivers();
-    void installProgram(Sliver sliver);
-    void addSliverConnection(Sliver sliver);
-    void addSliverConnection(QString ip, int port);
+    void installProgram(Sliver *sliver);
+    void addSliverConnection(Sliver *sliver);
+    void addSliverConnection(QString ip, int port, QString name);
     void start();
     void shutDownNodes();
-    void setIpAddress(Sliver sliver);
+    void getIpAddress(Sliver *sliver);
+    void pingHost(QString sliverName, QString host);
 private:
     SliceManager sliceManager;
-    QHash<QString, Sliver> sliverHash;
-    QHash<int, DemoProtocol*> protocolHash;
-    Sliver getSliver(int socketId);
-    void setSliver(Sliver sliver, int id);
+    QHash<QString, Sliver*> sliverHash;
+    QHash<QString, DemoProtocol*> protocolHash;
+    Sliver* getSliver(QString name);
+    Sliver *getSliver(MyQTcpSocket *socket);
 protected:
     virtual AbstractProtocol *createProtocol(int type, MyQTcpSocket *socket);
 private slots:
-    void sliverConnected();
+    virtual void connected();
     virtual void connectionError(QAbstractSocket::SocketError error);
+    void handleSSHDisconnect();
 public slots:
     virtual bool newStdIn(QString input);
-    void pingReplySlot(PingReply message, int id);
-    void nodeInfoSlot(NodeInfoMessage message, int id);
-    void handleNodeUpdating(int nodeId);
+    void handleNodeUpdating(MyQTcpSocket *socket);
+    void handleNewPingReply(PingReply message, MyQTcpSocket *socket);
+    void handleNewNodeInfo(NodeInfoMessage message, MyQTcpSocket *socket);
 signals:
     void newStatusMessage(Sliver sliver, NodeInfoMessage message);
     void newPingReply(Sliver sliver, PingReply message);

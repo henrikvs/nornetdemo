@@ -4,18 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-TARGET = nornetdemo
-TEMPLATE = app
-
-include(src/libs/libs.pri)
-include(src/tasks/tasks.pri)
-include(src/demogui/demogui.pri)
-include(src/shell/shell.pri)
-include(src/democore/democore.pri)
-include(src/network/network.pri)
+CONFIG += ordered
+TEMPLATE = subdirs
+SUBDIRS = src
+test = 5
 #include(src/nodeprog/nodeprog.pri)
 
 
