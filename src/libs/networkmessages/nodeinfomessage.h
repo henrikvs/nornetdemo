@@ -2,7 +2,7 @@
 #define NODEINFOMESSAGE_H
 #include "abstractmessage.h"
 
-struct Interface
+struct NetworkInterface
 {
     QString interfaceName;
     QStringList addresses;
@@ -10,9 +10,8 @@ struct Interface
 
 struct NodeInfoMessageStruct
 {
-    QList<Interface> interfaces;
+    QList<NetworkInterface> interfaces;
     QString listeningPort;
-    QString sliceName;
     QString lat;
     QString lng;
 

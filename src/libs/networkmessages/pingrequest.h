@@ -5,6 +5,9 @@
 
 struct PingRequestStruct
 {
+    int sessionId;
+    QString seconds;
+    QString interval;
     QString ipv;
     QString remoteIp;
     QString localIp;
@@ -14,7 +17,7 @@ class PingRequest :public AbstractMessage
 {
 public:
     PingRequest();
-    PingRequest(QString remoteIp);
+    PingRequest(int sessionId, QString remoteIp, QString localIp);
     //void serialize(QByteArray *block);
     //void read(MyQTcpSocket *socket);
     PingRequestStruct data;

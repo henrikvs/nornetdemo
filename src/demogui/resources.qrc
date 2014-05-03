@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.js</file>
+        <file>index.html</file>
+        <file>marker.png</file>
+        <file>node.png</file>
+        <file>arrow.svg</file>
+        <file>ipv6.png</file>
+        <file>ipv4.png</file>
+        <file>markerlight.js</file>
+        <file>leaflet-src.js</file>
+    </qresource>
+</RCC>

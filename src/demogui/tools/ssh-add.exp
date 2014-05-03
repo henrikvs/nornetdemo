@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+set keypath [lindex $argv 0]
+set password [lindex $argv 1]
+
+spawn ssh-add $keypath
+expect "Enter passphrase"
+send $password\n
+interact

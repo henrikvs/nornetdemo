@@ -5,7 +5,8 @@ ConnectionInfo::ConnectionInfo()
 
 }
 
-ConnectionInfo::ConnectionInfo(QString address, int port, bool ipv4, QString name) : address(address), port(port), ipv4(ipv4), name(name)
+ConnectionInfo::ConnectionInfo(QString address, int port, bool ipv4, int type, QString hostname, QString username) :
+    address(address), port(port), ipv4(ipv4), hostname(hostname), type(type), username(username)
 {
 
 
@@ -41,7 +42,22 @@ int ConnectionInfo::getPort()
     return port;
 }
 
-QString ConnectionInfo::getName()
+QString ConnectionInfo::getHostName()
 {
-    return name;
+    return hostname;
+}
+
+QString ConnectionInfo::getUsername()
+{
+    return username;
+}
+
+int ConnectionInfo::getType()
+{
+    return type;
+}
+
+void ConnectionInfo::setType(int type)
+{
+    this->type = type;
 }

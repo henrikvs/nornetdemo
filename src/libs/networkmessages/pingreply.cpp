@@ -4,23 +4,26 @@ PingReply::PingReply()
 {
 }
 
-PingReply::PingReply(QString ms)
+PingReply::PingReply(QString ms, QString localIp, QString remoteHost, int sessionId)
 {
     data.ms = ms;
+    data.localIp = localIp;
+    data.remoteHost = remoteHost;
+    data.sessionId = sessionId;
 }
 
 void PingReply::read(MyQTcpSocket *socket)
 {
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_5_0);
-    in >> data.ms;
+    in >> data.ms >> data.localIp >> data.remoteHost >> data.sessionId;
 }
 
 void PingReply::serialize(QByteArray *block) const
 {
-    QDataStream out(block, QIODevice::WriteOnly);
+    QDataStream out(block, QIODevice::Append);
     out.setVersion(QDataStream::Qt_5_0);
-    out << data.ms;
+    out << data.ms << data.localIp << data.remoteHost << data.sessionId;
 }
 
 char PingReply::getType() const {

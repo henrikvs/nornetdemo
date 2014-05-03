@@ -11,12 +11,16 @@
 
 AbstractProtocol::AbstractProtocol(QObject *parent) : QObject(parent), headerRead(false)
 {
-
+    isRelay = false;
+    active = true;
 }
 
 
 void AbstractProtocol::newData()
 {
+    if (!active) {
+        return;
+    }
     while (1) {
 
 
@@ -26,35 +30,29 @@ void AbstractProtocol::newData()
                 return;
             } else {
                 header.read(socket);
-
+                headerRead = true;
                 qDebug() << "size: " << header.data.size;
                 qDebug() << "Type: " << header.data.type;
             }
         }
 
+
         if (socket->bytesAvailable() < header.data.size) {
-            headerRead = true;
             return;
-        } else {
-            headerRead = false;
         }
+
+        headerRead = false;
         int type = header.data.type;
-
-
         handleMessage(type);
     }
 
 }
-
+/*
 void AbstractProtocol::sendPingReply(QString ms) {
     PingReply reply(ms);
     sendMessage(reply);
-}
+}*/
 
-void AbstractProtocol::sendPingRequest(QString remoteIp) {
-    PingRequest message(remoteIp);
-    sendMessage(message);
-}
 
 void AbstractProtocol::sendNodeInfo(QStringList isps, QString port) {
     NodeInfoMessage message;
@@ -74,9 +72,12 @@ void AbstractProtocol::sendMessage(const AbstractMessage &message)
     QByteArray messageData;
     MessageHeader header;
 
+    static int nextSeq = 0;
+    nextSeq++;
     message.serialize(&messageData);
     header.data.size = messageData.size();
     header.data.type = message.getType();
+    header.data.seqNum = nextSeq;
     header.serialize(&totalData);
     totalData.append(messageData);
     qDebug() << "Sending Total size 2: " << totalData.size();
@@ -88,7 +89,16 @@ void AbstractProtocol::sendMessage(const AbstractMessage &message)
         qDebug() << socket->errorString();
     }
     socket->flush();
+}
 
+void AbstractProtocol::setName(QString name)
+{
+    this->name = name;
+}
+
+QString AbstractProtocol::getName()
+{
+    return name;
 }
 
 void AbstractProtocol::setSocket(MyQTcpSocket *socket)

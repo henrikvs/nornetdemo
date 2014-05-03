@@ -1,7 +1,7 @@
 #include "abstracttask.h"
 #include <QDebug>
 
-AbstractTask::AbstractTask(QObject *parent) : QObject(parent)
+AbstractTask::AbstractTask(int taskId, QObject *parent) : QObject(parent), taskId(taskId)
 {
 
 }

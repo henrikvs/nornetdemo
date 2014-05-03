@@ -3,7 +3,6 @@
 
 #include <QTcpSocket>
 #include "connectedinfo.h"
-#include "sliver.h"
 class AbstractProtocol;
 
 class MyQTcpSocket : public QTcpSocket
@@ -20,12 +19,13 @@ public:
     int getId();
     bool sizeRead();
     void resetSize();
+    bool isRelay;
 private:
     int size;
     ConnectionInfo info;
     int id;
     AbstractProtocol *protocol;
-    Sliver *sliver;
+
 
 
 signals:

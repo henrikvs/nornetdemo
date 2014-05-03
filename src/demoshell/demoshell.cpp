@@ -1,6 +1,9 @@
 #include "demoshell.h"
 #include "shell.h"
 #include "democore.h"
+#include "transferrequestmessage.h"
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 #include <QNetworkInterface>
 DemoShell::DemoShell(DemoCore *core, QObject *parent) :
     QObject(parent), core(core)
@@ -21,6 +24,7 @@ void DemoShell::run()
     connect(core, SIGNAL(newStatusMessage(Sliver,NodeInfoMessage)), this, SLOT(handleStatusMessage(Sliver,NodeInfoMessage)));
 
     thread.start();
+    core->enableRelay("toki.dlinkddns.com", 33555);
     core->start();
     //core.connectToSlivers();
 }
@@ -41,6 +45,7 @@ void DemoShell::handlePingReply(Sliver sliver, PingReply message)
 
 void DemoShell::newStdIn(QString input)
 {
+    QCommandLineParser parser;
     QStringList tokens = input.split(QRegExp("\\s"));
     if (tokens[0] == "listen") {
         if (tokens.length() == 3) {
@@ -53,7 +58,7 @@ void DemoShell::newStdIn(QString input)
         core->startListening6(tokens[1].toInt());
 
     } else if (tokens[0] == "connect") {
-        core->addSliverConnection(tokens[1], tokens[2].toInt(),tokens[3]);
+        core->addSliverConnection(tokens[1], tokens[2].toInt(),tokens[3], tokens[4]);
         qDebug() << "Connecting to: " << tokens[1] << ":" << tokens[2] << "name:" << tokens[3];
     /*} else if (tokens[0] == "stop" && tokens[1] == "listening") {
         qDebug() << "stopping listening";
@@ -68,7 +73,7 @@ void DemoShell::newStdIn(QString input)
         QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
         int i = 0;
         foreach (QNetworkInterface interface, interfaces) {
-            Interface interfaceStruct;
+            NetworkInterface interfaceStruct;
             qDebug() << QString("**Interface: %1 \n").arg(interface.humanReadableName());
             QList<QNetworkAddressEntry> entries = interface.addressEntries();
             foreach (QNetworkAddressEntry entry, entries) {
@@ -80,8 +85,14 @@ void DemoShell::newStdIn(QString input)
         }
 
     } else if (tokens[0] == "ping") {
-        core->pingHost(tokens[1], tokens[2]);
-
+        parser.addPositionalArgument("nodename", "the unique name of the node");
+        parser.addPositionalArgument("hostname", "name of the remote host");
+        parser.addPositionalArgument("localIP", "name of the local ip");
+        if (tokens.size() > 3) {
+            core->pingHost(tokens[1], tokens[2], tokens[3]);
+        }
+    } else if (tokens[0] == "transfer") {
+        core->transferRequest(tokens[1], tokens[2], tokens[3],TransferRequestMessage::TRANSFER_TYPE_TCP, 10);
     } else if (tokens[0] == "getinfo") {
         qDebug() << "Getting node info";
         int socketId = tokens[1].toInt();
@@ -89,5 +100,8 @@ void DemoShell::newStdIn(QString input)
         protocol->sendNodeInfoRequest();
     } else if (tokens[0] == "exit_all") {
         core->shutDownNodes();
+    } else if (tokens[0] == "addresses") {
+        qDebug()<< "IPv4:" << core->getIpv4List(tokens[1]);
+        qDebug()<< "IPv6:" << core->getIpv6List(tokens[1]);
     }
 }

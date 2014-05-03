@@ -11,7 +11,7 @@ StringMessage::StringMessage(QString text)
 
 void StringMessage::serialize(QByteArray *block) const
 {
-    QDataStream out(block, QIODevice::WriteOnly);
+    QDataStream out(block, QIODevice::Append);
     out.setVersion(QDataStream::Qt_5_0);
     out << data.text;
 }

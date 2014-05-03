@@ -6,17 +6,24 @@
 #include "networkentity.h"
 #include "abstractprotocol.h"
 #include "relayprotocol.h"
+
 class RelayProg : public NetworkEntity
 {
     Q_OBJECT
 public:
     RelayProg();
+    virtual void startHandshakeProtocol(int connectionType, QString name, QString remoteName, MyQTcpSocket *socket);
+public slots:
+    virtual void disconnected(MyQTcpSocket *socket);
+private:
+    QHash<QString, RelayProtocol*> pendingNodes;
+    QHash<QString, RelayProtocol*> pendingDemos;
+    virtual int getEntityType();
 protected:
-    virtual AbstractProtocol *createProtocol(int type, MyQTcpSocket *socket);
+    virtual AbstractProtocol *createProtocol(HandshakeMessage message,  MyQTcpSocket *socket);
 private slots:
-    void failedToConnect(QString host, int port);
-    void connected(QString host, int port);
     void exitProgram(int exitValue);
+    void handleNewConnection(HandshakeMessage message, RelayProtocol *protocol);
 };
 
 #endif // RELAYPROG_H

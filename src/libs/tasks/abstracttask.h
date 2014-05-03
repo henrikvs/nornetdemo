@@ -6,8 +6,10 @@ class AbstractTask : public QObject
 {
     Q_OBJECT
 public:
-    AbstractTask(QObject *parent = 0);
+    AbstractTask(int taskId, QObject *parent = 0);
     virtual ~AbstractTask();
+protected:
+    int taskId;
 };
 
 #endif // ABSTRACTTASK_H

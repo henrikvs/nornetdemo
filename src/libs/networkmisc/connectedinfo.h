@@ -6,20 +6,25 @@ class ConnectionInfo
 {
 public:
     ConnectionInfo();
-    ConnectionInfo(QString address, int port, bool ipv4, QString name = QString());
+    ConnectionInfo(QString address, int port, bool ipv4, int type, QString hostname = QString(), QString username = QString());
     bool isNode();
     void setIsNode();
     void setIsFrontEnd();
     bool isIpv4();
     QString getAddress();
     int getPort();
-    QString getName();
+    QString getHostName();
+    QString getUsername();
+    int getType();
+    void setType(int type);
 private:
     bool node;
     QString address;
     int port;
     bool ipv4;
-    QString name;
+    QString hostname;
+    QString username;
+    int type;
 
 
 };

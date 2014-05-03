@@ -11,7 +11,7 @@ class PingTask : public AbstractTask
 {
     Q_OBJECT
 public:
-    explicit PingTask(QString remoteHost, QObject *parent = 0);
+    explicit PingTask(int taskId, QString remoteHost, QString localIp, QObject *parent = 0);
     virtual ~PingTask();
     int taskNumber;
 signals:
@@ -27,6 +27,7 @@ private slots:
 private:
     QProcess process;
     QString remoteHost;
+    QString localIp;
     RegexHelper regex;
 
 };

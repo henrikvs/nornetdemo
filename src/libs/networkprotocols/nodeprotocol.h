@@ -18,6 +18,7 @@ public:
     void sendUpdatingStatus();
     void sendNormalStatus();
     virtual void start();
+    virtual void cleanUp();
 
 
     explicit NodeProtocol(QObject *parent = 0);

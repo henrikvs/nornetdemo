@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+                <title>Title element</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+        <style type="text/css">
+            html { height: 100% }
+            body { height: 100%; margin: 0; padding: 0 }
+            #map_canvas { height: 100% }
+        </style>
+
+
+    </head>
+
+    <body>
+
+       <div id="map_canvas" style="width:100%; height:100%"></div>
+
+
+
+
+
+        <script  src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDw2JKmqAEOrr5yZTL63VfAJEsgopDaiNs&sensor=false"> </script>
+        <script src="qrc:/markerlight.js"> </script>
+        <script  src="qrc:/main.js"> </script>
+        <script>
+            document.onload = initialize();
+            console.debug("test");
+
+
+        </script>
+    </body>
+
+</html>

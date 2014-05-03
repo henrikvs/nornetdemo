@@ -11,12 +11,15 @@ class NodeProg : public NetworkEntity
     Q_OBJECT
 public:
     NodeProg();
+    void start(int port = 33555);
+    virtual void disconnected(MyQTcpSocket *socket);
 protected:
-    virtual AbstractProtocol *createProtocol(int type, MyQTcpSocket *socket);
+    virtual AbstractProtocol *createProtocol(HandshakeMessage message, MyQTcpSocket *socket);
+public slots:
 private slots:
-    void failedToConnect(QString host, int port);
-    void connected(QString host, int port);
     void exitProgram(int exitValue);
+private:
+    virtual int getEntityType();
 };
 
 #endif // NODEPROG_H

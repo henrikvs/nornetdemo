@@ -10,7 +10,7 @@ QT       -= gui
 TARGET = nodeprog
 CONFIG   += console c++11
 CONFIG   -= app_bundle
-
+#LIBS += -lsctp
 TEMPLATE = app
 
 include(../libs/libs.pri)

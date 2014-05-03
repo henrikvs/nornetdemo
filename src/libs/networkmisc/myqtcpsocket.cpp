@@ -4,6 +4,7 @@ MyQTcpSocket::MyQTcpSocket(QObject *parent) : QTcpSocket(parent)
 {
     size = -1;
     protocol = NULL;
+    isRelay = false;
 }
 
 void MyQTcpSocket::addSize(int size)

@@ -6,7 +6,7 @@
 void RequestMessage::send(QTcpSocket &socket)
 {
     QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
+    QDataStream out(&block, QIODevice::Append);
     out.setVersion(QDataStream::Qt_5_0);
     out << (quint16) 0; //save for the size
     out << message;

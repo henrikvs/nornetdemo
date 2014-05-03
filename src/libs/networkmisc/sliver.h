@@ -1,5 +1,6 @@
 #ifndef SLIVER_H
 #define SLIVER_H
+#include "nodeinfomessage.h"
 #include <QString>
 class Sliver
 {
@@ -10,7 +11,8 @@ public:
     QString IPv4;
     QString IPv6;
     QString sliceName;
-    QString domain;
+    QString hostName;
+    NodeInfoMessage infoMessage;
     int status;
     int port;
 };

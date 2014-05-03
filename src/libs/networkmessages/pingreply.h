@@ -6,13 +6,16 @@
 struct PingReplyStruct
 {
     QString ms;
+    QString localIp;
+    QString remoteHost;
+    int sessionId;
 };
 
 class PingReply : public AbstractMessage
 {
 public:
     PingReply();
-    PingReply(QString ms);
+    PingReply(QString ms, QString localIp, QString remoteHost, int sessionId);
     //void read(MyQTcpSocket *socket);
     //void serialize(QByteArray *block);
     PingReplyStruct data;

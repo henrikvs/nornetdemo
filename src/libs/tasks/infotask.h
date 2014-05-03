@@ -2,6 +2,7 @@
 #define INFOTASK_H
 #include <QObject>
 #include "nodeinfomessage.h"
+#include "nodeprotocol.h"
 #include "abstracttask.h"
 #include <QProcess>
 /*!
@@ -14,7 +15,7 @@ class InfoTask : public AbstractTask
 public:
     explicit InfoTask(QObject *parent = 0);
 public slots:
-    void start();
+    void start(QString name);
 private slots:
     void newDnsOutput();
     void newReverseDnsOutput();

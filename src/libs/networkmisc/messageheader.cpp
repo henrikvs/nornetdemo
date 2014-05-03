@@ -12,7 +12,7 @@ MessageHeader::MessageHeader(int size, int type, int seqNum)
 
 void MessageHeader::serialize(QByteArray *block) const
 {
-    QDataStream out(block, QIODevice::WriteOnly);
+    QDataStream out(block, QIODevice::Append);
     out.setVersion(QDataStream::Qt_5_0);
     out << data.size << data.type << data.seqNum;
 

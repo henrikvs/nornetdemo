@@ -32,6 +32,8 @@
     <addaction name="actionSSL"/>
     <addaction name="actionRegex_test"/>
     <addaction name="actionPing_test"/>
+    <addaction name="actionTransfer_test"/>
+    <addaction name="actionMap"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -57,6 +59,16 @@
   <action name="actionPing_test">
    <property name="text">
     <string>Ping test</string>
+   </property>
+  </action>
+  <action name="actionTransfer_test">
+   <property name="text">
+    <string>Transfer test</string>
+   </property>
+  </action>
+  <action name="actionMap">
+   <property name="text">
+    <string>map</string>
    </property>
   </action>
  </widget>

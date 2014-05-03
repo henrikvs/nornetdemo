@@ -6,30 +6,99 @@ RelayProg::RelayProg()
     connect(this, SIGNAL(shutDownComplete(int)), this, SLOT(exitProgram(int)));
 }
 
-AbstractProtocol *RelayProg::createProtocol(int type, MyQTcpSocket *socket)
+/*
+ *  We override the handshake protocol of the abstract class, and circumvent the handshake all together
+ */
+void RelayProg::startHandshakeProtocol(int connectionType, QString name, QString remoteName, MyQTcpSocket *socket)
 {
-    if (type == CONNECTION_TYPE_DEMO) {
-        RelayProtocol *protocol = new RelayProtocol(this);
-        protocol->setSocket(socket);
-        connect(protocol, SIGNAL(exitProgram(int)), this, SLOT(shutDown(int)));
-        return protocol;
-    } else {
-        qDebug() << "Unrecognized protocol" << type << "Should be " << CONNECTION_TYPE_DEMO;
-        return NULL;
+    qDebug() << "Starting relay protocol";
+    RelayProtocol *protocol = new RelayProtocol(this);
+    protocol->setSocket(socket);
+    socket->setProtocol(protocol);
+    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    connect(protocol, SIGNAL(newConnection(HandshakeMessage,RelayProtocol*)), this, SLOT(handleNewConnection(HandshakeMessage,RelayProtocol*)));
+    if (socket->bytesAvailable()) { //since we made the connection quite late, lets make sure there's no pending data
+        QMetaObject::invokeMethod(protocol, "newData", Qt::QueuedConnection);
     }
+
 }
 
-void RelayProg::failedToConnect(QString host, int port)
+void RelayProg::disconnected(MyQTcpSocket* socket)
 {
-    qDebug() << "failed to connect to: " << host << port;
+    qDebug() << "Disconnecting";
+    RelayProtocol *protocol = (RelayProtocol*)socket->getProtocol();
+    protocol->cleanUp();
+    {
+    QHashIterator<QString, RelayProtocol*> i(pendingNodes);
+    QString remove;
+    while (i.hasNext())  {
+        i.next();
+        if (i.value() == protocol) {
+            remove = i.key();
+        }
+    }
+    if (!remove.isEmpty()) {
+        pendingNodes.remove(remove);
+    }
+    return;
+    }
+    {
+    QHashIterator<QString, RelayProtocol*> i(pendingDemos);
+    QString remove;
+    while (i.hasNext())  {
+        i.next();
+        if (i.value() == protocol) {
+            remove = i.key();
+        }
+    }
+    if (!remove.isEmpty()) {
+        pendingDemos.remove(remove);
+    }
+
+    }
+
 }
 
-void RelayProg::connected(QString host, int port)
+int RelayProg::getEntityType()
 {
-    qDebug() << "Connection success: " << host << port;
+    return 0;
 }
+
+AbstractProtocol *RelayProg::createProtocol(HandshakeMessage message, MyQTcpSocket *socket)
+{
+    return NULL;
+}
+
 
 void RelayProg::exitProgram(int exitValue)
 {
     qApp->exit(exitValue);
+}
+
+void RelayProg::handleNewConnection(HandshakeMessage message, RelayProtocol *protocol)
+{
+     qDebug() << "Received new connect: entity type: " << message.data.entityType << "name: " << message.data.username << message.data.hostname
+                 << message.data.expectedUsername << message.data.expectedHostname;
+    if (message.data.entityType == ENTITY_TYPE_DEMO) {
+        qDebug() << "Received connect from demo";
+        QString id = message.data.expectedUsername + "-" + message.data.expectedHostname;
+        if (pendingNodes.contains(id)) {
+            RelayProtocol *remoteProtocol = pendingNodes[id];
+            protocol->setRemoteProtocol(remoteProtocol);
+            remoteProtocol->setRemoteProtocol(protocol);
+        } else {
+            pendingDemos[id]= protocol;
+        }
+    } else if (message.data.entityType == ENTITY_TYPE_NODE) {
+        qDebug() << "Received connect from node";
+        QString id = message.data.username + "-" + message.data.hostname;
+        if (pendingDemos.contains(id)) {
+            RelayProtocol *remoteProtocol = pendingDemos[id];
+            protocol->setRemoteProtocol(remoteProtocol);
+            remoteProtocol->setRemoteProtocol(protocol);
+        } else {
+            pendingNodes[id]= protocol;
+        }
+    }
+
 }

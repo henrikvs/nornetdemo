@@ -22,6 +22,10 @@ private slots:
 
     void on_actionPing_test_triggered();
 
+    void on_actionTransfer_test_triggered();
+
+    void on_actionMap_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -4,23 +4,25 @@ PingRequest::PingRequest()
 {
 }
 
-PingRequest::PingRequest(QString remoteIp)
+PingRequest::PingRequest(int sessionId, QString remoteIp, QString localIp)
 {
+    data.sessionId = sessionId;
     data.remoteIp = remoteIp;
+    data.localIp = localIp;
 }
 
 void PingRequest::serialize(QByteArray *block) const
 {
-    QDataStream out(block, QIODevice::WriteOnly);
+    QDataStream out(block, QIODevice::Append);
     out.setVersion(QDataStream::Qt_5_0);
-    out << data.ipv << data.localIp << data.remoteIp;
+    out << data.interval << data.seconds << data.sessionId << data.ipv << data.localIp << data.remoteIp;
 }
 
 void PingRequest::read(MyQTcpSocket *socket)
 {
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_5_0);
-    in >> data.ipv >> data.localIp >> data.remoteIp;
+    in >> data.interval >> data.seconds >> data.sessionId >> data.ipv >> data.localIp >> data.remoteIp;
 
 }
 

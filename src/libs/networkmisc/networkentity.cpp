@@ -11,7 +11,8 @@ NetworkEntity::NetworkEntity(QObject *parent) :
 {
     //connectToFrontEnd("127.0.0.1", 3333);
     //qRegisterMetaType<qintptr>("qintptr");
-    nextId = 0;
+    nextId = 1;
+    relayOn = false;
 }
 
 NetworkEntity::~NetworkEntity()
@@ -26,9 +27,19 @@ NetworkEntity::~NetworkEntity()
     }*/
 }
 
-void NetworkEntity::addConnection(QString ip, int port, int type, QString name)
+void NetworkEntity::addConnection(QString ip, int port, int type, QString username, QString hostname)
 {
     MyQTcpSocket *socket = new MyQTcpSocket(this);
+    ConnectionInfo info(ip, port, true,type, hostname, username);
+    socket->setConnectionInfo(info);
+
+
+    setUpSocket(socket);
+    if (type == CONNECTION_TYPE_RELAY) {
+        socket->isRelay = true;
+    }
+    socket->connectToHost(ip, port);
+   /* MyQTcpSocket *socket = new MyQTcpSocket(this);
     ConnectionInfo info(ip, port, true, name);
     socket->setConnectionInfo(info);
     AbstractProtocol *protocol = createProtocol(type, socket);
@@ -43,25 +54,30 @@ void NetworkEntity::addConnection(QString ip, int port, int type, QString name)
     connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectionError(QAbstractSocket::SocketError)));
 
-    socket->connectToHost(ip, port);
+    socket->connectToHost(ip, port);*/
+
 }
 
 
-
-void NetworkEntity::connectToNode(QString ip, int port)
+/*
+void NetworkEntity::addRelayConnection(QString ip, int port, int type, QString name)
 {
-    addConnection(ip, port);
-}
+    MyQTcpSocket *socket = new MyQTcpSocket(this);
+    ConnectionInfo info(ip, port, true,type, name);
+    socket->setConnectionInfo(info);
+    //AbstractProtocol *protocol = createProtocol(CONNECTION_TYPE_RELAY, socket);
+    //socket->setParent(protocol);
+    //protocol->setType(type);
+    //protocol->setName(getName());
+    //protocol->setSocket(socket);
+    //protocol->isRelay = true;
 
-void NetworkEntity::makeConnection(QString ip, int port)
-{
-    addConnection(ip, port);
+    setUpSocket(socket);
+    socket->connectToHost(getRelayAddress(), getRelayPort());
 }
+*/
 
-void NetworkEntity::connectToFrontEnd(QString ip, int port)
-{
-    addConnection(ip, port);
-}
+
 
 void NetworkEntity::sendProtocolType(MyQTcpSocket *socket, qint32 type)
 {
@@ -69,6 +85,15 @@ void NetworkEntity::sendProtocolType(MyQTcpSocket *socket, qint32 type)
     char buffer[sizeof(qint32)];
     memcpy(buffer, &type, sizeof(qint32));
     socket->write(buffer, sizeof(qint32));
+}
+
+void NetworkEntity::setUpSocket(MyQTcpSocket *socket)
+{
+    socket->setId(getNextId());
+    socketHash[socket->getId()] = socket;
+    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectionError(QAbstractSocket::SocketError)));
 }
 
 void NetworkEntity::startListening(int port)
@@ -135,16 +160,37 @@ MyQTcpSocket *NetworkEntity::getSocket(int id)
     return socketHash[id];
 }
 
+void NetworkEntity::setName(QString name)
+{
+    this->name = name;
+}
+
+QString NetworkEntity::getName()
+{
+    return name;
+}
+
+void NetworkEntity::startHandshakeProtocol(int connectionType, QString expectedUsername, QString expectedHostname, MyQTcpSocket *socket)
+{
+    HandshakeProtocol *protocol = new HandshakeProtocol(connectionType, getEntityType(), expectedUsername, expectedHostname, this);
+    protocol->setParent(this);
+    protocol->setSocket(socket);
+    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    connect(protocol, SIGNAL(newHandShake(HandshakeMessage,MyQTcpSocket*)), this, SLOT(handleNewHandshake(HandshakeMessage, MyQTcpSocket*)));
+    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    if (socket->bytesAvailable()) {
+        QMetaObject::invokeMethod(protocol, "newData", Qt::QueuedConnection);
+    }
+    protocol->start();
+}
+
 
 
 void NetworkEntity::connected()
 {
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
-    AbstractProtocol *protocol = socket->getProtocol();
-    qDebug() << "connected: " << socket->getId();
-    qDebug() << "Sending protocol type: " << protocol->getType();
-    sendProtocolType(socket, protocol->getType()); //TEMP
-    protocol->start();
+    ConnectionInfo info = socket->getConnectionInfo();
+    startHandshakeProtocol(info.getType(), info.getUsername(), info.getHostName(), socket);
 }
 
 void NetworkEntity::disconnected()
@@ -157,17 +203,12 @@ void NetworkEntity::disconnected()
 void NetworkEntity::newConnection(qintptr socketDescriptor)
 {
     MyQTcpSocket *socket = new MyQTcpSocket;
-    socket->setId(getNextId());
     //QThread *thread = new QThread(this);
     socket->setSocketDescriptor(socketDescriptor);
-    socketHash[socket->getId()] = socket;
-    //socket->moveToThread(thread);
-    //protocol->moveToThread(thread);
-    //thread->start();
-    //connect(thread, SIGNAL(started()), protocol, SLOT());
-    connect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectionError(QAbstractSocket::SocketError)));
+
+    setUpSocket(socket);
+    startHandshakeProtocol(CONNECTION_TYPE_REPLY, getName(),"default", socket);
+
 
     qDebug() << "New connection: " << socket->peerAddress().toString();
 }
@@ -177,50 +218,35 @@ int NetworkEntity::getNextId() {
     return nextId;
 }
 
-/*
-void Client::newNodeData()
+int NetworkEntity::nextRequestId()
 {
-    MyQTcpSocket *socket = (MyQTcpSocket*) sender();
-    socket->
-    socket->pro
-    socket->write("success");
-    socket->bytesAvailable();
-
+    static int requestId = 0;
+    requestId++;
+    return requestId;
 }
 
-void Client::newFrontEndData()
+void NetworkEntity::enableRelay(QString address, int port)
 {
-
+    relayOn = true;
+    relayAddress = address;
+    relayPort = port;
 }
-*/
-void NetworkEntity::newData()
+
+bool NetworkEntity::relayEnabled()
 {
-    MyQTcpSocket *socket = (MyQTcpSocket*) sender();
-    qint32 type;
-    char buffer[sizeof(qint32)];
-    if (socket->bytesAvailable() >= sizeof(qint32)) {
-        socket->read(buffer, sizeof(qint32));
-        memcpy(&type, buffer, sizeof(qint32));
-        type = qFromBigEndian<qint32>(type);
-    } else {
-        return;
-    }
-
-    AbstractProtocol *protocol = createProtocol(type, socket);
-    socket->setParent(protocol);
-    socket->setProtocol(protocol);
-    protocol->setSocket(socket);
-
-    //if (type == PROTOCOL_TYPE_TEST) {
-        qDebug() << "New protocol!" << "Socket index: " << socket->getId();
-    //}
-    disconnect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
-    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData())); //now connect the stream to the protocol
-    protocol->start();
-    if (socket->bytesAvailable() > 0) {
-        QMetaObject::invokeMethod(protocol, "newData", Qt::QueuedConnection);//in case there's more to read
-    }
+    return relayOn;
 }
+
+QString NetworkEntity::getRelayAddress()
+{
+    return relayAddress;
+}
+
+int NetworkEntity::getRelayPort()
+{
+    return relayPort;
+}
+
 
 bool NetworkEntity::newStdIn(QString input)
 {
@@ -237,7 +263,7 @@ bool NetworkEntity::newStdIn(QString input)
         startListening6(tokens[1].toInt());
 
     } else if (tokens[0] == "connect") {
-        addConnection(tokens[1], tokens[2].toInt());
+        //addConnection(tokens[1], tokens[2].toInt());
         qDebug() << "Connecting to: " << tokens[1] << ":" << tokens[2];
     } else if (tokens[0] == "stop" && tokens[1] == "listening") {
         qDebug() << "stopping listening";
@@ -249,7 +275,7 @@ bool NetworkEntity::newStdIn(QString input)
         QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
         int i = 0;
         foreach (QNetworkInterface interface, interfaces) {
-            Interface interfaceStruct;
+            NetworkInterface interfaceStruct;
             qDebug() << QString("**Interface: %1 \n").arg(interface.humanReadableName());
             QList<QNetworkAddressEntry> entries = interface.addressEntries();
             foreach (QNetworkAddressEntry entry, entries) {
@@ -260,12 +286,12 @@ bool NetworkEntity::newStdIn(QString input)
             }
         }
 
-    } else if (tokens[0] == "ping") {
+    /*} else if (tokens[0] == "ping") {
         int socketId = tokens[1].toInt();
 
         AbstractProtocol *protocol = socketHash[socketId]->getProtocol();
         protocol->sendPingRequest(tokens[2]);
-
+*/
     } else if (tokens[0] == "getinfo") {
         qDebug() << "Getting node info";
         int socketId = tokens[1].toInt();
@@ -293,11 +319,20 @@ void NetworkEntity::shutDown(int exitValue)
     emit shutDownComplete(exitValue);
 }
 
+void NetworkEntity::handleNewHandshake(HandshakeMessage message, MyQTcpSocket *socket)
+{
+    AbstractProtocol *protocol = createProtocol(message, socket);
+    socket->setProtocol(protocol);
+    connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
+    protocol->setSocket(socket);
+    protocol->start();
+}
+
+
 void NetworkEntity::connectionError(QAbstractSocket::SocketError error)
 {
+    qDebug() << "Connection problem";
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
-    AbstractProtocol *protocol = socket->getProtocol();
-    qDebug() << "Connection error:" << socket->getConnectionInfo().getAddress();
     removeSocket(socket->getId());
 }
 
@@ -309,6 +344,7 @@ void NetworkEntity::removeSocket(int socketId)
     }
     qDebug() << "Removing socket: " << socketId;
     MyQTcpSocket *socket = socketHash[socketId];
+    disconnected(socket);
     //socket->waitForBytesWritten(); //TODO avoid waiting
     //socket->close();
     connect(socket, &MyQTcpSocket::destroyed, []() {
@@ -316,10 +352,12 @@ void NetworkEntity::removeSocket(int socketId)
     });
 
     AbstractProtocol *protocol = socket->getProtocol();
-    connect(protocol, &MyQTcpSocket::destroyed, []() {
-       qDebug() << "protocol got destroyed";
-    });
-    protocol->deleteLater();
+    if (protocol != NULL) {
+        connect(protocol, &MyQTcpSocket::destroyed, []() {
+           qDebug() << "protocol got destroyed";
+        });
+        protocol->deleteLater();
+    }
 
 
     socketHash.remove(socketId);

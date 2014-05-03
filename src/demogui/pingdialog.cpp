@@ -9,6 +9,7 @@ PingDialog::PingDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
 }
 
 PingDialog::~PingDialog()
@@ -19,7 +20,7 @@ PingDialog::~PingDialog()
 void PingDialog::on_pingButton_clicked()
 {
     QString ip = ui->pingText->toPlainText();
-    PingTask *task = new PingTask(ip, this);
+    PingTask *task = new PingTask(0, ip, "TODO",  this);
     connect(task, &PingTask::newPing, this, &PingDialog::pingReplySlot);
     task->start();
 

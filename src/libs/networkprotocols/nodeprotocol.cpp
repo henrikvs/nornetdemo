@@ -12,13 +12,15 @@
 #include "nodeinfomessage.h"
 #include "nodestatusmessage.h"
 #include "stringmessage.h"
+#include "transferrequestmessage.h"
+#include "transfertask.h"
 
 void NodeProtocol::sendNodeInfo()
 {
     InfoTask *task = new InfoTask(this);
     connect(task, &InfoTask::newInfoMessage, this, &AbstractProtocol::sendMessage);
     connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
-    task->start();
+    task->start(getName());
 }
 
 void NodeProtocol::sendUpdatingStatus()
@@ -34,6 +36,11 @@ void NodeProtocol::sendNormalStatus()
 }
 
 void NodeProtocol::start()
+{
+
+}
+
+void NodeProtocol::cleanUp()
 {
 
 }
@@ -58,7 +65,7 @@ bool NodeProtocol::handleMessage(int type)
             qDebug() << "Remote ip: " << message.data.remoteIp;
 
 
-            PingTask *task = new PingTask(message.data.remoteIp, this);
+            PingTask *task = new PingTask(message.data.sessionId, message.data.remoteIp, message.data.localIp, this);
             connect(task, &PingTask::newPing, this, &AbstractProtocol::sendMessage);
             connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
             task->start();
@@ -87,7 +94,14 @@ bool NodeProtocol::handleMessage(int type)
         InfoTask *task = new InfoTask(this);
         connect(task, &InfoTask::newInfoMessage, this, &AbstractProtocol::sendMessage);
         connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
-        task->start();
+        task->start(getName());
+    } else if (type == MSGTYPE_TRANSFERREQUEST) {
+        TransferRequestMessage message;
+        message.read(socket);
+        TransferTask *task = new TransferTask(message.data.transferId, message.data.transferType, message.data.remoteHost, message.data.localIp, message.data.seconds, this);
+        connect(task, &TransferTask::newStatus, this, &AbstractProtocol::sendMessage);
+        connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
+
     } else {
         return false;
     }

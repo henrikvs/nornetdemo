@@ -10,6 +10,7 @@ QT       -= gui
 TARGET = demoshell
 CONFIG   += console c++11
 CONFIG   -= app_bundle
+#LIBS += -lsctp
 #QMAKE_CXXFLAGS += -std=c++11
 
 TEMPLATE = app

@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "regexwindow.h"
+#include "transferdialog.h"
 #include "ui_mainwindow.h"
 #include "dialog.h"
 #include "pingdialog.h"
 #include "democore.h"
 #include "slicemanager.h"
+#include "mapoverview.h"
 
 #include <QDebug>
 #include <string>
@@ -77,4 +79,16 @@ void MainWindow::on_actionPing_test_triggered()
 {
     PingDialog *form = new PingDialog(this);
     form->show();
+}
+
+void MainWindow::on_actionTransfer_test_triggered()
+{
+    TransferDialog *dialog = new TransferDialog(this);
+    dialog->show();
+}
+
+void MainWindow::on_actionMap_triggered()
+{
+    MapOverview *window = new MapOverview(this);
+    window->show();
 }
