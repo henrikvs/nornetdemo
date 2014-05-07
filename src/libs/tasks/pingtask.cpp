@@ -40,6 +40,8 @@ void PingTask::processFinished(int retvalue)
     if (!process.atEnd()) {
         process.close();
     }
+    PingReply reply(0, localIp, remoteHost, taskId, PingReply::STATE_FINISHED);
+    emit newPing(reply);
     emit finished();
 }
 
@@ -51,6 +53,6 @@ void PingTask::newOutput()
 
 void PingTask::newMatch(QStringList values, QString id)
 {
-    PingReply reply(values[1], localIp, remoteHost, taskId);
+    PingReply reply(values[1], localIp, remoteHost, taskId, PingReply::STATE_RUNNING);
     emit newPing(reply);
 }

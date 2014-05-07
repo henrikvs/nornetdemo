@@ -9,7 +9,9 @@
 #include <QtEndian>
 
 class MyQTcpSocket;
-
+/**
+ * @brief The AbstractProtocol class is a base class for the various protocols such as RelayProtocol, NodeProtocol and DemoProtocol
+ */
 class AbstractProtocol : public QObject
 {
     Q_OBJECT

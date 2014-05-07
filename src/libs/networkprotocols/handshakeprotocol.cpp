@@ -22,8 +22,10 @@ void HandshakeProtocol::start()
     qDebug() << "host info: " << info.localDomainName() << info.localHostName();
     QString hostName = info.localHostName();
 #ifdef Q_OS_UNIX
-    QString sliceName = QString(getenv("HOME")).split("/").last();
-    qDebug() << "user" << sliceName;
+    QString sliceName = getenv("USER");
+    if (sliceName == "root") {
+        sliceName = getenv("SUDO_USER");
+    }
 #elif defined(Q_OS_WIN)
     qDebug() << "user" << getenv("USERNAME");
     QString sliceName = getenv("USERNAME");

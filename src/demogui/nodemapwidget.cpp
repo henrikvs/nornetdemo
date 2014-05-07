@@ -4,6 +4,7 @@
 
 NodeMapWidget::NodeMapWidget(QWidget *parent) : GMapWidget(parent)
 {
+    qDebug() << "Msg here";
     connect(this, SIGNAL(mapClicked()), this, SLOT(handleMapClicked()));
     connect(this, SIGNAL(markerClicked(QString, int)), this, SLOT(handleMarkerClicked(QString, int)));
     connect(this, SIGNAL(markerHovered(QString,int)), this, SLOT(handleMarkerHovered(QString,int)));
@@ -20,7 +21,7 @@ void NodeMapWidget::addNodeMarker(QString nodeName, qreal lat, qreal lng)
 }
 
 
-void NodeMapWidget::addConnectionMarker(QString nodeName, QString addressName)
+void NodeMapWidget::addProviderMarker(QString nodeName, QString providerId)
 {
     if (!nodeMarkers.contains(nodeName)) {
         qDebug() << "addConnectionMarker: node name doesn't exist";
@@ -35,45 +36,63 @@ void NodeMapWidget::addConnectionMarker(QString nodeName, QString addressName)
 
     qreal xOffset = cos(angle) * 30;
     qreal yOffset = sin(angle) * 30;
-    QString id = addressName;
-    Address address(addressName, nodeName, id, xOffset, yOffset);
-    node.addresses << address;
-    qDebug() <<"added address: " << id;
+    QString id =  providerId + "@" + nodeName;
+    Provider provider(providerId, nodeName, id, xOffset, yOffset);
+    node.providers << provider;
+    qDebug() <<"added provider: " << id;
     node.lastAngle = angle;
 
-    addressMarkers[id] = &node.addresses.last();
+    providerMarkers[id] = &node.providers.last();
 
 }
 
-void NodeMapWidget::addConnectionLine(QString localIp, QString remoteIp, QString id)
+void NodeMapWidget::addConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId)
 {
-    Address *localAddress = addressMarkers[localIp];
-    Address *remoteAddress = addressMarkers[remoteIp];
-    localAddress->connections++;
-    remoteAddress->connections++;
-    qDebug() <<"Increasing connection:" << localAddress->connections;
-    Node &localNode = nodeMarkers[localAddress->nodeName];
-    Node &remoteNode = nodeMarkers[remoteAddress->nodeName];
-    int lineSkew = addConnection(localIp, remoteIp);
+    QString srcId = srcProviderId + "@" + srcNodeId;
+    QString destId = destProviderId + "@" + destNodeId;
+    Provider *localProvider = providerMarkers[srcId];
+    Provider *remoteProvider = providerMarkers[destId];
+    localProvider->connections++;
+    remoteProvider->connections++;
+    qDebug() <<"Increasing connection:" << localProvider->connections;
+    Node &localNode = nodeMarkers[localProvider->nodeName];
+    Node &remoteNode = nodeMarkers[remoteProvider->nodeName];
+    QString idString = sessionId + ":" + srcId + ":" + destId;
+    int lineSkew = getLineSkew(srcId, destId, 20);
+    connectionSkews[idString] = lineSkew;
     qDebug() << "lineskew: " << lineSkew;
-    qDebug() << "!!!ADDING!!!" << localAddress->id + "-" +  remoteAddress->id;
-    drawLine(localIp + remoteIp + id, "tcp", localNode.lat, localNode.lng, remoteNode.lat, remoteNode.lng, -localAddress->offsetX, -localAddress->offsetY, -remoteAddress->offsetX, -remoteAddress->offsetY, lineSkew);
+    qDebug() << "!!!ADDING!!!" << localProvider->id + "-" +  remoteProvider->id;
+    drawLine(idString, "some info",  localNode.lat, localNode.lng, remoteNode.lat, remoteNode.lng, -localProvider->offsetX, -localProvider->offsetY, -remoteProvider->offsetX, -remoteProvider->offsetY, lineSkew);
 }
 
-void NodeMapWidget::removeConnectionLine(QString fromIp, QString toIp)
+void NodeMapWidget::removeConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId)
 {
-    qDebug() << "Removing " << fromIp+toIp;
-    removeLine(fromIp + toIp);
-    Address *localAddress = addressMarkers[fromIp];
-    Address *remoteAddress = addressMarkers[toIp];
-    localAddress->connections--;
-    remoteAddress->connections--;
+    QString srcId = srcProviderId + "@" + srcNodeId;
+    QString destId = destProviderId + "@" + destNodeId;
+    QString id = sessionId + ":" + srcId + ":" + destId;
+    qDebug() << "Removing1 " << id;
+    Provider *localProvider = providerMarkers[srcId];
+    Provider *remoteProvider = providerMarkers[destId];
+    localProvider->connections--;
+    remoteProvider->connections--;
+    if (localProvider->connections == 0) {
+        removeMarker(localProvider->id);
+        removeLine(localProvider->id);
+    }
+
+    if (remoteProvider->connections == 0) {
+        removeMarker(remoteProvider->id);
+        removeLine(remoteProvider->id);
+    }
+    removeLineSkew(srcId, destId, connectionSkews[id]);
+    connectionSkews.remove(id);
+    removeLine(id);
 }
 
-int NodeMapWidget::addConnection(QString fromIp, QString toIp)
+int NodeMapWidget::getLineSkew(QString fromId, QString toId, int skewAmount)
 {
-    QString id = fromIp + toIp;
-    QString id2 = toIp + fromIp;
+    QString id = fromId + toId;
+    QString id2 = toId + fromId;
     bool oposite = false;
     QList<int> values;
     if (!lineSkews.values(id).empty()) {
@@ -85,7 +104,7 @@ int NodeMapWidget::addConnection(QString fromIp, QString toIp)
     }
     int matchValue = 0;
     bool match = true;
-    for(int i = 0; i<300; i+=30) {
+    for(int i = 0; i<300; i+=skewAmount) {
         matchValue = i;
         do {
             if (!values.contains(matchValue)) {
@@ -102,15 +121,29 @@ int NodeMapWidget::addConnection(QString fromIp, QString toIp)
     return -1;
 }
 
+void NodeMapWidget::removeLineSkew(QString fromId, QString toId, int skewAmount)
+{
+    //qDebug() << "Attempting to remove lineskew" << fromId << toId << skewAmount;
+    QString id = fromId + toId;
+    QString id2 = toId + fromId;
+    if (!lineSkews.values(id).empty()) {
+        int ret = lineSkews.remove(id, skewAmount);
+        qDebug() << "Removed lineskew" << ret << skewAmount;
+    } else if (!lineSkews.values(id2).empty()) {
+        int ret = lineSkews.remove(id2, skewAmount);
+        qDebug() << "Removed lineskew" << ret << skewAmount;
+    }
+}
+
 void NodeMapWidget::handleMapClicked()
 {
     foreach(Node node, nodeMarkers) {
         if (node.connectionsVisible) {
-            foreach(Address address, node.addresses) {
+            foreach(Provider provider, node.providers) {
                 //qDebug() << "!!!CONNECTION!!!" << address.connections;
-                if (address.connections == 0) {
-                    removeMarker(address.id);
-                    removeLine(address.id);
+                if (provider.connections == 0) {
+                    removeMarker(provider.id);
+                    removeLine(provider.id);
                 }
             }
             nodeMarkers[node.name].connectionsVisible = false;//te
@@ -119,11 +152,11 @@ void NodeMapWidget::handleMapClicked()
         }
     }
 
-    foreach(QString id, selectedConnections) {
-        Address *address = addressMarkers[id];
-        changeIcon(id, "ipv4.png",20, 20, address->offsetX + 10, address->offsetY + 10);
+    foreach(QString id, selectedProviders) {
+        Provider *provider = providerMarkers[id];
+        changeIcon(id, "ipv4.png",20, 20, provider->offsetX + 10, provider->offsetY + 10);
     }
-    selectedConnections.clear();
+    selectedProviders.clear();
 
 }
 
@@ -133,14 +166,14 @@ void NodeMapWidget::handleMarkerClicked(QString id, int category)
     if (category == 0) {
         Node &node = nodeMarkers[id];
         if (!node.connectionsVisible) {
-            foreach(Address address, node.addresses) {
-                if (address.connections > 0) continue;
-                if (address.name.contains(".")) {
-                    addCustomMarker(address.name, address.id, node.lat, node.lng, "ipv4.png",20, 20, address.offsetX + 10, address.offsetY + 10, 2);
+            foreach(Provider provider, node.providers) {
+                if (provider.connections > 0) continue;
+                if (provider.name.contains(".")) {
+                    addCustomMarker(provider.name, provider.id, node.lat, node.lng, "ipv4.png",20, 20, provider.offsetX + 10, provider.offsetY + 10, 2);
                 } else {
-                    addCustomMarker(address.name, address.id,  node.lat, node.lng, "ipv6.png",20, 20, address.offsetX + 10, address.offsetY + 10, 2);
+                    addCustomMarker(provider.name, provider.id,  node.lat, node.lng, "ipv6.png",20, 20, provider.offsetX + 10, provider.offsetY + 10, 2);
                 }
-                drawLine(address.id, "", node.lat, node.lng, node.lat, node.lng, 0, 0, -address.offsetX, -address.offsetY, 0, "black");
+                drawLine(provider.id, "", node.lat, node.lng, node.lat, node.lng, 0, 0, -provider.offsetX, -provider.offsetY, 0, "black");
             }
             nodeMarkers[node.name].connectionsVisible = true;
         } else {
@@ -148,36 +181,36 @@ void NodeMapWidget::handleMarkerClicked(QString id, int category)
         }
         emit nodeSelected(id);
     } else {
-        Address *address = addressMarkers[id];
-        Node  &fromNode = nodeMarkers[address->nodeName];
-        if (!selectedConnections.empty()) {
-            Address *toAddress = addressMarkers[selectedConnections.last()];
-            Node &toNode = nodeMarkers[toAddress->nodeName];
-            QString toId = toAddress->id;
-            if (address->name.contains(".")) {
-                changeIcon(id, "ipv4.png",20, 20, address->offsetX + 10, address->offsetY + 10);
-                changeIcon(toId, "ipv4.png",20, 20, toAddress->offsetX + 10, toAddress->offsetY + 10);
+        Provider *provider = providerMarkers[id];
+        Node  &fromNode = nodeMarkers[provider->nodeName];
+        if (!selectedProviders.empty()) {
+            Provider *toProvider = providerMarkers[selectedProviders.last()];
+            Node &toNode = nodeMarkers[toProvider->nodeName];
+            QString toId = toProvider->id;
+            if (provider->name.contains(".")) {
+                changeIcon(id, "ipv4.png",20, 20, provider->offsetX + 10, provider->offsetY + 10);
+                changeIcon(toId, "ipv4.png",20, 20, toProvider->offsetX + 10, toProvider->offsetY + 10);
             } else {
 
-                changeIcon(id, "ipv6.png",20, 20, address->offsetX + 10, address->offsetY + 10);
-                changeIcon(toId, "ipv6.png",20, 20, toAddress->offsetX + 10, toAddress->offsetY + 10);
+                changeIcon(id, "ipv6.png",20, 20, provider->offsetX + 10, provider->offsetY + 10);
+                changeIcon(toId, "ipv6.png",20, 20, toProvider->offsetX + 10, toProvider->offsetY + 10);
             }
-            if (toAddress != address) {
-                emit connectionRequest(fromNode.name, address->name, toAddress->name);
+            if (toProvider != provider) {
+                emit connectionRequest(toNode.name, toProvider->name, fromNode.name, provider->name);
             }
 
-            selectedConnections.clear();
+            selectedProviders.clear();
         } else {
-            selectedConnections << id;
-            if (address->name.contains(".")) {
-                changeIcon(id, "ipv4.png",26, 26, address->offsetX + 13, address->offsetY + 13);
+            selectedProviders << id;
+            if (provider->name.contains(".")) {
+                changeIcon(id, "ipv4.png",26, 26, provider->offsetX + 13, provider->offsetY + 13);
             } else {
-                changeIcon(id, "ipv6.png",26, 26, address->offsetX + 13, address->offsetY + 13);
+                changeIcon(id, "ipv6.png",26, 26, provider->offsetX + 13, provider->offsetY + 13);
             }
         }
-        qDebug() << "Marker selected" << addressMarkers[id]->nodeName << addressMarkers[id]->name;
+        qDebug() << "Marker selected" << providerMarkers[id]->nodeName << providerMarkers[id]->name;
         //selectedConnections << id;
-        emit addressSelected(addressMarkers[id]->nodeName, addressMarkers[id]->name);
+        emit providerSelected(providerMarkers[id]->nodeName, providerMarkers[id]->name);
     }
 
 }
@@ -188,7 +221,7 @@ void NodeMapWidget::handleMarkerHovered(QString id, int category)
     if (category == 0) {
         emit nodeHovered(id);
     } else {
-        emit addressHovered(addressMarkers[id]->nodeName, addressMarkers[id]->name);
+        emit providerHovered(providerMarkers[id]->nodeName, providerMarkers[id]->name);
     }
 }
 
@@ -198,6 +231,6 @@ void NodeMapWidget::handleMarkerHoveredOff(QString id, int category)
     if (category == 0) {
         emit nodeHoveredOff(id);
     } else {
-        emit addressHoveredOff(addressMarkers[id]->nodeName, addressMarkers[id]->name);
+        emit providerHoveredOff(providerMarkers[id]->nodeName, providerMarkers[id]->name);
     }
 }

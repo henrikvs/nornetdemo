@@ -7,4 +7,10 @@ QString Settings::programName = "nornetdemo";
 QString Settings::company = "Henrik Simonsen";
 QString Settings::gatekeeperUsername = "settings/gatekeeper/username";
 QString Settings::gatekeeperHostname = "settings/gatekeeper/hostname";
+
+
+QString Settings::relayEnabled = "settings/relayEnabled";
+QString Settings::relayPort = "settings/relayPort";
+QString Settings::relayHostname = "settings/relayAddress";
 SliceManager Settings::sliceManager;
+

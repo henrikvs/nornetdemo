@@ -13,14 +13,38 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
     foreach (Sliver *sliver, slivers) {
         sliver->status = Sliver::STATUS_OFFLINE;
         sliverHash[sliver->name] = sliver;
-        if (sliver->IPv6.isEmpty()) {
-            qDebug() << "No ip, getting address";
-            getIpAddress(sliver);
-            //installProgram(sliver);
-        } else {
+        if (relayEnabled()) {
+            installProgram(sliver);
             addSliverConnection(sliver);
+        } else {
+            if (sliver->IPv6.isEmpty()) {
+                qDebug() << "No ip, getting address";
+                getIpAddress(sliver);
+            } else {
+                addSliverConnection(sliver);
+            }
+            installProgram(sliver);
         }
     }
+}
+
+void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
+{
+    foreach (Sliver *sliver, slivers) {
+        SSHConnection *ssh = new SSHConnection;
+        if (gateKeeperEnabled) {
+            ssh->addHost(gatekeeperUsername, gatekeeperHostname);
+        }
+        ssh->addHost(sliver->sliceName, sliver->hostName);
+
+        ssh->executeCommand(QString("'sudo kill nodeprog'"));
+        connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
+        qDebug() << "Killing nodeprog" << sliver->name;
+        connect(ssh, &SSHConnection::destroyed, []() {
+            qDebug() << "Object deleted";
+        });
+    }
+
 }
 
 void DemoCore::disconnected(MyQTcpSocket *socket)
@@ -39,7 +63,7 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
     } else if (sliver->status == Sliver::STATUS_INSTALLING) {
         addSliverConnection(sliver);
     } else {
-        installProgram(sliver);
+        //installProgram(sliver);
         addSliverConnection(sliver);
     }
 }
@@ -89,7 +113,12 @@ void DemoCore::installProgram(Sliver *sliver)
         ssh->addHost(gatekeeperUsername, gatekeeperHostname);
     }
     ssh->addHost(sliver->sliceName, sliver->hostName);
-    ssh->executeCommand(QString("'sudo nohup wget --cache=off -N toki.dlinkddns.com/master/install.sh > nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %2> nodeprog.out 2>&1 &'").arg(VERSION).arg(sliver->name));
+    QString relayString = "";
+    if (relayEnabled()) {
+        relayString = getRelayAddress() + ":" + QString::number(getRelayPort());
+        qDebug() << "Starting with relaystring:" << relayString;
+    }
+    ssh->executeCommand(QString("'sudo nohup wget --cache=off -N toki.dlinkddns.com/master/install.sh >> nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %2>> nodeprog.out 2>&1 &'").arg(VERSION).arg(relayString));
     connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
     //addSliverConnection(sliver);
     qDebug() << "Install sliver here2";
@@ -152,11 +181,13 @@ void DemoCore::getIpAddress(Sliver *sliver)
     ssh->executeCommand("ip addr show eth0 | grep 'inet6 2001:700' | awk 'NR==1 {print \"ip:\"$2\"pi\"}'");
 }
 
-void DemoCore::pingHost(QString sliverName, QString host, QString localIp)
+int DemoCore::pingHost(QString sliverName, QString host, QString localIp)
 {
     Sliver *sliver = sliverHash[sliverName];
     DemoProtocol *protocol = protocolHash[sliverName];
-    protocol->sendPingRequest(nextRequestId(),host, localIp);
+    int id = nextRequestId();
+    protocol->sendPingRequest(id, host, localIp);
+    return id;
 }
 
 int DemoCore::transferRequest(QString sliverName, QString host, QString localIp, int transferType, int seconds)
@@ -164,7 +195,7 @@ int DemoCore::transferRequest(QString sliverName, QString host, QString localIp,
     Sliver *sliver = sliverHash[sliverName];
     DemoProtocol *protocol = protocolHash[sliverName];
     int id = nextRequestId();
-    protocol->sendTransferRequest(id, host, localIp, seconds, transferType);
+    protocol->sendTransferRequest(id, host, localIp, transferType, seconds);
     return id;
 }
 

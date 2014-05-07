@@ -8,7 +8,10 @@
 #include "pingtask.h"
 #include "infotask.h"
 
-
+/**
+ * @brief AbstractProtocol::AbstractProtocol
+ * @param The QObject parent, used for destruction
+ */
 AbstractProtocol::AbstractProtocol(QObject *parent) : QObject(parent), headerRead(false)
 {
     isRelay = false;
@@ -16,11 +19,15 @@ AbstractProtocol::AbstractProtocol(QObject *parent) : QObject(parent), headerRea
 }
 
 
+/**
+ * @brief Called when new data is received on the associated socket, if sufficient data is available, it will call the virtual method handleMessage(int)
+ */
 void AbstractProtocol::newData()
 {
     if (!active) {
         return;
     }
+
     while (1) {
 
 

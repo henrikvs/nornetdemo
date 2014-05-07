@@ -23,6 +23,11 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     bool gatekeeperEnabled = settings.value(Settings::gatekeeperEnabled, true).toBool();
     QString gatekeeperUsername = settings.value(Settings::gatekeeperUsername, QString()).toString();
     QString gatekeeperHostname = settings.value(Settings::gatekeeperHostname, QString()).toString();
+
+    bool relayEnabled = settings.value(Settings::relayEnabled, false).toBool();
+    QString relayHostname = settings.value(Settings::relayHostname, QString()).toString();
+    QString relayPort = settings.value(Settings::relayPort, QString()).toString();
+
     ui->setupUi(this);
 
     QList<Sliver*> slivers = Settings::sliceManager.getSlivers();
@@ -39,6 +44,10 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->gatekeeperBox->setChecked(gatekeeperEnabled);
     ui->usernameEdit->setText(gatekeeperUsername);
     ui->hostnameEdit->setText(gatekeeperHostname);
+
+    ui->relayHostnameEdit->setText(relayHostname);
+    ui->relayPortEdit->setText(relayPort);
+    ui->relayBox->setChecked(relayEnabled);
     sliverKeyEdited = false;
     gatekeeperKeyEdited = false;
 }
@@ -116,6 +125,9 @@ void SettingsDialog::on_okButton_clicked()
     settings.setValue(Settings::gatekeeperUsername, ui->usernameEdit->text());
     settings.setValue(Settings::gatekeeperHostname, ui->hostnameEdit->text());
 
+    settings.setValue(Settings::relayEnabled, ui->relayBox->isChecked());
+    settings.setValue(Settings::relayHostname, ui->relayHostnameEdit->text());
+    settings.setValue(Settings::relayPort, ui->relayPortEdit->text());
     close();
 }
 

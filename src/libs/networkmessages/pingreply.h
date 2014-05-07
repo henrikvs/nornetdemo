@@ -9,13 +9,16 @@ struct PingReplyStruct
     QString localIp;
     QString remoteHost;
     int sessionId;
+    int state;
 };
 
 class PingReply : public AbstractMessage
 {
 public:
+    static const int STATE_RUNNING = 1;
+    static const int STATE_FINISHED = 2;
     PingReply();
-    PingReply(QString ms, QString localIp, QString remoteHost, int sessionId);
+    PingReply(QString ms, QString localIp, QString remoteHost, int sessionId, int state);
     //void read(MyQTcpSocket *socket);
     //void serialize(QByteArray *block);
     PingReplyStruct data;

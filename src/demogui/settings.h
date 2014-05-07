@@ -12,6 +12,11 @@ public:
     static SliceManager sliceManager;
     static QString gatekeeperUsername;
     static QString gatekeeperHostname;
+
+    static QString relayEnabled;
+    static QString relayPort;
+    static QString relayHostname;
+
 };
 
 #endif // SETTINGS_H

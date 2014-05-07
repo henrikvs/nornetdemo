@@ -32,15 +32,17 @@ void RelayProg::disconnected(MyQTcpSocket* socket)
     QHashIterator<QString, RelayProtocol*> i(pendingNodes);
     QString remove;
     while (i.hasNext())  {
+        qDebug() << "checking to remove";
         i.next();
         if (i.value() == protocol) {
             remove = i.key();
+            qDebug() << "Removed key";
         }
     }
     if (!remove.isEmpty()) {
         pendingNodes.remove(remove);
     }
-    return;
+        return;
     }
     {
     QHashIterator<QString, RelayProtocol*> i(pendingDemos);
@@ -49,6 +51,7 @@ void RelayProg::disconnected(MyQTcpSocket* socket)
         i.next();
         if (i.value() == protocol) {
             remove = i.key();
+            qDebug() << "Removed key";
         }
     }
     if (!remove.isEmpty()) {
@@ -81,9 +84,10 @@ void RelayProg::handleNewConnection(HandshakeMessage message, RelayProtocol *pro
                  << message.data.expectedUsername << message.data.expectedHostname;
     if (message.data.entityType == ENTITY_TYPE_DEMO) {
         qDebug() << "Received connect from demo";
-        QString id = message.data.expectedUsername + "-" + message.data.expectedHostname;
+        QString id = message.data.expectedUsername + "@" + message.data.expectedHostname;
         if (pendingNodes.contains(id)) {
             RelayProtocol *remoteProtocol = pendingNodes[id];
+            pendingNodes.remove(id);
             protocol->setRemoteProtocol(remoteProtocol);
             remoteProtocol->setRemoteProtocol(protocol);
         } else {
@@ -91,9 +95,10 @@ void RelayProg::handleNewConnection(HandshakeMessage message, RelayProtocol *pro
         }
     } else if (message.data.entityType == ENTITY_TYPE_NODE) {
         qDebug() << "Received connect from node";
-        QString id = message.data.username + "-" + message.data.hostname;
+        QString id = message.data.username + "@" + message.data.hostname;
         if (pendingDemos.contains(id)) {
             RelayProtocol *remoteProtocol = pendingDemos[id];
+            pendingDemos.remove(id);
             protocol->setRemoteProtocol(remoteProtocol);
             remoteProtocol->setRemoteProtocol(protocol);
         } else {

@@ -20,7 +20,7 @@ class NetworkEntity : public QObject
 public:
     static const int CONNECTION_TYPE_DEMO = 1, CONNECTION_TYPE_NODE = 2, CONNECTION_TYPE_RELAY = 3, CONNECTION_TYPE_REPLY = 4;
     static const int ENTITY_TYPE_DEMO = 1, ENTITY_TYPE_NODE = 2;
-    static const int VERSION = 19;
+    static const int VERSION = 23;
     static const int EXIT_TYPE_NORMAL = 1;
     static const int EXIT_TYPE_UPDATE = 2;
     static const int EXIT_TYPE_RESTART = 3;
@@ -40,8 +40,6 @@ public:
     MyQTcpSocket* getSocket(int id);
     QHash<int, MyQTcpSocket*> socketHash;
     virtual void disconnected(MyQTcpSocket *socket) = 0;
-    void setName(QString name);
-    QString getName();
 
     virtual void startHandshakeProtocol(int connectionType, QString expectedUsername, QString expectedHostname, MyQTcpSocket *socket);
 protected:
@@ -62,7 +60,6 @@ private:
     bool relayOn;
     QString relayAddress;
     int relayPort;
-    QString name;
     void setUpSocket(MyQTcpSocket *socket);
     virtual int getEntityType() = 0;
 

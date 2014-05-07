@@ -20,7 +20,7 @@ void NodeProtocol::sendNodeInfo()
     InfoTask *task = new InfoTask(this);
     connect(task, &InfoTask::newInfoMessage, this, &AbstractProtocol::sendMessage);
     connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
-    task->start(getName());
+    task->start();
 }
 
 void NodeProtocol::sendUpdatingStatus()
@@ -94,13 +94,14 @@ bool NodeProtocol::handleMessage(int type)
         InfoTask *task = new InfoTask(this);
         connect(task, &InfoTask::newInfoMessage, this, &AbstractProtocol::sendMessage);
         connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
-        task->start(getName());
+        task->start();
     } else if (type == MSGTYPE_TRANSFERREQUEST) {
         TransferRequestMessage message;
         message.read(socket);
         TransferTask *task = new TransferTask(message.data.transferId, message.data.transferType, message.data.remoteHost, message.data.localIp, message.data.seconds, this);
         connect(task, &TransferTask::newStatus, this, &AbstractProtocol::sendMessage);
         connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
+        task->start();
 
     } else {
         return false;

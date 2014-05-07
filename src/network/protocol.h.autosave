@@ -1,8 +1,0 @@
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
-
-struct RequestMessage {
-    
-};
-
-#endif // PROTOCOL_H

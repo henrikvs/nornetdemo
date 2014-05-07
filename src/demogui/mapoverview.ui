@@ -82,6 +82,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionConnect_to_slivers"/>
+   <addaction name="actionKill_nodes_2"/>
   </widget>
   <action name="actionSettings">
    <property name="text">
@@ -91,6 +92,16 @@
   <action name="actionConnect_to_slivers">
    <property name="text">
     <string>Connect to slivers</string>
+   </property>
+  </action>
+  <action name="actionKill_nodes">
+   <property name="text">
+    <string>Kill nodes</string>
+   </property>
+  </action>
+  <action name="actionKill_nodes_2">
+   <property name="text">
+    <string>Kill nodes</string>
    </property>
   </action>
  </widget>

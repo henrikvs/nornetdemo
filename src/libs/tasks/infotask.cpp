@@ -48,7 +48,7 @@ void InfoTask::start(QString name) {
     }
 }*/
 
-void InfoTask::start(QString name) {
+void InfoTask::start() {
 
     //message.data.name = name;
     message.data.listeningPort = "12345";
@@ -70,8 +70,11 @@ void InfoTask::start(QString name) {
     qDebug() << "host info: " << info.localDomainName() << info.localHostName();
     QString hostName = info.localHostName();
 #ifdef Q_OS_UNIX
-    qDebug() << "user" << getenv("HOME");
-    QString sliceName = QString(getenv("SUDO_USER"));
+    QString sliceName = getenv("USER");
+    if (sliceName == "root") {
+        sliceName = getenv("SUDO_USER");
+    }
+    qDebug() << "user" << sliceName;
 #elif defined(Q_OS_WIN)
     qDebug() << "user" << getenv("USERNAME");
     QString sliceName = QString(getenv("USERNAME"));

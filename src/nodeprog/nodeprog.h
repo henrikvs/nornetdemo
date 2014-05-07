@@ -6,6 +6,9 @@
 #include "networkentity.h"
 #include "abstractprotocol.h"
 #include "nodeprotocol.h"
+
+class QProcess;
+
 class NodeProg : public NetworkEntity
 {
     Q_OBJECT
@@ -20,6 +23,8 @@ private slots:
     void exitProgram(int exitValue);
 private:
     virtual int getEntityType();
+    void startIperf();
+    QProcess *iperfProcess;
 };
 
 #endif // NODEPROG_H

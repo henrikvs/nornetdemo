@@ -15,7 +15,7 @@ class InfoTask : public AbstractTask
 public:
     explicit InfoTask(QObject *parent = 0);
 public slots:
-    void start(QString name);
+    void start();
 private slots:
     void newDnsOutput();
     void newReverseDnsOutput();

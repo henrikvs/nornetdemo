@@ -31,7 +31,7 @@
     <string>Settings</string>
    </property>
   </widget>
-  <widget class="QTabWidget" name="settingsTab">
+  <widget class="QTabWidget" name="Relay">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -105,7 +105,7 @@
     </palette>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -251,6 +251,82 @@
       </property>
       <property name="text">
        <string>gatekeeper.nntb.no</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>Relay</string>
+    </attribute>
+    <widget class="QGroupBox" name="relayBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>351</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Relay server</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <widget class="QLineEdit" name="relayHostnameEdit">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>30</y>
+        <width>113</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>toki.dlinkddns.com</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Host name:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Port:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="relayPortEdit">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>70</y>
+        <width>113</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>33555</string>
       </property>
      </widget>
     </widget>

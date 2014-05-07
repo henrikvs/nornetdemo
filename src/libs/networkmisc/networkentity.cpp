@@ -160,16 +160,6 @@ MyQTcpSocket *NetworkEntity::getSocket(int id)
     return socketHash[id];
 }
 
-void NetworkEntity::setName(QString name)
-{
-    this->name = name;
-}
-
-QString NetworkEntity::getName()
-{
-    return name;
-}
-
 void NetworkEntity::startHandshakeProtocol(int connectionType, QString expectedUsername, QString expectedHostname, MyQTcpSocket *socket)
 {
     HandshakeProtocol *protocol = new HandshakeProtocol(connectionType, getEntityType(), expectedUsername, expectedHostname, this);
@@ -207,7 +197,7 @@ void NetworkEntity::newConnection(qintptr socketDescriptor)
     socket->setSocketDescriptor(socketDescriptor);
 
     setUpSocket(socket);
-    startHandshakeProtocol(CONNECTION_TYPE_REPLY, getName(),"default", socket);
+    startHandshakeProtocol(CONNECTION_TYPE_REPLY, "any","any", socket);
 
 
     qDebug() << "New connection: " << socket->peerAddress().toString();

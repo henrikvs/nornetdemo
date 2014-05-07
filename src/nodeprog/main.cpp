@@ -4,9 +4,15 @@
 #include <QCommandLineOption>
 #include <QTranslator>
 #include "shell.h"
+#include "signal.h"
 #include "nodeprog.h"
 #include <QThread>
 #include <QDebug>
+#include <QTimer>
+volatile sig_atomic_t sigint = 0;
+void signalHandler(int sig) {
+    sigint = 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -18,19 +24,28 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     QCommandLineOption portOption(QStringList() << "p" << "port", QCoreApplication::tr("Port to listen on"), QCoreApplication::tr("port"), "33555");
-    QCommandLineOption nameOption(QStringList() << "n" << "name", QCoreApplication::tr("The name of this node"), QCoreApplication::tr("nodeName"), "default");
     QCommandLineOption relayOption(QStringList() << "r" << "relay", QCoreApplication::tr("Start in relay mode"), QCoreApplication::tr("host:port"));
     parser.addOption(portOption);
-    parser.addOption(nameOption);
     parser.addOption(relayOption);
 
     parser.process(a);
 
     QString port = parser.value(portOption);
-    QString name = parser.value(nameOption);
     QString relay = parser.value(relayOption);
     NodeProg nodeprog;
-    qDebug() << "Name:" << name;
+
+    //for shutting down the program
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, [&nodeprog]() {
+        if (sigint) {
+            sigint = 1;
+            nodeprog.shutDown(NetworkEntity::EXIT_TYPE_NORMAL);
+        }
+    });
+    signal(SIGINT, signalHandler);
+    timer.start(1000);
+    //QObject::connect(&nodeprog,SIGNAL(shutDownComplete(int)), &nodeprog, SLOT(shutDown(int)
+
     qDebug() << "Port" << port;
 
     if (!relay.isEmpty()) {
@@ -40,7 +55,6 @@ int main(int argc, char *argv[])
         qDebug() << "Relay mode enabled:" << relayHost << relayPort;
         nodeprog.enableRelay(relayHost, relayPort.toInt());
     }
-    nodeprog.setName(name);
     nodeprog.start(port.toInt());
     //Shell shell;
     //QThread thread;

@@ -17,13 +17,14 @@ class DemoCore : public NetworkEntity
 public:
     DemoCore();
     void connectToSlivers(QList<Sliver*> slivers);
+    void shutDownNodeprogs(QList<Sliver*> slivers);
     void installProgram(Sliver *sliver);
     void addSliverConnection(Sliver *sliver);
     void addSliverConnection(QString ip, int port, QString sliceName, QString hostName);
     void start();
     void shutDownNodes();
     void getIpAddress(Sliver *sliver);
-    void pingHost(QString sliverName, QString host, QString localIp);
+    int pingHost(QString sliverName, QString host, QString localIp);
     int transferRequest(QString sliverName, QString host, QString localIp, int transferType, int seconds);
     void enableGatekeeper(QString username, QString hostname);
     void disableGatekeeper();

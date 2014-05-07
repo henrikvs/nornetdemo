@@ -63,6 +63,12 @@ L.Polyline2 = L.Polyline.extend({
                                         var skewedPoint = middlePoint.add(rotatedVect);
                                         console.log(skewedPoint.x + "."  + skewedPoint.y);
                                         this._originalPoints = [points[0], skewedPoint, points[1]];
+                                    },
+                                    _animateZoom: function (opt) {
+                                        console.log("Animate zoooooooom");
+                                        //var pos = this._map._latLngToNewLayerPoint(this._latlng, opt.zoom, opt.center).round();
+
+                                        //this._setPos(pos);
                                     }
 
                                 });
@@ -70,6 +76,11 @@ L.Polyline2 = L.Polyline.extend({
 L.polyline2 = function (latlngs, options) {
     return new L.Polyline2(latlngs, options);
 };
+
+//L.Polyline2.addInitHook(function () {
+//    this._zoomAnimated = true;
+//    console.log("Do something here");
+//});
 
 // main init function
 function initialize() {
@@ -90,6 +101,10 @@ function initialize() {
 
     map.on('viewreset', function() {
         console.log("view resettet");
+    });
+
+    map.on('zoomanim', function() {
+        console.log("Animating zoom");
     });
 
     map.on('click', function() {
@@ -156,6 +171,8 @@ function drawLine(id, info, fromLat, fromLng, toLat, toLng, xOffsetStart, yOffse
         console.log("Somethign2");
         mapWidget.connectionHoveredOff(id);
     });
+    map.on('zoomanim', this.update());
+
     /*polyline.on('mouseover', function(evt) {
         console.log("mouseon");
         polyline.bindPopup(info).openPopup();
@@ -219,7 +236,7 @@ function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offset
     //polyline._projectLatlngs();
     //polyline.setOffset(50,50);
 
-    //map.on('zoomanim', this.update);
+    //map.on('zoomanim', this.update());
     //map._update();
     console.log("Adding marker: " + id);
 }
