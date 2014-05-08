@@ -1,3 +1,5 @@
+#include "utilslibglobal.h"
+
 #ifndef SSHCONNECTION_H
 #define SSHCONNECTION_H
 
@@ -12,7 +14,7 @@ struct SSHHost {
     QString password;
 };
 
-class SSHConnection : public QObject
+class UTILSLIB_EXPORT SSHConnection : public QObject
 {
     Q_OBJECT
 public:

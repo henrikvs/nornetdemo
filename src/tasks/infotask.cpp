@@ -5,25 +5,30 @@
 #include <QList>
 #include <QNetworkAddressEntry>
 #include <QHostAddress>
+#include <QHostInfo>
+#include <stdlib.h>
 
 
 InfoTask::InfoTask(QObject *parent) :
-    QObject(parent)
+    AbstractTask(0, parent)
 {
     //regex.addRegex("time=(\\d+(.\\d*)?)\\s*ms", "ms");
 }
+/*
+void InfoTask::start(QString name) {
 
-void InfoTask::start() {
-
+    message.data.name = name;
     message.data.listeningPort = "12345";
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     QString address;
     foreach (QNetworkInterface interface, interfaces) {
-        Interface interfaceStruct;
+        NetworkInterface interfaceStruct;
         interfaceStruct.interfaceName = interface.humanReadableName();
         QList<QNetworkAddressEntry> entries = interface.addressEntries();
         if (address.isEmpty() && interface.humanReadableName() == "eth0") {
-            address = entries[0].ip().toString(); //we will use this ip for reverse lookup
+            if (!entries.empty()) {
+                address = entries[0].ip().toString(); //we will use this ip for reverse lookup
+            }
         }
         foreach (QNetworkAddressEntry entry, entries) {
             QHostAddress address = entry.ip();
@@ -37,10 +42,51 @@ void InfoTask::start() {
     if (!address.isEmpty()) {
         doReverseLookup(address);
     } else {
-        qDebug() << "address not found";
+        qDebug() << "Unable to find eth0 address";
         emit newInfoMessage(message);
         emit finished();
     }
+}*/
+
+void InfoTask::start() {
+
+    //message.data.name = name;
+    message.data.listeningPort = "12345";
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    QString address;
+    foreach (QNetworkInterface interface, interfaces) {
+        NetworkInterface interfaceStruct;
+        interfaceStruct.interfaceName = interface.humanReadableName();
+        QList<QNetworkAddressEntry> entries = interface.addressEntries();
+        foreach (QNetworkAddressEntry entry, entries) {
+            QHostAddress address = entry.ip();
+            interfaceStruct.addresses << address.toString();
+        }
+        message.data.interfaces << interfaceStruct;
+    }
+
+
+    QHostInfo info;
+    qDebug() << "host info: " << info.localDomainName() << info.localHostName();
+    QString hostName = info.localHostName();
+#ifdef Q_OS_UNIX
+    QString sliceName = getenv("USER");
+    if (sliceName == "root") {
+        sliceName = getenv("SUDO_USER");
+    }
+    qDebug() << "user" << sliceName;
+#elif defined(Q_OS_WIN)
+    qDebug() << "user" << getenv("USERNAME");
+    QString sliceName = QString(getenv("USERNAME"));
+#endif
+
+    QString dnsEntry = sliceName.replace("_", "-") + "." + hostName;
+    qDebug() << "DnsEntry: " << dnsEntry;
+
+    connect(&dnsProcess, SIGNAL(readyRead()), this, SLOT(newDnsOutput()));
+    connect(&dnsProcess, SIGNAL(finished(int)), this, SLOT(dnsFinished(int)));
+    dnsProcess.start("dig", QStringList() << dnsEntry <<"loc"<<"+noall" <<"+answer");
+
 }
 
 

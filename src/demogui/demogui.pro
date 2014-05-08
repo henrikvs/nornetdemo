@@ -63,14 +63,15 @@ myfile.files += $$PWD/tools/*
 #message($$libfiles_install.files)
 INSTALLS += myfile libfiles_install
 
-
-include(../libs/libs.pri)
 include (../democore/democore.pri)
-include (../libs/qcustomplot/qcustomplot.pri)
-
+include (../tasks/tasks.pri)
+include (../utils/utils.pri)
 HEADERS += $$files($$PWD/*.h)
 SOURCES += $$files($$PWD/*.cpp)
 FORMS    += $$files($$PWD/*.ui)
+
+HEADERS += $$files($$PWD/tasks/*.h)
+SOURCES += $$files($$PWD/tasks/*.cpp)
 
 RESOURCES += \
     resources.qrc
@@ -84,3 +85,13 @@ OTHER_FILES += \
 #message($$[QT_INSTALL_BINS])#
 #QMAKE_EXTRA_TARGETS += expectFile
 #POST_TARGETDEPS += expectFile
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/release/ -lnetworking
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/debug/ -lnetworking
+else:unix: LIBS += -L$$OUT_PWD/../libs/networking/ -lnetworking
+
+INCLUDEPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages
+DEPENDPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages
+
+
+#LIBS += -LC:/Users/Henrik/Dropbox/masterthesis/code/build-nornetdemo-Desktop_Qt_5_2_1_MSVC2012_64bit-Release/src/libs/networking/release/ -lnetworking

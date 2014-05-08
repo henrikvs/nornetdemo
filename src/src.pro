@@ -3,9 +3,10 @@ CONFIG += ordered
 
 SUBDIRS = \
         #network
+        libs \
         demogui \
-        demoshell \
+        #demoshell \
         nodeprog \
-        relayprog
+        #relayprog
 	#shell \
 	#tasks

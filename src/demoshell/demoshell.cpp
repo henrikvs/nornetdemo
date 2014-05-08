@@ -94,10 +94,10 @@ void DemoShell::newStdIn(QString input)
     } else if (tokens[0] == "transfer") {
         core->transferRequest(tokens[1], tokens[2], tokens[3],TransferRequestMessage::TRANSFER_TYPE_TCP, 10);
     } else if (tokens[0] == "getinfo") {
-        qDebug() << "Getting node info";
-        int socketId = tokens[1].toInt();
-        AbstractProtocol *protocol = core->getSocket(socketId)->getProtocol();
-        protocol->sendNodeInfoRequest();
+        //qDebug() << "Getting node info";
+        //int socketId = tokens[1].toInt();
+       // AbstractProtocol *protocol = core->getSocket(socketId)->getProtocol();
+        //protocol->sendNodeInfoRequest();
     } else if (tokens[0] == "exit_all") {
         core->shutDownNodes();
     } else if (tokens[0] == "addresses") {

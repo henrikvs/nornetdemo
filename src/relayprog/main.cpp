@@ -1,6 +1,5 @@
 #include <QCoreApplication>
 #include <QTextStream>
-#include "shell.h"
 #include "relayprog.h"
 
 #include <QThread>

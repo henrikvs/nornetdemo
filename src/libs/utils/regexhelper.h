@@ -1,3 +1,5 @@
+#include "utilslibglobal.h"
+
 #ifndef TEXTINTERPRETER_H
 #define TEXTINTERPRETER_H
 
@@ -6,7 +8,7 @@
 #include <QRegExp>
 #include <QStringList>
 #include <QList>
-class RegexHelper : public QObject
+class UTILSLIB_EXPORT RegexHelper : public QObject
 {
     Q_OBJECT
 public:

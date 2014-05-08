@@ -5,12 +5,14 @@
 #include <QProcess>
 #include "pingreply.h"
 #include "regexhelper.h"
+#include "abstracttask.h"
 
-class PingTask : public QObject
+class PingTask : public AbstractTask
 {
     Q_OBJECT
 public:
-    explicit PingTask(QString remoteHost, QObject *parent = 0);
+    explicit PingTask(int taskId, QString remoteHost, QString localIp, QObject *parent = 0);
+    virtual ~PingTask();
     int taskNumber;
 signals:
     void newPing(PingReply &message);
@@ -25,6 +27,7 @@ private slots:
 private:
     QProcess process;
     QString remoteHost;
+    QString localIp;
     RegexHelper regex;
 
 };

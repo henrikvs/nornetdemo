@@ -1,8 +1,10 @@
+#include "utilslibglobal.h"
+
 #ifndef SHELL_H
 #define SHELL_H
 #include <QObject>
 
-class Shell : public QObject
+class UTILSLIB_EXPORT Shell : public QObject
 {
     Q_OBJECT
 public:
