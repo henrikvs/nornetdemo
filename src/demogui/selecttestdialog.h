@@ -20,6 +20,8 @@ public:
     static const int TEST_PING = 2;
     int getConnectionType();
     int getTestType();
+    int getDurationSeconds();
+    bool isAccepted();
 
     ~SelectTestDialog();
 
@@ -31,6 +33,7 @@ private:
     QButtonGroup ipGroup;
     int testType;
     int connectionType;
+    bool accepted = false;
 };
 
 #endif // SELECTTESTDIALOG_H

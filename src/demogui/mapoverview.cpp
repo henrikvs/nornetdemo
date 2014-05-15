@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QCursor>
 #include <QPoint>
+#include <QRect>
 #include "qcustomplot.h"
 #include "settings.h"
 #include "settingsdialog.h"
@@ -16,9 +17,11 @@
 #include "regexhelper.h"
 #include "selecttestdialog.h"
 #include "transferrequestmessage.h"
+#include "graphdata.h"
+#include "plotwindow.h"
 
 /**
- * @brief Sets up the window, and connects the  GMapWidget instance with the DemoCore instance
+ * @brief Sets up the main window, and connects the  GMapWidget instance with the DemoCore instance
  * @param parent
  */
 MapOverview::MapOverview(QWidget *parent) :
@@ -28,51 +31,57 @@ MapOverview::MapOverview(QWidget *parent) :
 
     ui->setupUi(this);
 
+    ui->statusbar->showMessage(tr("Disconnected"));
+    //ui->actionConnect_to_slivers->setIcon(QIcon(":/connect-icon.png"));
+    //ui->actionSettings->setIcon(QIcon(":/settings-icon.png"));
+    QTimer *timer = new QTimer();
+
+    qDebug() << "This is before timeout: " << QThread::currentThreadId();
+
+    connect(timer, &QTimer::timeout, []() {
+               qDebug() << "This is timeout: " << QThread::currentThreadId();
+            });
+
+    timer->start(3000);
     applySettings();
 
-    gmap = new NodeMapWidget();
+    gmap = ui->mapWidget;
     connect(gmap, SIGNAL(mapLoaded()), this, SLOT(handleMapLoaded()));
 
     gmap->start();
+
     //setCentralWidget(gmap);
 
-    pingPlot = createGraph("mbps");
-    QSplitter *splitter = new QSplitter(this);
 
-    splitter->addWidget(gmap);
-    QVBoxLayout *sideWindowLayout = new QVBoxLayout;
-    sideWindowLayout->addWidget(createNodeInfoBox());
-
-
-    QWidget *sideWindow = new QWidget(this);
-    sideWindow->setLayout(sideWindowLayout);
-    sideWindowLayout->addWidget(pingPlot);
-    QCustomPlot *speedPlot = this->createGraph("Test");
-    sideWindowLayout->addWidget(speedPlot);
-    splitter->addWidget(sideWindow);
-    setCentralWidget(splitter);
+    connect(&core, SIGNAL(shutDownComplete(int)), this, SLOT(handleShutDownComplete(int)));
     //connect(gmap, SIGNAL(markerSelected(QString)), this, SLOT(markerSelected(QString)));
-    connect(gmap, SIGNAL(connectionClicked(QString)), this, SLOT(handleConnectionSelected(QString)));
+
+    connect(gmap, SIGNAL(mapHovered()), this, SLOT(handleMapHovered()));
     connect(gmap, SIGNAL(connectionHovered(QString)), this, SLOT(handleConnectionHovered(QString)));
     connect(gmap, SIGNAL(connectionHoveredOff(QString)), this, SLOT(handleConnectionHoveredOff(QString)));
+    connect(gmap, SIGNAL(connectionClicked(QString)), this, SLOT(handleConnectionSelected(QString)));
 
     connect(gmap, SIGNAL(nodeSelected(QString)), this, SLOT(handleNodeSelected(QString)));
     connect(gmap, SIGNAL(nodeHovered(QString)), this, SLOT(handleNodeHovered(QString)));
     connect(gmap, SIGNAL(nodeHoveredOff(QString)), this, SLOT(handleNodeHoveredOff(QString)));
 
     connect(gmap, SIGNAL(connectionRequest(QString,QString,QString, QString)), SLOT(handleConnectionRequest(QString,QString,QString, QString)));
-    connect(gmap, SIGNAL(doRefresh()), this, SLOT(doRefresh()));
+    connect(gmap, SIGNAL(doRefresh()), this, SLOT(handleRefresh()));
 
     connect(&core, SIGNAL(newStatusMessage(Sliver,NodeInfoMessage)), this, SLOT(handleNewStatusMessage(Sliver,NodeInfoMessage)));
     connect(&core, SIGNAL(newPingReply(Sliver,PingReply)), this, SLOT(handleNewPingReply(Sliver,PingReply)));
     connect(&core, SIGNAL(newTransferStatus(Sliver,TransferStatusMessage)), this, SLOT(handleNewTransferStatus(Sliver, TransferStatusMessage)));
-
+    connect(&core, SIGNAL(sliverDisonnected(Sliver)), SLOT(handleNodeDisconnected(Sliver)));
     connect(gmap, SIGNAL(providerSelected(QString,QString)), this, SLOT(handleAddressSelected(QString, QString)));
-    connect(gmap, SIGNAL(providerHovered(QString,QString)), this, SLOT(handleAddressHovered(QString, QString)));
-    connect(gmap, SIGNAL(providerHoveredOff(QString,QString)), this, SLOT(handleAddressHoveredOff(QString, QString)));
+    connect(gmap, SIGNAL(providerHovered(QString,QString)), this, SLOT(handleProviderHovered(QString, QString)));
+    connect(gmap, SIGNAL(providerHoveredOff(QString,QString)), this, SLOT(handleProviderHoveredOff(QString, QString)));
     //core.start();
+    connect(gmap, SIGNAL(connectionRightClicked(QString)), this, SLOT(handleConnectionRightClicked(QString)));
+    connect(gmap, SIGNAL(providerHovered(QString,QString)), this, SLOT(handleProviderHovered(QString, QString)));
+    connect(gmap, SIGNAL(providerHoveredOff(QString,QString)), this, SLOT(handleProviderHoveredOff(QString, QString)));
 
     //connect(gmap, SIGNAL(markerSelected(QString)), this, SLOT(handleNodeSelected(QString)));
+
 }
 
 MapOverview::~MapOverview()
@@ -158,16 +167,9 @@ void MapOverview::applySettings()
 
 void MapOverview::addGraphData(QString id, qreal data)
 {
-    QCPDataMap &dataMap = graphHash[id].data;
+
     double now = QDateTime::currentDateTime().toTime_t();
-    dataMap[now] = QCPData(now, data);
-    qDebug() << "datasize: " << dataMap.size();
-    foreach(QCustomPlot *plot, graphHash[id].plots) {
-        qDebug() << "Replotting";
-        //->graph()->setData(&data, false);
-        plot->rescaleAxes(false);
-        plot->replot();
-    }
+    graphHash[id].addData(now, data);
 }
 
 /**
@@ -197,6 +199,16 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
     qreal decLat = dmsToDecimal(lat[0].toDouble(), lat[1].toDouble(), lat[2].toDouble()); //change the location format
     qreal decLng = dmsToDecimal(lng[0].toDouble(), lng[1].toDouble(), lng[2].toDouble());
     gmap->addNodeMarker(sliver.name, decLat, decLng);
+    ui->connectedList->addItem(sliver.hostName);
+
+    int sliverCount = Settings::sliceManager.sliverCount();
+    int connected = ui->connectedList->count();
+    if (connected == sliverCount) {
+        ui->statusbar->showMessage("Connected");
+    } else {
+        ui->statusbar->showMessage(QString("Connected to %1 out of %2 sites").arg(connected).arg(sliverCount));
+    }
+
     Provider address;
     NetworkInterface networkinterface;
 
@@ -212,12 +224,12 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
                     ipToProviderIdHash[address] = QString::number(providerId);
                     ipToNodeIdHash[address] = sliver.hostName;
                 } else if (address.startsWith("2001:700:4100")) {
-                    QString str = RegexHelper::getFirst(address, "^2001:700:4100:(\\d+):");
+                    QString str = RegexHelper::getFirst(address, "^2001:700:4100:(\\w+):");
                     QString providerIdHex = str.mid(0, str.length() - 2);
                     bool ok;
                     int providerId = providerIdHex.toUInt(&ok, 16);
                     if (!ok) {
-                        qDebug() << "failed to convert hex to decimal";
+                        qDebug() << "failed to convert hex to decimal" << str;
                     } else {
                         nodeHash[sliver.hostName].providers[providerId] << address;
                         qDebug() << "Inserting:" << address << "with" << providerId;
@@ -240,7 +252,7 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
     }
 
     nodeHash[sliver.name].nodeInfo = message;
-
+    nodeHash[sliver.name].sliver = sliver;
 }
 
 /**
@@ -257,6 +269,7 @@ void MapOverview::handleNewPingReply(Sliver sliver, PingReply message)
     QString destNode = ipToNodeIdHash[message.data.remoteHost];
 
     int sessionId = message.data.sessionId;
+    gmap->drawConnectionTraffic(srcNode, srcProvider, destNode, destProvider, QString::number(sessionId));
     QString id = QString::number(sessionId) + ":" + srcProvider + "@" + srcNode + ":" + destProvider + "@" + destNode;
     if (message.data.state == PingReply::STATE_RUNNING) {
         qDebug() << "ping reply: new Id: " << message.data.localIp << message.data.remoteHost << id;
@@ -302,6 +315,7 @@ void MapOverview::handleNewTransferStatus(Sliver sliver, TransferStatusMessage m
     QString destNode = ipToNodeIdHash[message.data.remoteHost];
 
     int sessionId = message.data.transferId;
+    gmap->drawConnectionTraffic(srcNode, srcProvider, destNode, destProvider, QString::number(sessionId));
 
     QString id = QString::number(sessionId) + ":" + srcProvider + "@" + srcNode + ":" + destProvider + "@" + destNode;
     if (message.data.state == TransferStatusMessage::STATE_RUNNING) {
@@ -361,6 +375,7 @@ void MapOverview::handleMapLoaded()
 
 }
 
+
 /**
  * @brief Slot that deals with what to do if a node is selected
  * @param The id of the node
@@ -388,7 +403,7 @@ void MapOverview::handleConnectionSelected(QString id)
 void MapOverview::showGraph(QString id)
 {
     qDebug() << "Showing: " << id;
-    Graph &graph = graphHash[id];
+    GraphData &graph = graphHash[id];
     QCPDataMap &data = graph.data;
     /*if (graphHash.contains(id)) {
         qDebug() << "Getting old";
@@ -402,8 +417,32 @@ void MapOverview::showGraph(QString id)
         graph->setVisible(true);
         graphHash[id] = graph;
     }*/
+    PlotWindow *window = new PlotWindow(this);
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    graph.bindToWindow(window);
+    connect(window, &PlotWindow::destroyed, [this, window]() {
+       plotWindows.removeAll(window);
+       qDebug() << "Removed plot window";
+    });
+
+    // make the splitter more obvious
+    QSplitterHandle *handle = ui->splitter->handle(1);
+    QVBoxLayout *layout = new QVBoxLayout(handle);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+
+    QFrame *line = new QFrame(handle);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(line);
+
+
+
+    window->setWindowTitle(window->getName());
+    window->show();
     QDialog *dialog = new QDialog(this);
-    dialog->setMinimumSize(400,400);
+    plotWindows << window;
+    /*dialog->setMinimumSize(400,400);
     if (graph.type == GRAPH_TYPE_PING) {
         qDebug() << "showing ping graph";
         QCustomPlot *plot = createGraph("ms");
@@ -414,6 +453,9 @@ void MapOverview::showGraph(QString id)
         layout->addWidget(plot);
         dialog->setLayout(layout);
         dialog->show();
+        PlotWindow *window = new PlotWindow;
+        graph.bindToPlot(window->getPlotWidget());
+        window->show();
     } else if (graph.type == GRAPH_TYPE_TCP) {
         qDebug() << "Showing  tcp graph";
         QCustomPlot *plot = createGraph("mbps");
@@ -424,27 +466,15 @@ void MapOverview::showGraph(QString id)
         layout->addWidget(plot);
         dialog->setLayout(layout);
         dialog->show();
+        PlotWindow *window = new PlotWindow;
+        graph.bindToPlot(window->getPlotWidget());
+        window->show();
     } else {
         qDebug() << "Error: No recognized graph type";
-    }
-}
-
-void MapOverview::removePingGraph(QString localAddress, QString remoteHost)
-{
-    /*QString id = localAddress + "/" + remoteHost;
-    QCPGraph *graph;
-    if (graphHash.contains(id)) {
-        qDebug() << "Removing";
-        graph = graphHash[id];
-        //pingPlot->removeGraph(graph);
-        graph->setVisible(false);
-        pingPlot->replot();
-    } else {
-        qDebug() << "Graph doesn't exist";
     }*/
 }
 
-void MapOverview::doRefresh()
+void MapOverview::handleRefresh()
 {
     qDebug() << "Doing refresh";
     gmap->repaint();
@@ -495,41 +525,62 @@ void MapOverview::handleConnectionRequest(QString srcNodeId, QString srcProvider
     }
 
     qDebug() << "Showing dialog";
+
     SelectTestDialog dialog(enableIpv4Option, enableIpv6Option, this);
     dialog.exec();
 
+    if (!dialog.isAccepted()) {
+        qDebug() << "Some error";
+        return;
+    }
     int connectionType = dialog.getConnectionType();
     int testType = dialog.getTestType();
+    int duration = dialog.getDurationSeconds();
     qDebug() << connectionType << testType;
 
     QString srcIp;
     QString destIp;
+    GraphData::IPType ipType;
     if (connectionType == SelectTestDialog::CONNECTION_IPV4) {
         srcIp = srcIpv4Adr;
         destIp = destIpv4Adr;
+        ipType = GraphData::IPv4;
     } else if (connectionType == SelectTestDialog::CONNECTION_IPV6) {
         srcIp = srcIpv6Adr;
         destIp = destIpv6Adr;
+        ipType = GraphData::IPv6;
     } else {
         qDebug() << "No selection";
+        return;
     }
+    QString id;
     qDebug() << "Doing connect";
     if (testType == SelectTestDialog::TEST_TCP) {
         qDebug() << "Doing tcp test:" << srcIp << destIp;
         qDebug() << "Pinging host:" << srcNodeId << srcIp << destIp;
-        int sessionId = core.transferRequest(srcNodeId, destIp, srcIp, TransferRequestMessage::TRANSFER_TYPE_TCP,5);
+        int sessionId = core.transferRequest(srcNodeId, destIp, srcIp, TransferRequestMessage::TRANSFER_TYPE_TCP,duration);
         gmap->addConnectionLine(srcNodeId, srcProviderId, destNodeId, destProviderId, QString::number(sessionId));
-        QString id = QString::number(sessionId) + ":" + srcProviderId + "@" + srcNodeId + ":" + destProviderId + "@" + destNodeId;
-        graphHash[id] = Graph(GRAPH_TYPE_TCP);
+        id = QString::number(sessionId) + ":" + srcProviderId + "@" + srcNodeId + ":" + destProviderId + "@" + destNodeId;
+        graphHash[id] = GraphData(GraphData::TCP, ipType, id, srcIp, destIp, srcNodeId, destNodeId, srcProviderId, destProviderId, sessionId);
         //gmap->addConnectionLine(localIp, remoteIp, QString::number(0));
     } else if(testType == SelectTestDialog::TEST_PING) {
         qDebug() << "Doing ping test:" << srcIp << destIp;
         qDebug() << "Pinging host:" << srcNodeId << srcIp << destIp;
-        int sessionId = core.pingHost(srcNodeId, destIp, srcIp);;
+        int sessionId = core.pingHost(srcNodeId, destIp, srcIp, duration);
         gmap->addConnectionLine(srcNodeId, srcProviderId, destNodeId, destProviderId, QString::number(sessionId));
-        QString id = QString::number(sessionId) + ":" + srcProviderId + "@" + srcNodeId + ":" + destProviderId + "@" + destNodeId;
-        graphHash[id] = Graph(GRAPH_TYPE_PING);
+        id = QString::number(sessionId) + ":" + srcProviderId + "@" + srcNodeId + ":" + destProviderId + "@" + destNodeId;
+        graphHash[id] = GraphData(GraphData::PING, ipType, id, srcIp, destIp, srcNodeId, destNodeId, srcProviderId, destProviderId, sessionId);
+    } else {
+        return;
     }
+
+    GraphData &data = graphHash[id];
+
+    QListWidgetItem *item = new QListWidgetItem(data.expTypeString() + "-" + data.ipTypeString());
+    item->setData(Qt::UserRole, id);
+    ui->experimentsList->insertItem(0, item);
+    //ui->experimentsList->addItem(item);
+
     qDebug() << "connection type" << connectionType << "test type" << testType;
     /*if (ok && !item.isEmpty()) {
         qDebug() << "Successful select";
@@ -548,7 +599,16 @@ void MapOverview::handleConnectionRequest(QString srcNodeId, QString srcProvider
 
 void MapOverview::handleConnectionHovered(QString address)
 {
+    QStringList splitted = address.split("@");
+    QString provider = splitted[0];
+    QString site = splitted[1];
+    GraphData &graph = graphHash[address];
     qDebug() << "Connection hovered" << address;
+    ui->stackedWidget->setCurrentWidget(ui->connectionPage);
+    ui->experimentEdit->setText(graph.expTypeString());
+    ui->ipEdit->setText(graph.ipTypeString());
+    ui->srcAddrEdit->setText(graph.getSrcAddr());
+    ui->destAddrEdit->setText(graph.getDestAddr());
     //PopupWidget *popupWidget = new PopupWidget(address, this);
     //QLabel *label = new QLabel(this);
     //label->setText(address);
@@ -563,6 +623,37 @@ void MapOverview::handleConnectionHovered(QString address)
 void MapOverview::handleConnectionHoveredOff(QString address)
 {
     qDebug() << "connection hovered off";
+        ui->stackedWidget->setCurrentWidget(ui->mapPage);
+}
+
+void MapOverview::handleConnectionRightClicked(QString id)
+{
+    QMenu menu(this);
+    QPoint point = QCursor::pos();
+    GraphData &graphData = graphHash[id];
+
+    QMenu *graphMenu = menu.addMenu("Add to graph");
+    QAction *addaction = graphMenu->addAction("New Plot window");
+    connect(addaction, &QAction::triggered, [this, id]() {
+       showGraph(id);
+    });
+    foreach(PlotWindow* window, plotWindows) {
+        QAction *action = graphMenu->addAction(window->getName());
+        connect(action, &QAction::triggered, [window, &graphData]() {
+            graphData.bindToWindow(window);
+            qDebug() << "Opened window";
+        });
+    }
+    QAction *action = menu.addAction("Remove");
+    connect(action, &QAction::triggered, [this, &graphData]() {
+        gmap->removeConnectionLine(graphData.getSrcNode(), graphData.getSrcProviderId(), graphData.getDestNode(), graphData.getDestProviderId(), QString::number(graphData.getsessionId()));
+        core.stopExperiment(graphData.getSrcNode(), graphData.getsessionId());
+       qDebug() << "Triggered remove";
+    });
+
+    QAction *selectedItem = menu.exec(point);
+
+    qDebug() << "Connectino was right clicked in mapoverview";
 }
 
 void MapOverview::handleAddressSelected(QString nodeId, QString address)
@@ -570,25 +661,68 @@ void MapOverview::handleAddressSelected(QString nodeId, QString address)
     qDebug() << " Address selected" << nodeId << address;
 }
 
-void MapOverview::handleAddressHovered(QString nodeId, QString address)
+void MapOverview::handleProviderHovered(QString nodeId, QString address)
 {
+    ui->stackedWidget->setCurrentWidget(ui->providerPage);
+    ui->providerName->setText(address);
+
+    NodeStruct &srcNode = nodeHash[nodeId];
+    QStringList srcAdrs = srcNode.providers.value(address.toInt());
+    ui->addressListWidget->clear();
+    ui->addressListWidget->addItems(srcAdrs);
     qDebug() << " Address hovered" << nodeId << address;
 }
 
-void MapOverview::handleAddressHoveredOff(QString nodeId, QString address)
+void MapOverview::handleProviderHoveredOff(QString nodeId, QString address)
 {
     qDebug() << " Address hovered off";
+        ui->stackedWidget->setCurrentWidget(ui->mapPage);
+}
+
+void MapOverview::handleShutDownComplete(int status)
+{
+    qDebug() << "Shut down complete";
+
+}
+
+void MapOverview::handleAboutToQuit()
+{
+    core.shutDown();
+    qDebug() << "shutting down core";
+}
+
+void MapOverview::handleMapHovered()
+{
+    ui->stackedWidget->setCurrentWidget(ui->mapPage);
+}
+
+void MapOverview::handleNodeDisconnected(Sliver sliver)
+{
+
+    QList<QListWidgetItem*> items = ui->connectedList->findItems(sliver.hostName, Qt::MatchExactly);
+    qDeleteAll(items);
+
+    gmap->removeNodeMarker(sliver.hostName);
+    int sliverCount = Settings::sliceManager.sliverCount();
+    int connected = ui->connectedList->count();
+    ui->statusbar->showMessage(QString("Connected to %1 out of %2 sites").arg(connected).arg(sliverCount));
 }
 
 
 void MapOverview::handleNodeHovered(QString hostname)
 {
+    //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
+    NodeStruct &node = nodeHash[hostname];
+    ui->stackedWidget->setCurrentWidget(ui->nodePage);
+    ui->sliceNameEdit->setText(node.sliver.sliceName);
+    ui->siteNameEdit->setText(node.sliver.hostName);
     qDebug() << "Node hovered";
 }
 
 void MapOverview::handleNodeHoveredOff(QString hostname)
 {
     qDebug() << "Node hovered off";
+        ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
 QWidget *MapOverview::createNodeInfoBox()
@@ -653,6 +787,7 @@ void MapOverview::on_actionSettings_triggered()
 void MapOverview::on_actionConnect_to_slivers_triggered()
 {
     connectToSlivers();
+    ui->statusbar->showMessage(QString("Connecting").arg(Settings::sliceManager.sliverCount()));
 }
 
 void MapOverview::on_actionKill_nodes_2_triggered()

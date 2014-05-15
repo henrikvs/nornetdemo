@@ -90,8 +90,8 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/rel
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/debug/ -lnetworking
 else:unix: LIBS += -L$$OUT_PWD/../libs/networking/ -lnetworking
 
-INCLUDEPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages
-DEPENDPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages
+INCLUDEPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages $$PWD/../libs/networking/sctp
+DEPENDPATH += $$PWD/../libs/networking $$PWD/../libs/networking/networkmessages $$PWD/../libs/networking/sctp
 
 
 #LIBS += -LC:/Users/Henrik/Dropbox/masterthesis/code/build-nornetdemo-Desktop_Qt_5_2_1_MSVC2012_64bit-Release/src/libs/networking/release/ -lnetworking

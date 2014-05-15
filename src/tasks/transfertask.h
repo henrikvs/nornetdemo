@@ -12,11 +12,11 @@ class TransferTask : public AbstractTask
     Q_OBJECT
 public:
     void start();
-
-    TransferTask(int transferId, int transferType, QString localIp, QString remoteHost, int seconds, QObject *parent = 0);
+    virtual void killTask();
+    virtual void stopTask();
+    TransferTask(int transferId, int transferType, QString localIp, QString remoteHost, int seconds, int remotePort, QObject *parent = 0);
 signals:
     void newStatus(TransferStatusMessage &message);
-    void finished();
 private:
     QProcess process;
     QString remoteHost;
@@ -24,6 +24,7 @@ private:
     RegexHelper regex;
     int seconds;
     int transferType;
+    int remotePort;
 private slots:
     void processFinished(int retvalue);
     void newOutput();

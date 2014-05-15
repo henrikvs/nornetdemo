@@ -8,8 +8,12 @@ class AbstractTask : public QObject
 public:
     AbstractTask(int taskId, QObject *parent = 0);
     virtual ~AbstractTask();
+    virtual void killTask() = 0;
+    virtual void stopTask() = 0;
 protected:
     int taskId;
+signals:
+    void finished();
 };
 
 #endif // ABSTRACTTASK_H

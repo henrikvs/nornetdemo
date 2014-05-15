@@ -23,6 +23,7 @@ public:
     static const int MSGTYPE_HANDSHAKE = 11;
     static const int MSGTYPE_TRANSFERREQUEST= 12;
     static const int MSGTYPE_TRANSFERSTATUS = 13;
+    static const int MSGTYPE_TASKCONTROLLER= 14;
     virtual void serialize(QByteArray *block) const;
     virtual void read(MyQTcpSocket *socket) ;
     virtual char getType() const;

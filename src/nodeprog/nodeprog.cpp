@@ -3,15 +3,15 @@
 #include <QProcess>
 #include <QStringList>
 
-NodeProg::NodeProg()
+NodeProg::NodeProg() : NetworkEntity()
 {
     connect(this, SIGNAL(shutDownComplete(int)), this, SLOT(exitProgram(int)));
-    iperfProcess = NULL;
 }
 
 void NodeProg::start(int port)
 {
-    startIperf();
+    startIperf(getIperf4Port());
+    startIperfIpv6(getIperf6Port());
     if (relayEnabled()) {
         addConnection(getRelayAddress(), getRelayPort(), CONNECTION_TYPE_RELAY, "any", "any");
     } else {
@@ -31,7 +31,7 @@ void NodeProg::disconnected(MyQTcpSocket *socket)
 AbstractProtocol *NodeProg::createProtocol(HandshakeMessage message, MyQTcpSocket *socket)
 {
     if (message.data.connectionType == CONNECTION_TYPE_DEMO || message.data.connectionType == CONNECTION_TYPE_RELAY) {
-        NodeProtocol *protocol = new NodeProtocol(this);
+        NodeProtocol *protocol = new NodeProtocol(getIperf4Port(), getIperf6Port(), this);
         protocol->setSocket(socket);
         connect(protocol, SIGNAL(exitProgram(int)), this, SLOT(shutDown(int)));
         return protocol;
@@ -44,10 +44,18 @@ AbstractProtocol *NodeProg::createProtocol(HandshakeMessage message, MyQTcpSocke
 void NodeProg::exitProgram(int exitValue)
 {
     qDebug() << "Exiting nodeprog";
-    if (iperfProcess != NULL) {
-        iperfProcess->terminate();
-        iperfProcess->waitForFinished();
-        iperfProcess = NULL; //should be automatically freed by the child parent relationship
+    if (iperf4Process != NULL) {
+        iperf4Process->terminate();
+        iperf4Process->waitForFinished();
+        qDebug() << "Iperf4 finished";
+        iperf4Process = NULL; //should be automatically freed by the child parent relationship
+    }
+
+    if (iperf6Process != NULL) {
+        iperf6Process->terminate();
+        iperf6Process->waitForFinished();
+        qDebug() << "Iperf6 finished";
+        iperf6Process = NULL; //should be automatically freed by the child parent relationship
     }
     qApp->exit(exitValue);
 }
@@ -57,17 +65,31 @@ int NodeProg::getEntityType()
     return NetworkEntity::ENTITY_TYPE_NODE;
 }
 
-void NodeProg::startIperf()
+void NodeProg::startIperf(int port)
 {
-    qDebug() << "Starting iperf";
-    QProcess *iperfProcess = new QProcess(this);
+    qDebug() << "Starting iperf on port " << port;
+    iperf4Process = new QProcess(this);
 
-    iperfProcess->start("iperf", QStringList() << "-s");
+    iperf4Process->start("iperf", QStringList() << "-p" << QString::number(port) << "-s");
 
     //connect(iperfProces, &QProcess::)
     void (QProcess:: *signal)(int) = &QProcess::finished;
-    connect(iperfProcess, signal, [](int val) {
+    connect(iperf4Process, signal, [](int val) {
         qDebug() << "Destroyed";
     });
 
+}
+
+void NodeProg::startIperfIpv6(int port)
+{
+    qDebug() << "Starting iperf on port" << port;
+    iperf6Process = new QProcess(this);
+
+    iperf6Process->start("iperf", QStringList() << "-V" << "-p" << QString::number(port) << "-s");
+
+    //connect(iperfProces, &QProcess::)
+    void (QProcess:: *signal)(int) = &QProcess::finished;
+    connect(iperf6Process, signal, [](int val) {
+        qDebug() << "Destroyed";
+    });
 }

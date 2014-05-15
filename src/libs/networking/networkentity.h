@@ -25,11 +25,16 @@ public:
     static const int CONNECTION_TYPE_REPLY = 4;
     static const int ENTITY_TYPE_DEMO = 1;
     static const int ENTITY_TYPE_NODE = 2;
-    static const int VERSION = 23;
+    static const int VERSION = 30;
     static const int EXIT_TYPE_NORMAL = 1;
     static const int EXIT_TYPE_UPDATE = 2;
     static const int EXIT_TYPE_RESTART = 3;
     static const int EXIT_TYPE_ERROR = 4;
+    //Ports to use if no port is specified:
+    static const int PORT = 33555;
+    static const int IPERF_IPV4PORT = 33556;
+    static const int IPERF_IPV6PORT = 33557;
+
     explicit NetworkEntity(QObject *parent = 0);
     ~NetworkEntity();
     MyQTcpSocket *clientSocket;
@@ -42,6 +47,12 @@ public:
     void removeSocket(int socketId);
     void disconnectSocket(int socketId);
     void enableRelay(QString address, int port);
+
+    void setIperf4Port(int port);
+    void setIperf6Port(int port);
+    int getIperf4Port();
+    int getIperf6Port();
+
     MyQTcpSocket* getSocket(int id);
     QHash<int, MyQTcpSocket*> socketHash;
     virtual void disconnected(MyQTcpSocket *socket) = 0;
@@ -60,6 +71,9 @@ private:
     QList<MyQTcpServer*> serverList;
 
     int nextId;
+
+    int iperf4Port;
+    int iperf6Port;
     void sendProtocolType(MyQTcpSocket *socket, qint32 type);
     //relay
     bool relayOn;

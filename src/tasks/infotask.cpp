@@ -14,6 +14,16 @@ InfoTask::InfoTask(QObject *parent) :
 {
     //regex.addRegex("time=(\\d+(.\\d*)?)\\s*ms", "ms");
 }
+
+void InfoTask::killTask()
+{
+
+}
+
+void InfoTask::stopTask()
+{
+
+}
 /*
 void InfoTask::start(QString name) {
 

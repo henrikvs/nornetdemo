@@ -23,8 +23,10 @@ private slots:
     void exitProgram(int exitValue);
 private:
     virtual int getEntityType();
-    void startIperf();
-    QProcess *iperfProcess;
+    void startIperf(int port);
+    void startIperfIpv6(int port);
+    QProcess *iperf4Process = NULL;
+    QProcess *iperf6Process = NULL;
 };
 
 #endif // NODEPROG_H

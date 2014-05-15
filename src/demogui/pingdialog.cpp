@@ -20,7 +20,7 @@ PingDialog::~PingDialog()
 void PingDialog::on_pingButton_clicked()
 {
     QString ip = ui->pingText->toPlainText();
-    PingTask *task = new PingTask(0, ip, "TODO",  this);
+    PingTask *task = new PingTask(0, ip, "TODO",  0, this);
     connect(task, &PingTask::newPing, this, &PingDialog::pingReplySlot);
     task->start();
 

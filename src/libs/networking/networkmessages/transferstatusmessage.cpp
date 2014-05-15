@@ -6,7 +6,7 @@ TransferStatusMessage::TransferStatusMessage()
 
 }
 
-TransferStatusMessage::TransferStatusMessage(int transferId, QString mbps, QString remoteHost, QString localIp, int interval, int state)
+TransferStatusMessage::TransferStatusMessage(int transferId, QString mbps, QString localIp, QString remoteHost, int interval, int state)
 {
 	this->data.transferId=transferId;
 	this->data.mbps=mbps;

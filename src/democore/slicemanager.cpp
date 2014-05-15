@@ -38,13 +38,18 @@ QList<Sliver*> SliceManager::getSlivers()
     return slivers.values();
 }
 
-void SliceManager::createSliver(QString hostname, QString username)
+int SliceManager::sliverCount()
+{
+    return slivers.size();
+}
+
+void SliceManager::createSliver(QString hostname, QString sliceName, int port)
 {
     Sliver *sliver = new Sliver();
-    sliver->sliceName = username;
+    sliver->sliceName = sliceName;
     sliver->name = hostname;
     sliver->hostName = hostname;
-    sliver->port = 33555;
+    sliver->port = port;
     slivers[hostname] = sliver;
 
 }

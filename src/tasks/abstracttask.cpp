@@ -10,3 +10,4 @@ AbstractTask::~AbstractTask()
 {
     qDebug() << "Destroyed abstract task";
 }
+

@@ -20,7 +20,7 @@ public:
     static const int STATE_RUNNING = 1;
     static const int STATE_FINISHED = 2;
     TransferStatusMessage();
-    TransferStatusMessage(int transferId, QString mbps, QString remoteHost, QString localIp, int interval, int state);
+    TransferStatusMessage(int transferId, QString mbps, QString localIp, QString remoteHost, int interval, int state);
     void serialize(QByteArray *block)  const;
     void read(MyQTcpSocket *socket);
     char getType() const;

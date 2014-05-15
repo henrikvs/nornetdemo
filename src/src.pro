@@ -7,6 +7,6 @@ SUBDIRS = \
         demogui \
         #demoshell \
         nodeprog \
-        #relayprog
+        relayprog
 	#shell \
 	#tasks

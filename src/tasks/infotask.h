@@ -13,6 +13,8 @@ class InfoTask : public AbstractTask
     Q_OBJECT
 public:
     explicit InfoTask(QObject *parent = 0);
+    virtual void killTask();
+    virtual void stopTask();
 public slots:
     void start();
 private slots:
@@ -23,7 +25,6 @@ private slots:
     void dnsFinished(int retvalue);
 signals:
     void newInfoMessage(NodeInfoMessage &message);
-    void finished();
 private:
     QProcess revDnsProcess;
     QProcess dnsProcess;

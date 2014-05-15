@@ -24,8 +24,11 @@ public:
     void start();
     void shutDownNodes();
     void getIpAddress(Sliver *sliver);
-    int pingHost(QString sliverName, QString host, QString localIp);
+    int pingHost(QString sliverName, QString host, QString localIp, int seconds);
+    void stopExperiment(QString sliverName, int sessionId);
+
     int transferRequest(QString sliverName, QString host, QString localIp, int transferType, int seconds);
+    void stopTransfer(QString sliverName);
     void enableGatekeeper(QString username, QString hostname);
     void disableGatekeeper();
     virtual void disconnected(MyQTcpSocket *socket);
@@ -57,6 +60,8 @@ signals:
     void newStatusMessage(Sliver sliver, NodeInfoMessage message);
     void newPingReply(Sliver sliver, PingReply message);
     void newTransferStatus(Sliver sliver, TransferStatusMessage message);
+    void sliverDisonnected(Sliver sliver);
+    void sliverUpdating(Sliver sliver);
 };
 
 #endif // DEMOCORE_H

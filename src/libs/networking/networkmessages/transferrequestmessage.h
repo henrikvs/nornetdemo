@@ -21,6 +21,7 @@ public:
     static const int TRANSFER_TYPE_UDP = 2;
     static const int TRANSFER_TYPE_SCTP = 3;
     static const int TRANSFER_TYPE_MPTCP = 4;
+
     TransferRequestMessage();
     TransferRequestMessage(int transferId, int transferType, QString remoteHost, QString localIp, int seconds);
     void serialize(QByteArray *block)  const;

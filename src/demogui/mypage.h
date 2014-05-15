@@ -3,6 +3,10 @@
 #include <QObject>
 #include <QWebPage>
 
+/**
+ * @brief The MyPage class is derived from the QWebPage class, and it's purpose is simply to enable printing of
+ * java messages.
+ */
 class MyPage : public QWebPage
 {
     Q_OBJECT

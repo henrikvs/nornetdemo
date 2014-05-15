@@ -11,13 +11,14 @@ class PingTask : public AbstractTask
 {
     Q_OBJECT
 public:
-    explicit PingTask(int taskId, QString remoteHost, QString localIp, QObject *parent = 0);
+    explicit PingTask(int taskId, QString remoteHost, QString localIp, int time = 0, QObject *parent = 0);
     virtual ~PingTask();
+    virtual void killTask();
+    virtual void stopTask();
     int taskNumber;
 signals:
     void newPing(PingReply &message);
     void newString(QString string);
-    void finished();
 public slots:
     void start();
 private slots:
@@ -28,6 +29,7 @@ private:
     QProcess process;
     QString remoteHost;
     QString localIp;
+    int time;
     RegexHelper regex;
 
 };

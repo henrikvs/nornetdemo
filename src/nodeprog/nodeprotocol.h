@@ -10,6 +10,8 @@
 #include "nodeinfomessage.h"
 #include <QtEndian>
 
+class AbstractTask;
+
 class NodeProtocol : public AbstractProtocol
 {
     Q_OBJECT
@@ -22,12 +24,15 @@ public:
     virtual void cleanUp();
 
 
-    explicit NodeProtocol(QObject *parent = 0);
+    explicit NodeProtocol(int iperfIpv4Port, int iperfIpv6Port, QObject *parent = 0);
 protected:
     virtual bool handleMessage(int type);
 signals:
     void exitProgram(int id);
-
+private:
+    int iperfIpv4Port;
+    int iperfIpv6Port;
+    QHash<int, AbstractTask*> tasks;
 
 };
 

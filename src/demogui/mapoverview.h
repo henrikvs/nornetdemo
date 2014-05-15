@@ -10,6 +10,7 @@
 #include "pingreply.h"
 #include "democore.h"
 #include "qcustomplot.h"
+#include "graphdata.h"
 
 class QCustomPlot;
 class QCPGraph;
@@ -21,18 +22,9 @@ class MapOverview;
 struct NodeStruct {
    QMap<int, QStringList> providers;
    NodeInfoMessage nodeInfo;
-};
-
-/**
- * @brief The Graph struct is used for holding a list of which plots the graph is shown in,
- * so that these can be replotted when there's new data for the graph
- */
-struct Graph {
-    Graph(int type):type(type) {};
-    Graph(){};
-    QList<QCustomPlot*> plots;
-    QCPDataMap data;
-    int type;
+   Sliver sliver;
+   QStringList ipv4Adrses;
+   QStringList ipv6Adrses;
 };
 
 /**
@@ -60,21 +52,32 @@ private:
     void killNodes();
     void applySettings();
     void addGraphData(QString id, qreal data);
+    void showGraph(QString id);
+
+    QWidget *createNodeInfoBox();
+    QCustomPlot *createGraph(QString label);
+
     Ui::MapOverview *ui;
     NodeMapWidget *gmap;
+
+    QList <PlotWindow*> plotWindows;
     QHash<QString, NodeStruct> nodeHash;
-    QHash<QString, Graph> graphHash;
+    QHash<QString, GraphData> graphHash;
     QHash<QString, QString> ipToProviderIdHash;
     QHash<QString, QString> ipToNodeIdHash;
     QCustomPlot *pingPlot;
     DemoCore core;
     qreal dmsToDecimal(qreal degrees, qreal minutes, qreal seconds);
-
+public slots:
+    void handleAboutToQuit();
 private slots:
     void handleNewStatusMessage(Sliver sliver, NodeInfoMessage message);
     void handleNewPingReply(Sliver sliver, PingReply message);
     void handleNewTransferStatus(Sliver sliver, TransferStatusMessage message);
     void handleMapLoaded();
+    void handleMapHovered();
+
+    void handleNodeDisconnected(Sliver sliver);
 
     void handleNodeSelected(QString hostname);
     void handleNodeHovered(QString hostname);
@@ -83,17 +86,18 @@ private slots:
     void handleConnectionSelected(QString id);
     void handleConnectionHovered(QString id);
     void handleConnectionHoveredOff(QString id);
+    void handleConnectionRightClicked(QString id);
 
     void handleAddressSelected(QString nodeId, QString address);
-    void handleAddressHovered(QString nodeId, QString address);
-    void handleAddressHoveredOff(QString nodeId, QString address);
+    void handleProviderHovered(QString nodeId, QString address);
+    void handleProviderHoveredOff(QString nodeId, QString address);
 
-    void showGraph(QString id);
-    void removePingGraph(QString localAddress, QString remoteHost);
-    void doRefresh();
+    void handleShutDownComplete(int status);
+
+
+
+    void handleRefresh();
     void handleConnectionRequest(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId);
-    QWidget *createNodeInfoBox();
-    QCustomPlot *createGraph(QString label);
     void on_actionSettings_triggered();
     void on_actionConnect_to_slivers_triggered();
     void on_actionKill_nodes_2_triggered();

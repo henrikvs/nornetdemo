@@ -40,10 +40,28 @@ struct Node {
     }
 };
 
+struct Connection {
+    QString id;
+    Provider *srcProvider;
+    Provider *destProvider;
+    Node *srcNode;
+    Node *destNode;
+    QString sessionId;
+    int skew;
+
+    Connection() {
+
+    }
+    Connection(Provider *srcProvider,Provider *destProvider,Node *srcNode,Node *destNode, QString sessionId):
+        srcProvider(srcProvider), destProvider(destProvider), srcNode(srcNode), destNode(destNode), sessionId(sessionId){
+
+    }
+};
+
 /**
  * @brief The NodeMapWidget class deals with drawing that is related to drawing Nodes, addresses, and connection on the map.
  */
-class NodeMapWidget : public GMapWidget
+class NodeMapWidget : public MapWidget
 {
     Q_OBJECT
 public:
@@ -52,30 +70,42 @@ public:
     void addProviderMarker(QString nodeName, QString addressName);
     void addConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
     void removeConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
+    void drawConnectionTraffic(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
+    void removeNodeMarker(QString nodeName);
+    void removeConnectionLine(QString connectionId);
 
 private:
     QHash<QString, Node> nodeMarkers;
     QHash<QString, Provider*> providerMarkers;
+    QHash<QString, Connection> connections;
     QHash<QString, int> connectionSkews;
     QList<QString> selectedProviders;
     QMultiHash<QString, int> lineSkews;
     int getLineSkew(QString fromId, QString toId, int skewAmount);
     void removeLineSkew(QString fromId, QString toId, int skewAmount);
     int nextLineSkew(QString fromIp, QString toIp);
+    void addConnectionLineOverlay(QString inst, QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
+    void removeConnectionLineOverlay(QString inst, QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
+
 private slots:
     virtual void handleMapClicked();
     virtual void handleMarkerClicked(QString id, int category);
     virtual void handleMarkerHovered(QString id, int category);
     virtual void handleMarkerHoveredOff(QString id, int category);
+    virtual void handleMarkerRightClicked(QString id, int category);
 signals:
 
     void providerSelected(QString nodeId, QString providerId);
     void providerHovered(QString nodeId, QString providerId);
     void providerHoveredOff(QString nodeId, QString providerId);
+    void providerRightClicked(QString nodeId, QString providerId);
+
+
 
     void nodeSelected(QString nodeId);
     void nodeHovered(QString nodeId);
     void nodeHoveredOff(QString nodeId);
+    void nodeRightClicked(QString nodeId);
 
     void connectionRequest(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId);
 };

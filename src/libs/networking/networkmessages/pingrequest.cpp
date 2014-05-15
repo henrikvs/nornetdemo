@@ -4,11 +4,12 @@ PingRequest::PingRequest()
 {
 }
 
-PingRequest::PingRequest(int sessionId, QString remoteIp, QString localIp)
+PingRequest::PingRequest(int sessionId, QString remoteIp, QString localIp, int time)
 {
     data.sessionId = sessionId;
     data.remoteIp = remoteIp;
     data.localIp = localIp;
+    data.seconds = time;
 }
 
 void PingRequest::serialize(QByteArray *block) const

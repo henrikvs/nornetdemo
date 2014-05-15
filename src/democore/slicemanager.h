@@ -9,8 +9,9 @@ class SliceManager
 public:
     SliceManager();
     QList<Sliver*> getSlivers();
+    int sliverCount();
     QHash<QString, Sliver*> slivers;
-    void createSliver(QString hostname, QString username);
+    void createSliver(QString hostname, QString sliceName, int port);
     void removeSliver(QString name);
     bool sliverExists(QString hostname);
     void readSliversFromFile(QString file = "slivers.data");

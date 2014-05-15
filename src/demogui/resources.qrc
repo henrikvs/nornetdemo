@@ -9,5 +9,10 @@
         <file>ipv4.png</file>
         <file>markerlight.js</file>
         <file>leaflet-src.js</file>
+        <file>marker2.png</file>
+        <file>settings-icon.png</file>
+        <file>connect-icon.png</file>
+        <file>disconnect-icon.png</file>
+        <file>marker3.png</file>
     </qresource>
 </RCC>

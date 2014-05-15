@@ -17,7 +17,7 @@ TransferDialog::~TransferDialog()
 
 void TransferDialog::on_pushButton_clicked()
 {
-    TransferTask *task = new TransferTask(0, TransferRequestMessage::TRANSFER_TYPE_TCP, "localhost", "localhost", 3, this);
+    TransferTask *task = new TransferTask(0, TransferRequestMessage::TRANSFER_TYPE_TCP, "localhost", "localhost", 3,33555, this);
     connect(task, SIGNAL(newStatus(TransferStatusMessage&)), this, SLOT(newStatus(TransferStatusMessage&)));
     connect(task, &TransferTask::finished, []() {
         qDebug() << "We're done";

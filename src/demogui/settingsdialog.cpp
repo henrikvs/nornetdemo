@@ -12,6 +12,7 @@
 #include <QInputDialog>
 #include <QSettings>
 #include <QTableWidget>
+#include "networkentity.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -23,6 +24,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     bool gatekeeperEnabled = settings.value(Settings::gatekeeperEnabled, true).toBool();
     QString gatekeeperUsername = settings.value(Settings::gatekeeperUsername, QString()).toString();
     QString gatekeeperHostname = settings.value(Settings::gatekeeperHostname, QString()).toString();
+    QString sliceName = settings.value(Settings::sliceName, QString()).toString();
 
     bool relayEnabled = settings.value(Settings::relayEnabled, false).toBool();
     QString relayHostname = settings.value(Settings::relayHostname, QString()).toString();
@@ -48,6 +50,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->relayHostnameEdit->setText(relayHostname);
     ui->relayPortEdit->setText(relayPort);
     ui->relayBox->setChecked(relayEnabled);
+    ui->sliceNameEdit->setText(sliceName);
     sliverKeyEdited = false;
     gatekeeperKeyEdited = false;
 }
@@ -81,10 +84,12 @@ void SettingsDialog::on_okButton_clicked()
     if (gatekeeperKeyEdited) {
         keys << ui->gatekeeperKeyEdit->text();
     }
+    sliverKeyEdited = false;//should be removed to enabled program add key to ssh agent
+    gatekeeperKeyEdited = false; //should be removed to enabled program add key to ssh agent
 
+    if (sliverKeyEdited || gatekeeperKeyEdited) {
 #ifdef Q_OS_WIN
     static QProcess *process = new QProcess(this);
-    if (sliverKeyEdited || gatekeeperKeyEdited) {
         sliverKeyEdited = false;
         gatekeeperKeyEdited = false;
         qDebug() << "Starting" << currentPath+"\\tools\\pageant.exe";
@@ -116,6 +121,7 @@ void SettingsDialog::on_okButton_clicked()
         process2.waitForFinished();
     }
 #endif
+    }
 
 
     QSettings settings(Settings::programName, Settings::company);
@@ -128,6 +134,7 @@ void SettingsDialog::on_okButton_clicked()
     settings.setValue(Settings::relayEnabled, ui->relayBox->isChecked());
     settings.setValue(Settings::relayHostname, ui->relayHostnameEdit->text());
     settings.setValue(Settings::relayPort, ui->relayPortEdit->text());
+    settings.setValue(Settings::sliceName, ui->sliceNameEdit->text());
     close();
 }
 
@@ -159,7 +166,7 @@ void SettingsDialog::on_addHostButton_clicked()
         QListWidgetItem *item = new QListWidgetItem(hostname, ui->sliversWidget);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
-        Settings::sliceManager.createSliver(hostname, ui->sliceNameEdit->text());
+        Settings::sliceManager.createSliver(hostname, ui->sliceNameEdit->text(), NetworkEntity::PORT);
     } else {
         qDebug() << "Host already exists";
     }

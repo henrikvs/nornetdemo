@@ -5,6 +5,7 @@
 class Settings {
 public:
     static QString sliverKey;
+    static QString sliceName;
     static QString gatekeeperKey;
     static QString gatekeeperEnabled;
     static QString programName;

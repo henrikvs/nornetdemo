@@ -8,7 +8,7 @@
 struct PingRequestStruct
 {
     int sessionId;
-    QString seconds;
+    int seconds;
     QString interval;
     QString ipv;
     QString remoteIp;
@@ -19,7 +19,7 @@ class NETWORKLIB_EXPORT PingRequest :public AbstractMessage
 {
 public:
     PingRequest();
-    PingRequest(int sessionId, QString remoteIp, QString localIp);
+    PingRequest(int sessionId, QString remoteIp, QString localIp, int time = 0);
     //void serialize(QByteArray *block);
     //void read(MyQTcpSocket *socket);
     PingRequestStruct data;

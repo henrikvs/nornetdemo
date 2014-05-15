@@ -8,7 +8,12 @@ SelectTestDialog::SelectTestDialog(bool ipv4, bool ipv6, QWidget *parent) :
     ui(new Ui::SelectTestDialog)
 {
     ui->setupUi(this);
-
+    ui->durationComboBox->addItem("10 seconds", 10);
+    ui->durationComboBox->addItem("30 seconds", 30);
+    ui->durationComboBox->addItem("1 minute", 60);
+    ui->durationComboBox->addItem("5 minutes", 300);
+    ui->durationComboBox->addItem("10 minutes", 600);
+    ui->durationComboBox->setCurrentIndex(2);
     if (ipv6) {
         QRadioButton *ipv6RadioOption = new QRadioButton("IPv6", this);
         ipGroup.addButton(ipv6RadioOption);
@@ -34,6 +39,17 @@ int SelectTestDialog::getConnectionType()
 int SelectTestDialog::getTestType()
 {
     return testType;
+}
+
+int SelectTestDialog::getDurationSeconds()
+{
+
+    return ui->durationComboBox->currentData(Qt::UserRole).toInt();
+}
+
+bool SelectTestDialog::isAccepted()
+{
+    return accepted;
 }
 
 SelectTestDialog::~SelectTestDialog()
@@ -63,4 +79,5 @@ void SelectTestDialog::on_buttonBox_accepted()
     } else {
         testType = 0;
     }
+    accepted = true;
 }

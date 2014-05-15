@@ -8,6 +8,7 @@
 #include "pingrequest.h"
 #include "transferrequestmessage.h"
 #include "transferstatusmessage.h"
+#include "taskcontrollermessage.h"
 #include <QTimer>
 DemoProtocol::DemoProtocol(QObject *parent) : AbstractProtocol(parent)
 {
@@ -33,10 +34,8 @@ void DemoProtocol::sendNodeInfoRequest() {
     sendMessage(request);
 }
 
-void DemoProtocol::sendPingRequest(int sessionId, QString remoteIp, QString localIp) {
-    static int nextId = 0;
-    nextId++;
-    PingRequest message(sessionId, remoteIp, localIp);
+void DemoProtocol::sendPingRequest(int sessionId, QString remoteIp, QString localIp, int seconds) {
+    PingRequest message(sessionId, remoteIp, localIp, seconds);
     sendMessage(message);
 }
 
@@ -48,7 +47,11 @@ void DemoProtocol::sendTransferRequest(int id, QString host, QString localIp, in
     sendMessage(message);
 }
 
-
+void DemoProtocol::sendStopTask(int sessionId)
+{
+    TaskControllerMessage message(sessionId, TaskControllerMessage::COMMAND_STOP);
+    sendMessage(message);
+}
 
 void DemoProtocol::sendKeepAlive() {
     StringMessage message("keepalive");

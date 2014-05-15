@@ -11,12 +11,15 @@ NetworkEntity::NetworkEntity(QObject *parent) :
 {
     //connectToFrontEnd("127.0.0.1", 3333);
     //qRegisterMetaType<qintptr>("qintptr");
+    iperf4Port = IPERF_IPV4PORT;
+    iperf6Port = IPERF_IPV6PORT;
     nextId = 1;
     relayOn = false;
 }
 
 NetworkEntity::~NetworkEntity()
 {
+    qDebug() << "Deconstructing entity";
     /*
     qDebug() << "Destructing";
     foreach (MyQTcpSocket *socket, socketList) {
@@ -220,6 +223,27 @@ void NetworkEntity::enableRelay(QString address, int port)
     relayOn = true;
     relayAddress = address;
     relayPort = port;
+}
+
+void NetworkEntity::setIperf4Port(int port)
+{
+    qDebug() << "Setting iperf4 port to" << port;
+    this->iperf4Port = port;
+}
+
+void NetworkEntity::setIperf6Port(int port)
+{
+    this->iperf6Port = port;
+}
+
+int NetworkEntity::getIperf4Port()
+{
+    return iperf4Port;
+}
+
+int NetworkEntity::getIperf6Port()
+{
+    return iperf6Port;
 }
 
 bool NetworkEntity::relayEnabled()

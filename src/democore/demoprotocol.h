@@ -16,8 +16,11 @@ public:
     void sendExit();
     virtual void start();
     virtual void cleanUp();
-    void sendPingRequest(int sessionId, QString remoteIp, QString localIp);
+    void sendPingRequest(int sessionId, QString remoteIp, QString localIp, int seconds);
+
     void sendTransferRequest(int id, QString host, QString localIp, int transferType, int seconds);
+    void sendStopTask(int sessionId);
+
     void sendNodeInfoRequest();
 protected:
     virtual bool handleMessage(int type);

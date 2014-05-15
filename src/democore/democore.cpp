@@ -3,8 +3,9 @@
 #include "connectedinfo.h"
 #include <QThread>
 #include <QString>
+#include <QTimer>
 #include "regexhelper.h"
-DemoCore::DemoCore(): gateKeeperEnabled(false)
+DemoCore::DemoCore(): NetworkEntity(), gateKeeperEnabled(false)
 {
 }
 
@@ -20,12 +21,48 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
             if (sliver->IPv6.isEmpty()) {
                 qDebug() << "No ip, getting address";
                 getIpAddress(sliver);
+                installProgram(sliver);
             } else {
                 addSliverConnection(sliver);
+                QTimer *timer = new QTimer(this);
+                //if there's a specified IP address, give the connection some time before running the script setting things up.
+                connect(timer, &QTimer::timeout, [timer, sliver, this]() {
+                    qDebug() << "Checking connection status";
+                    if (sliver->status == sliver->STATUS_OFFLINE) {
+                        qDebug() << "Still offline, reinstalling";
+                        installProgram(sliver);
+                    }
+                    timer->stop();
+                    timer->deleteLater();
+                });
+                timer->start(3000);
             }
-            installProgram(sliver);
         }
+
+        QTimer *timer = new QTimer(this);
+
+
+        //Will try to connect as long as the sliver is not connected
+        connect(timer, &QTimer::timeout, [timer, sliver, this]() {
+            if (sliver->status != sliver->STATUS_CONNECTED) {
+                qDebug() << "Retryign connection";
+                addSliverConnection(sliver);
+            } else {
+                timer->stop();
+                timer->deleteLater();
+            }
+
+            static int time = 0;
+            time+=3;
+            //if (time > 35) {
+             //   shutDownNodeprogs(QList<Sliver*>() << sliver);
+              //  installProgram(sliver);
+               // time = 0;
+           // }
+        });
+        timer->start(3000);
     }
+
 }
 
 void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
@@ -37,7 +74,7 @@ void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
         }
         ssh->addHost(sliver->sliceName, sliver->hostName);
 
-        ssh->executeCommand(QString("'sudo kill nodeprog'"));
+        ssh->executeCommand(QString("'sudo kill -INT nodeprog'"));
         connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
         qDebug() << "Killing nodeprog" << sliver->name;
         connect(ssh, &SSHConnection::destroyed, []() {
@@ -56,15 +93,19 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
 
     qDebug() << "COnnection problem";
     Sliver *sliver= getSliver(socket);
+    protocolHash.remove(sliver->name);
     qDebug() << "Failed to connect: " << sliver->name;
+    emit sliverDisonnected(*sliver);
     if (sliver->status == Sliver::STATUS_UPDATING) {
+        emit sliverUpdating(*sliver);
         qDebug()<< "Retrying connection";
-        addSliverConnection(sliver); //retry connection
+        //addSliverConnection(sliver); //retry connection
     } else if (sliver->status == Sliver::STATUS_INSTALLING) {
-        addSliverConnection(sliver);
+        //addSliverConnection(sliver);
     } else {
         //installProgram(sliver);
-        addSliverConnection(sliver);
+        sliver->status = Sliver::STATUS_OFFLINE;
+        //addSliverConnection(sliver);
     }
 }
 
@@ -118,6 +159,9 @@ void DemoCore::installProgram(Sliver *sliver)
         relayString = getRelayAddress() + ":" + QString::number(getRelayPort());
         qDebug() << "Starting with relaystring:" << relayString;
     }
+
+    QString checkExistsCommand = "ps aux | grep install.sh | grep -v grep | wc -l";
+
     ssh->executeCommand(QString("'sudo nohup wget --cache=off -N toki.dlinkddns.com/master/install.sh >> nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %2>> nodeprog.out 2>&1 &'").arg(VERSION).arg(relayString));
     connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
     //addSliverConnection(sliver);
@@ -181,22 +225,40 @@ void DemoCore::getIpAddress(Sliver *sliver)
     ssh->executeCommand("ip addr show eth0 | grep 'inet6 2001:700' | awk 'NR==1 {print \"ip:\"$2\"pi\"}'");
 }
 
-int DemoCore::pingHost(QString sliverName, QString host, QString localIp)
+int DemoCore::pingHost(QString sliverName, QString host, QString localIp, int seconds)
 {
-    Sliver *sliver = sliverHash[sliverName];
+    if (!protocolHash.contains(sliverName)) {
+        qDebug() << "Unknown protocol";
+        return -1;
+    }
     DemoProtocol *protocol = protocolHash[sliverName];
     int id = nextRequestId();
-    protocol->sendPingRequest(id, host, localIp);
+    protocol->sendPingRequest(id, host, localIp, seconds);
     return id;
 }
 
 int DemoCore::transferRequest(QString sliverName, QString host, QString localIp, int transferType, int seconds)
 {
-    Sliver *sliver = sliverHash[sliverName];
+    if (!protocolHash.contains(sliverName)) {
+        qDebug() << "Unknown protocol";
+        return -1;
+    }
+
     DemoProtocol *protocol = protocolHash[sliverName];
     int id = nextRequestId();
     protocol->sendTransferRequest(id, host, localIp, transferType, seconds);
     return id;
+}
+
+void DemoCore::stopExperiment(QString sliverName, int sessionId)
+{
+    if (!protocolHash.contains(sliverName)) {
+        qDebug() << "Unknown protocol";
+        return;
+    }
+
+    DemoProtocol *protocol = protocolHash[sliverName];
+    protocol->sendStopTask(sessionId);
 }
 
 void DemoCore::enableGatekeeper(QString username, QString hostname)
@@ -246,6 +308,7 @@ void DemoCore::connected()
     NetworkEntity::connected();
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
     Sliver *sliver = getSliver(socket);
+    sliver->status = Sliver::STATUS_CONNECTED;
     qDebug() << "Connected: " << sliver->name;
 }
 

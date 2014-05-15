@@ -92,10 +92,15 @@ function initialize() {
     };
 
     */console.debug("successfully initialized");
-    map = L.map('map_canvas')
-    console.log("loading");
+    map = L.map('map_canvas',
+                {
+                    //center: L.latLng(60.285822, 10.369141)
+                });
+    console.log("loading 2");
     map.on('load', function() {
         console.log("loaded");
+            map.setView(L.latLng(60.285822, 10.369141));
+            map.setZoom(5);
         mapWidget.mapLoaded();
     });
 
@@ -110,6 +115,16 @@ function initialize() {
     map.on('click', function() {
         console.log("Map clicked");
        mapWidget.mapClicked();
+    });
+
+    map.on('mouseover', function() {
+        console.log("Map clicked");
+       mapWidget.mapHovered();
+    });
+
+    map.on('contextmenu', function() {
+        console.log("Map clicked");
+       mapWidget.mapRightClicked();
     });
 
     map.setView([51.505, -0.09], 13);
@@ -142,36 +157,54 @@ function setGMapZoom(zoom)
 }
 */
 
-function drawLine(id, info, fromLat, fromLng, toLat, toLng, xOffsetStart, yOffsetStart, xOffsetEnd, yOffsetEnd, lineSkew, color) {
+function drawLine(id, info, fromLat, fromLng, toLat, toLng, xOffsetStart, yOffsetStart, xOffsetEnd, yOffsetEnd, lineSkew, color, interact) {
+    var clickable;
+    if (interact) {
+        clickable = true;
+    } else {
+        clickable = false;
+    }
+
     var polyline = L.polyline2([L.latLng(fromLat, fromLng), L.latLng(toLat,toLng)],
                                {xOffsetStart: xOffsetStart,
                                 yOffsetStart: yOffsetStart,
                                 xOffsetEnd: xOffsetEnd,
                                 yOffsetEnd: yOffsetEnd,
+                                clickable: clickable,
                                 skewValue: lineSkew,
                                 weight: 10,
+                                opacity: 0.5,
                                 color: color});
     polyline.addTo(map);
     lines[id] = polyline;
     console.log("Adding id: " + id);
-    var popup;
-    polyline.on('click', function () {
-        //alert("You clicked the map");
-        mapWidget.connectionClicked(id);
-    });
 
-    polyline.on('mouseover', function () {
-        //alert("You clicked the map");
-        console.log("Somethign");
-        mapWidget.connectionHovered(id);
-    });
+    if (interact) {
+        var popup;
+        polyline.on('click', function () {
+            //alert("You clicked the map");
+            console.log("Clicked");
+            mapWidget.connectionClicked(id);
+        });
 
-    polyline.on('mouseout', function () {
-        //alert("You clicked the map");
-        console.log("Somethign2");
-        mapWidget.connectionHoveredOff(id);
-    });
-    map.on('zoomanim', this.update());
+        polyline.on('mouseover', function () {
+            //alert("You clicked the map");
+            console.log("Somethign");
+            mapWidget.connectionHovered(id);
+        });
+
+        polyline.on('mouseout', function () {
+            //alert("You clicked the map");
+            console.log("Somethign2");
+            mapWidget.connectionHoveredOff(id);
+        });
+
+        polyline.on('contextmenu', function() {
+            mapWidget.connectionRightClicked(id);
+            //console.log("Polyline rightclick");
+        });
+    //map.on('zoomanim', this.update());
+    }
 
     /*polyline.on('mouseover', function(evt) {
         console.log("mouseon");
@@ -186,6 +219,13 @@ function drawLine(id, info, fromLat, fromLng, toLat, toLng, xOffsetStart, yOffse
         //map.closePopup(popup);
     });*/
 
+}
+
+function setLineColor(id, color) {
+    line = lines[id];
+    console.log("Options set");
+    L.setOptions(line, {color: color});
+    mapWidget.doRefresh();
 }
 
 function addMarker(name, lat, lng) {
@@ -206,6 +246,7 @@ function changeIcon(id, imageName, scaleX, scaleY, offsetX, offsetY) {
         //shadowAnchor: [4, 62],  // the same for the shadow
         popupAnchor:  [offsetX, offsetY] // point from which the popup should open relative to the iconAnchor
     });
+
     markers[id].setIcon(icon);
 }
 
@@ -232,12 +273,15 @@ function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offset
     marker.on('mouseout', function() {
         mapWidget.markerHoveredOff(id, category);
     });
+
+    marker.on('contextmenu', function() {
+       console.log("Marker Right clic!!");
+    });
     markers[id] = marker;
     //polyline._projectLatlngs();
     //polyline.setOffset(50,50);
 
     //map.on('zoomanim', this.update());
-    //map._update();
     console.log("Adding marker: " + id);
 }
 /*
