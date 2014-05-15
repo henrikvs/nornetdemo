@@ -21,7 +21,7 @@ NodeMapWidget::NodeMapWidget(QWidget *parent) : MapWidget(parent)
  */
 void NodeMapWidget::addNodeMarker(QString nodeName, qreal lat, qreal lng)
 {
-    nodeMarkers[nodeName] = Node(nodeName, lat, lng);
+    nodeMarkers[nodeName] = new Node(nodeName, lat, lng);
     //addCustomMarker("test", "nodeName" lat, lng, 0,0);
     addCustomMarker(nodeName, nodeName, lat, lng, "node.png", 30, 30, 15, 15);
     //addCustomMarker(nodeName, lat, lng, "ipv6.png", 25, 25, 0, 0);
@@ -41,9 +41,9 @@ void NodeMapWidget::addProviderMarker(QString nodeName, QString providerId)
         qDebug() << "addConnectionMarker: node name doesn't exist";
         return;
     }
-    Node &node = nodeMarkers[nodeName];
+    Node *node = nodeMarkers[nodeName];
 
-    int angle = node.lastAngle;
+    int angle = node->lastAngle;
 
     angle = angle+2;
 
@@ -52,11 +52,11 @@ void NodeMapWidget::addProviderMarker(QString nodeName, QString providerId)
     qreal yOffset = sin(angle) * 22;
     QString id =  providerId + "@" + nodeName;
     Provider provider(providerId, nodeName, id, xOffset, yOffset);
-    node.providers << provider;
+    node->providers << provider;
     qDebug() <<"added provider: " << id;
-    node.lastAngle = angle;
+    node->lastAngle = angle;
 
-    providerMarkers[id] = &node.providers.last();
+    providerMarkers[id] = &node->providers.last();
 
 }
 
@@ -77,17 +77,18 @@ void NodeMapWidget::addConnectionLine(QString srcNodeId, QString srcProviderId, 
     localProvider->connections++;
     remoteProvider->connections++;
     //qDebug() <<"Increasing connection:" << localProvider->connections;
-    Node &localNode = nodeMarkers[localProvider->nodeName];
-    Node &remoteNode = nodeMarkers[remoteProvider->nodeName];
+    Node *localNode = nodeMarkers[localProvider->nodeName];
+    Node *remoteNode = nodeMarkers[remoteProvider->nodeName];
     QString idString = sessionId + ":" + srcId + ":" + destId;
 
     qDebug() << "Generating skew:" << srcId << destId;
     int lineSkew = getLineSkew(srcId, destId, 20);
     connectionSkews[idString] = lineSkew;
-    connections[idString] = Connection(localProvider, remoteProvider, &localNode, &remoteNode, sessionId);
-    //qDebug() << "lineskew: " << lineSkew;
+    connections[idString] = Connection(localProvider, remoteProvider, localNode, remoteNode, sessionId);
+    Connection connection =  Connection(localProvider, remoteProvider, localNode, remoteNode, sessionId);
+            //qDebug() << "lineskew: " << lineSkew;
     //qDebug() << "!!!ADDING!!!" << localProvider->id + "-" +  remoteProvider->id;
-    drawLine(idString, "some info",  localNode.lat, localNode.lng, remoteNode.lat, remoteNode.lng, -localProvider->offsetX, -localProvider->offsetY, -remoteProvider->offsetX, -remoteProvider->offsetY, lineSkew, "blue");
+    drawLine(idString, "some info",  localNode->lat, localNode->lng, remoteNode->lat, remoteNode->lng, -localProvider->offsetX, -localProvider->offsetY, -remoteProvider->offsetX, -remoteProvider->offsetY, lineSkew, "blue");
 }
 
 /**
@@ -166,10 +167,12 @@ void NodeMapWidget::drawConnectionTraffic(QString srcNodeId, QString srcProvider
 void NodeMapWidget::removeNodeMarker(QString nodeName)
 {
     removeMarker(nodeName);
-    Node &node = nodeMarkers[nodeName];
-    foreach(Provider provider, node.providers) {
+    Node *node = nodeMarkers.take(nodeName);
+    foreach(Provider provider, node->providers) {
         removeMarker(provider.id);
+
     }
+    delete node;
 
 
 }
@@ -240,13 +243,13 @@ void NodeMapWidget::addConnectionLineOverlay(QString inst, QString srcNodeId, QS
     Provider *localProvider = providerMarkers[srcId];
     Provider *remoteProvider = providerMarkers[destId];
     qDebug() <<"Increasing connection:" << localProvider->connections;
-    Node &localNode = nodeMarkers[localProvider->nodeName];
-    Node &remoteNode = nodeMarkers[remoteProvider->nodeName];
+    Node *localNode = nodeMarkers[localProvider->nodeName];
+    Node *remoteNode = nodeMarkers[remoteProvider->nodeName];
     QString idString = sessionId + ":" + srcId + ":" + destId;
     int lineSkew = connectionSkews[idString];
     qDebug() << "lineskew: " << lineSkew;
     qDebug() << "!!!ADDING!!!" << localProvider->id + "-" +  remoteProvider->id;
-    drawLine(inst + idString, "some info",  localNode.lat, localNode.lng, remoteNode.lat, remoteNode.lng, -localProvider->offsetX, -localProvider->offsetY, -remoteProvider->offsetX, -remoteProvider->offsetY, lineSkew, "blue", false);
+    drawLine(inst + idString, "some info",  localNode->lat, localNode->lng, remoteNode->lat, remoteNode->lng, -localProvider->offsetX, -localProvider->offsetY, -remoteProvider->offsetX, -remoteProvider->offsetY, lineSkew, "blue", false);
 }
 
 void NodeMapWidget::removeConnectionLineOverlay(QString inst, QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId)
@@ -263,16 +266,16 @@ void NodeMapWidget::removeConnectionLineOverlay(QString inst, QString srcNodeId,
  */
 void NodeMapWidget::handleMapClicked()
 {
-    foreach(Node node, nodeMarkers) {
-        if (node.connectionsVisible) {
-            foreach(Provider provider, node.providers) {
+    foreach(Node *node, nodeMarkers) {
+        if (node->connectionsVisible) {
+            foreach(Provider provider, node->providers) {
                 //qDebug() << "!!!CONNECTION!!!" << address.connections;
                 if (provider.connections == 0) {
                     removeMarker(provider.id);
                     removeLine(provider.id);
                 }
             }
-            nodeMarkers[node.name].connectionsVisible = false;//te
+            node->connectionsVisible = false;//te
         } else {
             qDebug() << "Connections already showing";
         }
@@ -299,29 +302,29 @@ void NodeMapWidget::handleMapClicked()
 void NodeMapWidget::handleMarkerClicked(QString id, int category)
 {
     if (category == 0) {
-        Node &node = nodeMarkers[id];
-        if (!node.connectionsVisible) {
-            foreach(Provider provider, node.providers) {
+        Node *node = nodeMarkers[id];
+        if (!node->connectionsVisible) {
+            foreach(Provider provider, node->providers) {
                 if (provider.connections > 0) continue;
-                addCustomMarker(provider.name, provider.id,  node.lat, node.lng, "marker3.png",20, 20, provider.offsetX + 10, provider.offsetY + 10, 2);
+                addCustomMarker(provider.name, provider.id,  node->lat, node->lng, "marker3.png",20, 20, provider.offsetX + 10, provider.offsetY + 10, 2);
                 //drawLine(provider.id, "", node.lat, node.lng, node.lat, node.lng, 0, 0, -provider.offsetX, -provider.offsetY, 0, "black");
             }
-            nodeMarkers[node.name].connectionsVisible = true;
+            node->connectionsVisible = true;
         } else {
             qDebug() << "Connections already showing";
         }
         emit nodeSelected(id);
     } else {
         Provider *provider = providerMarkers[id];
-        Node  &fromNode = nodeMarkers[provider->nodeName];
+        Node  *fromNode = nodeMarkers[provider->nodeName];
         if (!selectedProviders.empty()) {
             Provider *toProvider = providerMarkers[selectedProviders.last()];
-            Node &toNode = nodeMarkers[toProvider->nodeName];
+            Node *toNode = nodeMarkers[toProvider->nodeName];
             QString toId = toProvider->id;
             changeIcon(id, "marker3.png",20, 20, provider->offsetX + 10, provider->offsetY + 10);
             changeIcon(toId, "marker3.png",20, 20, toProvider->offsetX + 10, toProvider->offsetY + 10);
             if (toProvider != provider) {
-                emit connectionRequest(toNode.name, toProvider->name, fromNode.name, provider->name);
+                emit connectionRequest(toNode->name, toProvider->name, fromNode->name, provider->name);
             }
 
             selectedProviders.clear();

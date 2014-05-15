@@ -75,7 +75,7 @@ public:
     void removeConnectionLine(QString connectionId);
 
 private:
-    QHash<QString, Node> nodeMarkers;
+    QHash<QString, Node*> nodeMarkers;
     QHash<QString, Provider*> providerMarkers;
     QHash<QString, Connection> connections;
     QHash<QString, int> connectionSkews;
