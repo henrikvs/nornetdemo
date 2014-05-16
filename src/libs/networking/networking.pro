@@ -1,8 +1,8 @@
 QT       += core network
 INCLUDEPATH += $$PWD
-CONFIG += c++11
+CONFIG += staticlib c++11
 TEMPLATE = lib
-LIBS += -lsctp
+#LIBS += -lsctp
 
 HEADERS += $$files($$PWD/*.h)
 SOURCES += $$files($$PWD/*.cpp)
@@ -10,4 +10,4 @@ SOURCES += $$files($$PWD/*.cpp)
 DEFINES += NETWORKLIB
 
 include(networkmessages/networkmessages.pri)
-include(sctp/sctp.pri)
+#include(sctp/sctp.pri)

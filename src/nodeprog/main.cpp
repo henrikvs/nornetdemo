@@ -11,7 +11,7 @@
 #include <QTimer>
 volatile sig_atomic_t sigint = 0;
 void signalHandler(int sig) {
-    sigint = 1;
+    sigint = 1; //t
 }
 
 int main(int argc, char *argv[])
