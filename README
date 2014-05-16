@@ -13,7 +13,7 @@ Compilation
 Prerequistes:
 - Qt 5.2.0 or later
 
-Steps:
+Compilation teps:
 - qmake
 - make
 - make install
