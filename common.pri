@@ -1,1 +1,0 @@
-network_headers = $$PWD/src/network
