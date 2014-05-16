@@ -1,3 +1,6 @@
+/*
+Found at http://qtcreator.blogspot.no/2009/10/running-multiple-unit-tests.html, created by  Rob Caldecott
+*/
 #ifndef AUTOTEST_H
 #define AUTOTEST_H
 
