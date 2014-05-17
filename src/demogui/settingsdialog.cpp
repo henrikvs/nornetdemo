@@ -29,6 +29,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     bool relayEnabled = settings.value(Settings::relayEnabled, false).toBool();
     QString relayHostname = settings.value(Settings::relayHostname, QString()).toString();
     QString relayPort = settings.value(Settings::relayPort, QString()).toString();
+    QString nodeprogRootUrl = settings.value(Settings::nodeprogRootUrl, QString()).toString();
 
     ui->setupUi(this);
 
@@ -51,6 +52,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->relayPortEdit->setText(relayPort);
     ui->relayBox->setChecked(relayEnabled);
     ui->sliceNameEdit->setText(sliceName);
+    ui->rootUrlEdit->setText(nodeprogRootUrl);
     sliverKeyEdited = false;
     gatekeeperKeyEdited = false;
 }
@@ -135,6 +137,7 @@ void SettingsDialog::on_okButton_clicked()
     settings.setValue(Settings::relayHostname, ui->relayHostnameEdit->text());
     settings.setValue(Settings::relayPort, ui->relayPortEdit->text());
     settings.setValue(Settings::sliceName, ui->sliceNameEdit->text());
+    settings.setValue(Settings::nodeprogRootUrl, ui->rootUrlEdit->text());
     close();
 }
 

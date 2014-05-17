@@ -7,7 +7,7 @@
 QT       += core network
 QT       -= gui
 
-TARGET = nodeprog
+TARGET = relayprog
 CONFIG   += console c++11
 CONFIG   -= app_bundle
 #LIBS += -lsctp

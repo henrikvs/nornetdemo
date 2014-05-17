@@ -8,6 +8,8 @@ QString Settings::programName = "nornetdemo";
 QString Settings::company = "Henrik Simonsen";
 QString Settings::gatekeeperUsername = "settings/gatekeeper/username";
 QString Settings::gatekeeperHostname = "settings/gatekeeper/hostname";
+QString Settings::nodeprogRootUrl = "settings/nodeprogRootUrl";
+
 
 
 QString Settings::relayEnabled = "settings/relayEnabled";

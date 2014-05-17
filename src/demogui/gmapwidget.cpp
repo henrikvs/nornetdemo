@@ -132,9 +132,9 @@ void MapWidget::addMarker(QString name, qreal lat, qreal lng, int offsetX, int o
 }
 
 
-void MapWidget::addCustomMarker(QString name, QString id, qreal lat, qreal lng, QString imagepath, qreal scaleX, qreal scaleY, int offsetX, int offsetY, int category)
+void MapWidget::addCustomMarker(QString name, QString id, qreal lat, qreal lng, QString imagepath, qreal scaleX, qreal scaleY, int offsetX, int offsetY, int rotation, int z, int category)
 {
-    runScript(QString("addCustomMarker(\"%1\", \"%2\", %3, %4, \"%5\", %6, %7, %8, %9, %10)").arg(name).arg(id).arg(lat).arg(lng).arg(imagepath).arg(scaleX).arg(scaleY).arg(offsetX).arg(offsetY).arg(category));
+    runScript(QString("addCustomMarker(\"%1\", \"%2\", %3, %4, \"%5\", %6, %7, %8, %9, %11, %12, %10)").arg(name).arg(id).arg(lat).arg(lng).arg(imagepath).arg(scaleX).arg(scaleY).arg(offsetX).arg(offsetY).arg(category).arg(rotation).arg(z));
 }
 
 void MapWidget::addCustomSymbolMarker(QString name, qreal lat, qreal lng, QString symbolPath, qreal scale, int offsetX, int offsetY, int rotation)

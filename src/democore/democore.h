@@ -19,6 +19,7 @@ public:
     void connectToSlivers(QList<Sliver*> slivers);
     void shutDownNodeprogs(QList<Sliver*> slivers);
     void installProgram(Sliver *sliver);
+    void setnodeprogRootUrl(QString url);
     void addSliverConnection(Sliver *sliver);
     void addSliverConnection(QString ip, int port, QString sliceName, QString hostName);
     void start();
@@ -33,9 +34,11 @@ public:
     void disableGatekeeper();
     virtual void disconnected(MyQTcpSocket *socket);
 
+
     QStringList getIpv4List(QString name);
     QStringList getIpv6List(QString name);
 private:
+    QString nodeprogRootUrl;
     QString gatekeeperUsername;
     QString gatekeeperHostname;
     bool gateKeeperEnabled;

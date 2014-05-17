@@ -13,15 +13,18 @@ PlotWindow::PlotWindow(QWidget *parent) :
     customPlot->yAxis->setLabel("Mbps");
     customPlot->xAxis->setDateTimeFormat("mm:ss");
     customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    customPlot->setProperty("autoresize", ui->graphAutoResize->isChecked());
 
     customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft | Qt::AlignTop); // align the legend top left corner
     customPlot->legend->setVisible(true);
     static int id = 0;
     id++;
     ui->boxPlotWidget->legend->setVisible(true);
-
+    ui->boxPlotWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
     ui->boxPlotWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft | Qt::AlignTop); // align the legend top left corner
+    ui->boxPlotWidget->setProperty("autoresize", ui->boxPlotAutoResize->isChecked());
+
     name = "Plot window " + QString::number(id);
 
     colorCycle << Qt::red;
@@ -34,6 +37,8 @@ PlotWindow::PlotWindow(QWidget *parent) :
     colorCycle << Qt::darkBlue;
     colorCycle << Qt::darkGreen;
     ui->plotWindowNameLabel->setText(name);
+
+
 
 }
 
@@ -181,4 +186,14 @@ QString PlotWindow::createYAxisLabel()
         labels << "Mbps";
     }
     return labels.join(" / ");
+}
+
+void PlotWindow::on_boxPlotAutoResize_clicked(bool checked)
+{
+    ui->boxPlotWidget->setProperty("autoresize", checked);
+}
+
+void PlotWindow::on_graphAutoResize_clicked(bool checked)
+{
+    ui->plotWidget->setProperty("autoresize", checked);
 }

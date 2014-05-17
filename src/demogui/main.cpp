@@ -1,5 +1,4 @@
 #include "mapoverview.h"
-#include "sctptestdialog.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

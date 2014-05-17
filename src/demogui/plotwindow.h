@@ -33,6 +33,10 @@ private slots:
 
     void on_removeExperimentButton_clicked();
 
+    void on_boxPlotAutoResize_clicked(bool checked);
+
+    void on_graphAutoResize_clicked(bool checked);
+
 private:
     Ui::PlotWindow *ui;
     QString name;

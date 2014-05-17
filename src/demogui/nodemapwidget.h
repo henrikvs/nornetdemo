@@ -8,6 +8,7 @@
 struct Provider {
     qreal offsetX;
     qreal offsetY;
+    int rotation;
     QString name;
     QString nodeName;
     QString id;
@@ -16,8 +17,8 @@ struct Provider {
     Provider() {
 
     }
-    Provider(QString name, QString nodeName, QString id, qreal offsetX, qreal offsetY): name(name), nodeName(nodeName),
-        id(id), offsetX(offsetX), offsetY(offsetY), connections(0) {
+    Provider(QString name, QString nodeName, QString id, qreal offsetX, qreal offsetY, int rotation): name(name), nodeName(nodeName),
+        id(id), offsetX(offsetX), offsetY(offsetY), connections(0), rotation(rotation) {
 
     }
 };

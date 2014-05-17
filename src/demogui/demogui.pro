@@ -49,7 +49,6 @@ win32 {
 
 }
 linux {
-    destpath = $$OUT_PWD
     #myfile.path = $$OUT_PWD/tools
 }
 
@@ -57,11 +56,11 @@ linux {
 libfiles_install.files = $$LIB_FILES
 libfiles_install.path = $$destpath
 
+
 myfile.path = $$destpath/tools
 myfile.files += $$PWD/tools/*
 
 #message($$libfiles_install.files)
-INSTALLS += myfile libfiles_install
 
 include (../democore/democore.pri)
 include (../tasks/tasks.pri)
@@ -79,7 +78,8 @@ RESOURCES += \
 OTHER_FILES += \
     main.js \
     index.html \
-    markerlight.js
+    markerlight.js \
+    leaflet.polylineDecorator.js
 
 
 #message($$[QT_INSTALL_BINS])#

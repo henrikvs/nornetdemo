@@ -97,6 +97,7 @@ function initialize() {
                     //center: L.latLng(60.285822, 10.369141)
                 });
     console.log("loading 2");
+
     map.on('load', function() {
         console.log("loaded");
             map.setView(L.latLng(60.285822, 10.369141));
@@ -129,7 +130,7 @@ function initialize() {
 
     map.setView([51.505, -0.09], 13);
 
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         //attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         attributionControl: false,
         updateWhenIdle: false,
@@ -250,7 +251,7 @@ function changeIcon(id, imageName, scaleX, scaleY, offsetX, offsetY) {
     markers[id].setIcon(icon);
 }
 
-function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offsetX, offsetY, category) {
+function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offsetX, offsetY, rotation, z, category) {
     category = category || 0;
     var icon = L.icon({
         iconUrl: imageName,
@@ -262,7 +263,8 @@ function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offset
         //shadowAnchor: [4, 62],  // the same for the shadow
         popupAnchor:  [offsetX, offsetY] // point from which the popup should open relative to the iconAnchor
     });
-    marker = L.marker([lat,lng], {icon: icon}).addTo(map);
+    marker = L.rotatedMarker([lat,lng], {icon: icon, angle: rotation, zIndexOffset: z});
+    marker.addTo(map);
     marker.on('click', function () {
         mapWidget.markerClicked(id, category);
         console.log("Marker selected: " + id + ":" + category);
@@ -273,10 +275,17 @@ function addCustomMarker(title, id,  lat, lng, imageName, scaleX, scaleY, offset
     marker.on('mouseout', function() {
         mapWidget.markerHoveredOff(id, category);
     });
-
     marker.on('contextmenu', function() {
        console.log("Marker Right clic!!");
     });
+
+    marker.on('dragend', function(event){
+        //var marker = event.target;
+        //var position = marker.getLatLng();
+        alert(position);
+        //marker.setLatLng([position],{id:uni,draggable:'true'}).bindPopup(position).update();
+    });
+
     markers[id] = marker;
     //polyline._projectLatlngs();
     //polyline.setOffset(50,50);

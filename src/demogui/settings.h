@@ -13,6 +13,7 @@ public:
     static SliceManager sliceManager;
     static QString gatekeeperUsername;
     static QString gatekeeperHostname;
+    static QString nodeprogRootUrl;
 
     static QString relayEnabled;
     static QString relayPort;

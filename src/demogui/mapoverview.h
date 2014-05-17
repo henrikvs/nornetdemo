@@ -71,6 +71,11 @@ private:
 public slots:
     void handleAboutToQuit();
 private slots:
+    void showNodeInfo(QString nodeId);
+    void showProviderInfo(QString nodeId, QString providerIndex);
+    void showConnectionInfo(QString connectionId);
+    void showMapInfo();
+
     void handleNewStatusMessage(Sliver sliver, NodeInfoMessage message);
     void handleNewPingReply(Sliver sliver, PingReply message);
     void handleNewTransferStatus(Sliver sliver, TransferStatusMessage message);

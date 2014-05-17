@@ -14,5 +14,7 @@
         <file>connect-icon.png</file>
         <file>disconnect-icon.png</file>
         <file>marker3.png</file>
+        <file>leaflet.polylineDecorator.js</file>
+        <file>network_ethernet.png</file>
     </qresource>
 </RCC>

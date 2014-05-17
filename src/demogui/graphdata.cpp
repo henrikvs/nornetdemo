@@ -32,8 +32,11 @@ void GraphData::addData(qreal key, qreal value)
 
     foreach(QCustomPlot *plot, plots) {
         qDebug() << "Replotting" << plots.size();
-        plot->rescaleAxes(false);
         plot->replot();
+        QVariant variant = plot->property("autoresize");
+        if (variant.isValid() && variant.toBool()) {
+            plot->rescaleAxes(false);
+        }
     }
 
 
@@ -45,8 +48,11 @@ void GraphData::addData(qreal key, qreal value)
         //->graph()->setData(&data, false);
         box->setData(box->key(), boxData.min, boxData.firstQuartile, boxData.median, boxData.thirdQuartile, boxData.max);
         QCustomPlot *plot = box->parentPlot();
-        plot->rescaleAxes(false);
+        QVariant variant = plot->property("autoresize");
         plot->replot();
+        if (variant.isValid() && variant.toBool()) {
+            plot->rescaleAxes(false);
+        }
     }
 
 }

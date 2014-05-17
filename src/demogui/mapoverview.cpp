@@ -145,6 +145,9 @@ void MapOverview::applySettings()
     if (gatekeeperEnabled) {
         QString username = settings.value(Settings::gatekeeperUsername, QString()).toString();
         QString hostname = settings.value(Settings::gatekeeperHostname, QString()).toString();
+        QString nodeprogRootUrl = settings.value(Settings::nodeprogRootUrl, QString()).toString();
+        core.setnodeprogRootUrl(nodeprogRootUrl);
+        qDebug() << "root url:" << nodeprogRootUrl;
         if (username.isEmpty() || hostname.isEmpty()) {
             qDebug() << "Gatekeeper hostname or username not defined";
         } else {
@@ -597,18 +600,10 @@ void MapOverview::handleConnectionRequest(QString srcNodeId, QString srcProvider
 
 }
 
-void MapOverview::handleConnectionHovered(QString address)
+void MapOverview::handleConnectionHovered(QString connectionId)
 {
-    QStringList splitted = address.split("@");
-    QString provider = splitted[0];
-    QString site = splitted[1];
-    GraphData &graph = graphHash[address];
-    qDebug() << "Connection hovered" << address;
-    ui->stackedWidget->setCurrentWidget(ui->connectionPage);
-    ui->experimentEdit->setText(graph.expTypeString());
-    ui->ipEdit->setText(graph.ipTypeString());
-    ui->srcAddrEdit->setText(graph.getSrcAddr());
-    ui->destAddrEdit->setText(graph.getDestAddr());
+    showConnectionInfo(connectionId);
+
     //PopupWidget *popupWidget = new PopupWidget(address, this);
     //QLabel *label = new QLabel(this);
     //label->setText(address);
@@ -623,7 +618,7 @@ void MapOverview::handleConnectionHovered(QString address)
 void MapOverview::handleConnectionHoveredOff(QString address)
 {
     qDebug() << "connection hovered off";
-        ui->stackedWidget->setCurrentWidget(ui->mapPage);
+        //ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
 void MapOverview::handleConnectionRightClicked(QString id)
@@ -663,20 +658,13 @@ void MapOverview::handleAddressSelected(QString nodeId, QString address)
 
 void MapOverview::handleProviderHovered(QString nodeId, QString address)
 {
-    ui->stackedWidget->setCurrentWidget(ui->providerPage);
-    ui->providerName->setText(address);
-
-    NodeStruct &srcNode = nodeHash[nodeId];
-    QStringList srcAdrs = srcNode.providers.value(address.toInt());
-    ui->addressListWidget->clear();
-    ui->addressListWidget->addItems(srcAdrs);
-    qDebug() << " Address hovered" << nodeId << address;
+    showProviderInfo(nodeId, address);
 }
 
 void MapOverview::handleProviderHoveredOff(QString nodeId, QString address)
 {
     qDebug() << " Address hovered off";
-        ui->stackedWidget->setCurrentWidget(ui->mapPage);
+        //ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
 void MapOverview::handleShutDownComplete(int status)
@@ -691,9 +679,50 @@ void MapOverview::handleAboutToQuit()
     qDebug() << "shutting down core";
 }
 
+void MapOverview::showNodeInfo(QString nodeId)
+{
+    //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
+    NodeStruct &node = nodeHash[nodeId];
+    ui->stackedWidget->setCurrentWidget(ui->nodePage);
+    ui->sliceNameEdit->setText(node.sliver.sliceName);
+    ui->siteNameEdit->setText(node.sliver.hostName);
+    qDebug() << "Node hovered";
+}
+
+void MapOverview::showProviderInfo(QString nodeId, QString providerIndex)
+{
+    ui->stackedWidget->setCurrentWidget(ui->providerPage);
+    ui->providerName->setText(providerIndex);
+
+    NodeStruct &srcNode = nodeHash[nodeId];
+    QStringList srcAdrs = srcNode.providers.value(providerIndex.toInt());
+    ui->addressListWidget->clear();
+    ui->addressListWidget->addItems(srcAdrs);
+    qDebug() << " Address hovered" << nodeId << providerIndex;
+}
+
+void MapOverview::showConnectionInfo(QString connectionId)
+{
+    QStringList splitted = connectionId.split("@");
+    QString provider = splitted[0];
+    QString site = splitted[1];
+    GraphData &graph = graphHash[connectionId];
+    qDebug() << "Connection hovered" << connectionId;
+    ui->stackedWidget->setCurrentWidget(ui->connectionPage);
+    ui->experimentEdit->setText(graph.expTypeString());
+    ui->ipEdit->setText(graph.ipTypeString());
+    ui->srcAddrEdit->setText(graph.getSrcAddr());
+    ui->destAddrEdit->setText(graph.getDestAddr());
+}
+
+void MapOverview::showMapInfo()
+{
+
+}
+
 void MapOverview::handleMapHovered()
 {
-    ui->stackedWidget->setCurrentWidget(ui->mapPage);
+//ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
 void MapOverview::handleNodeDisconnected(Sliver sliver)
@@ -711,18 +740,13 @@ void MapOverview::handleNodeDisconnected(Sliver sliver)
 
 void MapOverview::handleNodeHovered(QString hostname)
 {
-    //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
-    NodeStruct &node = nodeHash[hostname];
-    ui->stackedWidget->setCurrentWidget(ui->nodePage);
-    ui->sliceNameEdit->setText(node.sliver.sliceName);
-    ui->siteNameEdit->setText(node.sliver.hostName);
-    qDebug() << "Node hovered";
+    showNodeInfo(hostname);
 }
 
 void MapOverview::handleNodeHoveredOff(QString hostname)
 {
     qDebug() << "Node hovered off";
-        ui->stackedWidget->setCurrentWidget(ui->mapPage);
+        //ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
 QWidget *MapOverview::createNodeInfoBox()

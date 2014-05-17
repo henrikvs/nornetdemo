@@ -30,8 +30,8 @@ public slots:
 
     void addMarker(QString name, qreal lat, qreal lng);
     void addMarker(QString name, qreal lat, qreal lng, int offsetX, int offsetY);
-    void addCustomMarker(QString name, QString id, qreal lat, qreal lng, QString imagepath, qreal scaleX, qreal scaleY, int offsetX, int offsetY, int category = 0);
-    void addCustomSymbolMarker(QString name, qreal lat, qreal lng, QString symbolPath,qreal scale,int offsetX,int offsetY,int rotation);
+    void addCustomMarker(QString name, QString id, qreal lat, qreal lng, QString imagepath, qreal scaleX, qreal scaleY, int offsetX, int offsetY, int rotation = 0, int z = 0, int category = 0);
+    void addCustomSymbolMarker(QString name, qreal lat, qreal lng, QString symbolPath,qreal scale,int offsetX,int offsetY,int rotation = 0);
     void start();
 
 private slots:
