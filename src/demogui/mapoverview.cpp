@@ -120,12 +120,18 @@ QString MapOverview::getIpv6Address(QStringList adrs)
     return QString();
 }
 
+/**
+ * @brief Connects to all slivers
+ */
 void MapOverview::connectToSlivers()
 {
     QList<Sliver*> slivers = Settings::sliceManager.getSlivers();
     core.connectToSlivers(slivers);
 }
 
+/**
+ * @brief Forcefully shuts down all nodes by connecting via SSH and killing the processes.
+ */
 void MapOverview::killNodes()
 {
     QList<Sliver*> slivers = Settings::sliceManager.getSlivers();
@@ -168,6 +174,11 @@ void MapOverview::applySettings()
     }
 }
 
+/**
+ * @brief Adds some data to a graph. Data will either represent Mbps or MS delay
+ * @param The id of the graph, this is the same as the connectionId
+ * @param Mbps or MS delay
+ */
 void MapOverview::addGraphData(QString id, qreal data)
 {
 
@@ -621,6 +632,11 @@ void MapOverview::handleConnectionHoveredOff(QString address)
         //ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
+/**
+ * @brief Handler for right clicking events on connections from the user.
+ * It will open a popup, asking the user to either remove the connection, or add it to an existing (or new) graph window
+ * @param id
+ */
 void MapOverview::handleConnectionRightClicked(QString id)
 {
     QMenu menu(this);
@@ -656,9 +672,14 @@ void MapOverview::handleAddressSelected(QString nodeId, QString address)
     qDebug() << " Address selected" << nodeId << address;
 }
 
-void MapOverview::handleProviderHovered(QString nodeId, QString address)
+/**
+ * @brief If a provider connection was hovered, we show the providerinfo widget in the sidebar.
+ * @param nodeId
+ * @param The provider index
+ */
+void MapOverview::handleProviderHovered(QString nodeId, QString providerIndex)
 {
-    showProviderInfo(nodeId, address);
+    showProviderInfo(nodeId, providerIndex);
 }
 
 void MapOverview::handleProviderHoveredOff(QString nodeId, QString address)
