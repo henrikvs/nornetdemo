@@ -831,12 +831,14 @@ void MapOverview::on_actionSettings_triggered()
  */
 void MapOverview::on_actionConnect_to_slivers_triggered()
 {
+    ui->actionConnect_to_slivers->setEnabled(false);
     connectToSlivers();
     ui->statusbar->showMessage(QString("Connecting").arg(Settings::sliceManager.sliverCount()));
 }
 
 void MapOverview::on_actionKill_nodes_2_triggered()
 {
+    ui->actionConnect_to_slivers->setEnabled(true);
     killNodes();
     qDebug() << "Killing nodes";
 }
