@@ -584,12 +584,12 @@ L.Mixin.Events.fire = L.Mixin.Events.fireEvent;
 		opera3d: opera3d,
 		any3d: any3d,
 
-		mobile: mobile,
+		mobile: false,
 		mobileWebkit: mobile && webkit,
 		mobileWebkit3d: mobile && webkit3d,
 		mobileOpera: mobile && window.opera,
 
-		touch: touch,
+		touch: false,
 		msPointer: msPointer,
 		pointer: pointer,
 
@@ -2447,8 +2447,8 @@ L.TileLayer = L.Class.extend({
 		reuseTiles: false,
 		bounds: false,
 		*/
-		unloadInvisibleTiles: L.Browser.mobile,
-		updateWhenIdle: L.Browser.mobile
+		unloadInvisibleTiles: false, //L.Browser.mobile,
+		updateWhenIdle: false //L.Browser.mobile
 	},
 
 	initialize: function (url, options) {

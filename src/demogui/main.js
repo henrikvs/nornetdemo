@@ -3,6 +3,10 @@ var map;
 var markers = {};
 var lines = {};
 
+
+console.log(L.Browser.webkit);
+console.log(L.Browser.mobileWebkit)
+
 var mapLayer = MQ.mapLayer();
 var hybridLayer = MQ.hybridLayer();
 var satelliteLayer = MQ.satelliteLayer();
@@ -94,8 +98,9 @@ function initialize() {
         zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
+*/
 
-    */console.debug("successfully initialized");
+    console.debug("successfully initialized");
 
     map = L.map('map_canvas',
                 {
@@ -142,6 +147,7 @@ function initialize() {
     });
 
     map.setView([51.505, -0.09], 13);
+
 
     /*
     L.tileLayer('http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
