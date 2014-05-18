@@ -3,6 +3,10 @@ var map;
 var markers = {};
 var lines = {};
 
+var mapLayer = MQ.mapLayer();
+var hybridLayer = MQ.hybridLayer();
+var satelliteLayer = MQ.satelliteLayer();
+
 /*
 function onClick(event) {
     console.dir(event);
@@ -92,11 +96,20 @@ function initialize() {
     };
 
     */console.debug("successfully initialized");
+
     map = L.map('map_canvas',
                 {
+                    layers: mapLayer
                     //center: L.latLng(60.285822, 10.369141)
                 });
     console.log("loading 2");
+
+
+    L.control.layers({
+        'Map': mapLayer,
+        'Satellite': satelliteLayer,
+        'Hybrid': hybridLayer
+    }).addTo(map);
 
     map.on('load', function() {
         console.log("loaded");
@@ -130,12 +143,13 @@ function initialize() {
 
     map.setView([51.505, -0.09], 13);
 
-    L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    /*
+    L.tileLayer('http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         //attributionControl: false,
         updateWhenIdle: false,
         unloadInvisibleTiles: false,
-    }).addTo(map);
+    }).addTo(map);*/
 
 
     /*google.maps.event.addListenerOnce(map,"projection_changed", function() {
