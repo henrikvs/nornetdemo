@@ -11,8 +11,10 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <QSettings>
+#include <QMenu>
 #include <QTableWidget>
 #include "networkentity.h"
+#include "editsliverdialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -40,6 +42,17 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
         QListWidgetItem *item = new QListWidgetItem(sliver->hostName, ui->sliversWidget);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
+
+        connect(ui->sliversWidget, &QListWidget::customContextMenuRequested, [this](QPoint pos) {
+            qDebug() << "SOme debug";
+            QMenu *menu = new QMenu();
+            menu->addAction("Test");
+            QAction *addaction = menu->addAction("Advanced settings");
+            QObject::connect(addaction, &QAction::triggered, []() {
+               qDebug() << "Soemthing";
+            });
+            menu->exec(pos);
+        });
     }
 
     ui->sliverKeyEdit->setText(sliverKey);
@@ -184,4 +197,21 @@ void SettingsDialog::on_deleteHostButton_clicked()
         Settings::sliceManager.removeSliver(item->text());
         delete item;
     }
+}
+
+void SettingsDialog::on_editSiteButton_clicked()
+{
+    QList<QListWidgetItem*> items = ui->sliversWidget->selectedItems();
+    foreach (QListWidgetItem *item, items) {
+        qDebug() << "Removing " << item->text();
+        Sliver *sliver = Settings::sliceManager.getSliver(item->text());
+        EditSliverDialog *dialog = new EditSliverDialog(sliver);
+        dialog->exec();
+        Sliver edittedSliver = dialog->getSliver();
+        //qDebug() << edittedSliver->name << edittedSliver->sliceName << edittedSliver->IPv6 << edittedSliver->port;
+        Settings::sliceManager.editSliver(edittedSliver.name, edittedSliver.sliceName, edittedSliver.IPv6, edittedSliver.port);
+qDebug() << "Test";
+
+    }
+
 }

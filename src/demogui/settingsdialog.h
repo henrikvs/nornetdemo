@@ -33,6 +33,8 @@ private slots:
 
     void on_deleteHostButton_clicked();
 
+    void on_editSiteButton_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     bool sliverKeyEdited;

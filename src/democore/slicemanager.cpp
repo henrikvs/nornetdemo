@@ -91,3 +91,21 @@ void SliceManager::writeSliversToFile(QString file)
     writefile.close();
     qDebug() << "Wrote to file";
 }
+
+Sliver *SliceManager::getSliver(QString siteName)
+{
+    return slivers[siteName];
+}
+
+void SliceManager::editSliver(QString siteName, QString sliceName, QString ipv6Addr, int port)
+{
+    if (!slivers.contains(siteName)) {
+        qDebug() << "sliver not found";
+        return;
+    }
+    Sliver *sliver = slivers[siteName];
+    sliver->hostName = siteName;
+    sliver->sliceName = sliceName;
+    sliver->IPv6 = ipv6Addr;
+    sliver->port = port;
+}

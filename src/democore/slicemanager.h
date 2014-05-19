@@ -16,6 +16,8 @@ public:
     bool sliverExists(QString hostname);
     void readSliversFromFile(QString file = "slivers.data");
     void writeSliversToFile(QString file = "slivers.data");
+    Sliver * getSliver(QString siteName);
+    void editSliver(QString siteName, QString sliceName, QString ipv6Addr, int port);
 };
 
 #endif // SLICEMANAGER_H

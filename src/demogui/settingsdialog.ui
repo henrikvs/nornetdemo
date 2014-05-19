@@ -93,11 +93,11 @@
       </palette>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Keys</string>
+       <string>Connection</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -411,14 +411,21 @@
          <item>
           <widget class="QPushButton" name="addHostButton">
            <property name="text">
-            <string>Add host</string>
+            <string>Add site</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="deleteHostButton">
            <property name="text">
-            <string>Delete host</string>
+            <string>Delete site</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editSiteButton">
+           <property name="text">
+            <string>Edit site</string>
            </property>
           </widget>
          </item>

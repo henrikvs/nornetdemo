@@ -169,6 +169,7 @@ void NodeMapWidget::removeNodeMarker(QString nodeName)
 {
     removeMarker(nodeName);
     if (!nodeMarkers.contains(nodeName)) {
+        qDebug() << "Does not exist";
         return;
     }
     Node *node = nodeMarkers.take(nodeName);

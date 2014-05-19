@@ -61,6 +61,7 @@ private:
     NodeMapWidget *gmap;
 
     QList <PlotWindow*> plotWindows;
+    QStringList nodesDealtWith;
     QHash<QString, NodeStruct> nodeHash;
     QHash<QString, GraphData> graphHash;
     QHash<QString, QString> ipToProviderIdHash;
@@ -68,6 +69,7 @@ private:
     QCustomPlot *pingPlot;
     DemoCore core;
     qreal dmsToDecimal(qreal degrees, qreal minutes, qreal seconds);
+    bool isConnected;
 public slots:
     void handleAboutToQuit();
 private slots:

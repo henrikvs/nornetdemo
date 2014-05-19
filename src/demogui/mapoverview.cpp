@@ -26,7 +26,7 @@
  */
 MapOverview::MapOverview(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MapOverview)
+    ui(new Ui::MapOverview), isConnected(false)
 {
 
     ui->setupUi(this);
@@ -121,12 +121,17 @@ QString MapOverview::getIpv6Address(QStringList adrs)
 }
 
 /**
- * @brief Connects to all slivers
+ * @brief Connects to all slivers that are not already connected, or in the process of being connected to
  */
 void MapOverview::connectToSlivers()
 {
-    QList<Sliver*> slivers = Settings::sliceManager.getSlivers();
-    core.connectToSlivers(slivers);
+    foreach(Sliver *sliver, Settings::sliceManager.getSlivers()) {
+        if (!nodesDealtWith.contains(sliver->name)) {
+            core.connectToSlivers(QList<Sliver*>() << sliver);
+            nodesDealtWith << sliver->name;
+            ui->statusbar->showMessage(QString("Connecting"));
+        }
+    }
 }
 
 /**
@@ -171,6 +176,10 @@ void MapOverview::applySettings()
         QString relayPort = settings.value(Settings::relayPort, QString()).toString();
         qDebug() << "Enabling relay:" << relayHostname << relayPort;
         core.enableRelay(relayHostname, relayPort.toInt());
+    }
+
+    if (isConnected) { //if we're already connected, we connect any new slivers added from the preference screen
+        connectToSlivers();
     }
 }
 
@@ -746,16 +755,24 @@ void MapOverview::handleMapHovered()
 //ui->stackedWidget->setCurrentWidget(ui->mapPage);
 }
 
+/**
+ * @brief What to do on the GUI frontent if node is disconnected
+ * It basically just updates the GUI, and allows the connect button to be repressed, so that the user can try to reconnect.
+ * @param sliver
+ */
 void MapOverview::handleNodeDisconnected(Sliver sliver)
 {
-
+    qDebug() << "Problem connecting to " << sliver.hostName << sliver.IPv6 << sliver.port;
+    //nodesDealtWith.removeAll(sliver.name);
     QList<QListWidgetItem*> items = ui->connectedList->findItems(sliver.hostName, Qt::MatchExactly);
     qDeleteAll(items);
 
     gmap->removeNodeMarker(sliver.hostName);
+    nodeHash.remove(sliver.name);
     int sliverCount = Settings::sliceManager.sliverCount();
     int connected = ui->connectedList->count();
     ui->statusbar->showMessage(QString("Connected to %1 out of %2 sites").arg(connected).arg(sliverCount));
+    ui->actionConnect_to_slivers->setEnabled(true);
 }
 
 
@@ -831,13 +848,14 @@ void MapOverview::on_actionSettings_triggered()
  */
 void MapOverview::on_actionConnect_to_slivers_triggered()
 {
+    isConnected = true;
     ui->actionConnect_to_slivers->setEnabled(false);
     connectToSlivers();
-    ui->statusbar->showMessage(QString("Connecting").arg(Settings::sliceManager.sliverCount()));
 }
 
 void MapOverview::on_actionKill_nodes_2_triggered()
 {
+    isConnected = false;
     ui->actionConnect_to_slivers->setEnabled(true);
     killNodes();
     qDebug() << "Killing nodes";
