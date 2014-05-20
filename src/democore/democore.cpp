@@ -95,7 +95,9 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
     Sliver *sliver= getSliver(socket);
     protocolHash.remove(sliver->name);
     qDebug() << "Failed to connect: " << sliver->name;
-    emit sliverDisonnected(*sliver);
+    if (sliver->status == Sliver::STATUS_CONNECTED) { //if the node was connected, we give a notice that it has now disconnected
+        emit sliverDisonnected(*sliver);
+    }
     if (sliver->status == Sliver::STATUS_UPDATING) {
         emit sliverUpdating(*sliver);
         qDebug()<< "Retrying connection";

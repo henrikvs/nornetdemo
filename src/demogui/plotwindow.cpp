@@ -8,6 +8,8 @@ PlotWindow::PlotWindow(QWidget *parent) :
     ui(new Ui::PlotWindow)
 {
     ui->setupUi(this);
+
+    connect(ui->experimentsWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(handleExperimentSelected(QListWidgetItem*)));
     QCustomPlot *customPlot = ui->plotWidget;
     customPlot->xAxis->setLabel("Time");
     customPlot->yAxis->setLabel("Mbps");
@@ -62,7 +64,6 @@ double PlotWindow::nextBoxPlotKey()
 void PlotWindow::addGraph(GraphData *graph)
 {
     QListWidgetItem *item = new QListWidgetItem(graph->getName(), ui->experimentsWidget);
-
     itemToGraph[item] = graph;
 
     if (graph->expType == GraphData::PING) {
@@ -196,4 +197,13 @@ void PlotWindow::on_boxPlotAutoResize_clicked(bool checked)
 void PlotWindow::on_graphAutoResize_clicked(bool checked)
 {
     ui->plotWidget->setProperty("autoresize", checked);
+}
+
+void PlotWindow::handleExperimentSelected(QListWidgetItem *item)
+{
+    GraphData *graph = itemToGraph[item];
+    ui->fromSiteEdit->setText(graph->getSrcNode());
+    ui->toSiteEdit->setText(graph->getDestNode());
+    ui->fromIpEdit->setText(graph->getSrcAddr());
+    ui->toIpEdit->setText(graph->getDestAddr());
 }

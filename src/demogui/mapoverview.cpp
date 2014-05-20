@@ -229,7 +229,7 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
     if (connected == sliverCount) {
         ui->statusbar->showMessage("Connected");
     } else {
-        ui->statusbar->showMessage(QString("Connected to %1 out of %2 sites").arg(connected).arg(sliverCount));
+        ui->statusbar->showMessage(QString("Connected to %1 out of %2 nodes").arg(connected).arg(sliverCount));
     }
 
     Provider address;
@@ -763,7 +763,7 @@ void MapOverview::handleMapHovered()
 void MapOverview::handleNodeDisconnected(Sliver sliver)
 {
     qDebug() << "Problem connecting to " << sliver.hostName << sliver.IPv6 << sliver.port;
-    //nodesDealtWith.removeAll(sliver.name);
+    nodesDealtWith.removeAll(sliver.name);
     QList<QListWidgetItem*> items = ui->connectedList->findItems(sliver.hostName, Qt::MatchExactly);
     qDeleteAll(items);
 
@@ -771,7 +771,7 @@ void MapOverview::handleNodeDisconnected(Sliver sliver)
     nodeHash.remove(sliver.name);
     int sliverCount = Settings::sliceManager.sliverCount();
     int connected = ui->connectedList->count();
-    ui->statusbar->showMessage(QString("Connected to %1 out of %2 sites").arg(connected).arg(sliverCount));
+    ui->statusbar->showMessage(QString("Connected to %1 out of %2 nodes").arg(connected).arg(sliverCount));
     ui->actionConnect_to_slivers->setEnabled(true);
 }
 

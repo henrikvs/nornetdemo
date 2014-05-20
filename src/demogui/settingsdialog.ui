@@ -93,7 +93,7 @@
       </palette>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -372,7 +372,7 @@
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Hosts:</string>
+          <string>Nodes:</string>
          </property>
         </widget>
        </item>
@@ -411,21 +411,21 @@
          <item>
           <widget class="QPushButton" name="addHostButton">
            <property name="text">
-            <string>Add site</string>
+            <string>Add node</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="deleteHostButton">
            <property name="text">
-            <string>Delete site</string>
+            <string>Delete node</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="editSiteButton">
            <property name="text">
-            <string>Edit site</string>
+            <string>Edit node</string>
            </property>
           </widget>
          </item>

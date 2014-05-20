@@ -21,14 +21,14 @@ test = 5
 #UI_DIR = ${buildDir}/.ui
 
 linux {
-    demoguipath = $$OUT_PWD/src/demogui
+    nornetdemopath = $$OUT_PWD/src/demogui
     nodeprogpath = $$OUT_PWD/src/nodeprog
     relayprogpath = $$OUT_PWD/src/relayprog
     #myfile.path = $$OUT_PWD/tools
 }
 
-demoguifiles.files = $$demoguipath/demogui
-demoguifiles.path = bins/demogui
+demoguifiles.files = $$demoguipath/nornetdemo
+demoguifiles.path = bins/nornetdemo
 
 nodeprogfiles.files += $$nodeprogpath/nodeprog
 nodeprogfiles.path = bins/nodeprog

@@ -2,7 +2,7 @@
 QT       += core gui network webkit webkitwidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = app
-TARGET = demogui
+TARGET = nornetdemo
 CONFIG += c++11
 #LIBS += -lsctp
 #$$OUT_PWD/

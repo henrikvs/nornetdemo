@@ -43,7 +43,7 @@
         </sizepolicy>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -78,7 +78,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="mapPage"/>
           <widget class="QWidget" name="providerPage">
@@ -158,7 +158,7 @@
                  <item>
                   <widget class="QLabel" name="label_2">
                    <property name="text">
-                    <string>Site name:</string>
+                    <string>Node name:</string>
                    </property>
                   </widget>
                  </item>
@@ -266,10 +266,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>splitter</zorder>
-   <zorder></zorder>
-   <zorder>label_8</zorder>
-   <zorder>groupBox</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
