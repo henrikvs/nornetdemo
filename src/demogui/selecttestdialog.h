@@ -33,7 +33,7 @@ private:
     QButtonGroup ipGroup;
     int testType;
     int connectionType;
-    bool accepted = false;
+    bool accepted;
 };
 
 #endif // SELECTTESTDIALOG_H

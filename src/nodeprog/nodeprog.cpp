@@ -3,7 +3,7 @@
 #include <QProcess>
 #include <QStringList>
 
-NodeProg::NodeProg() : NetworkEntity()
+NodeProg::NodeProg() : NetworkEntity(), iperf4Process(NULL), iperf6Process(NULL)
 {
     connect(this, SIGNAL(shutDownComplete(int)), this, SLOT(exitProgram(int)));
 }

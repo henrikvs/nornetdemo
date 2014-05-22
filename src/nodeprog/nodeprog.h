@@ -25,8 +25,8 @@ private:
     virtual int getEntityType();
     void startIperf(int port);
     void startIperfIpv6(int port);
-    QProcess *iperf4Process = NULL;
-    QProcess *iperf6Process = NULL;
+    QProcess *iperf4Process;
+    QProcess *iperf6Process;
 };
 
 #endif // NODEPROG_H

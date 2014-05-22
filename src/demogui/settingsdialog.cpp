@@ -104,7 +104,7 @@ void SettingsDialog::on_okButton_clicked()
 
     if (sliverKeyEdited || gatekeeperKeyEdited) {
 #ifdef Q_OS_WIN
-    static QProcess *process = new QProcess(this);
+   /* static QProcess *process = new QProcess(this);
         sliverKeyEdited = false;
         gatekeeperKeyEdited = false;
         qDebug() << "Starting" << currentPath+"\\tools\\pageant.exe";
@@ -118,7 +118,7 @@ void SettingsDialog::on_okButton_clicked()
         msgBox.setText("Please (re)enter password(s)");
         msgBox.exec();
         process->start(currentPath+"/tools/pageant.exe", QStringList() << ui->sliverKeyEdit->text() << ui->gatekeeperKeyEdit->text());
-    }
+    }*/
 #elif defined(Q_OS_LINUX)
     bool ok;
     QProcess process1;

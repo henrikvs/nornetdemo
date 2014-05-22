@@ -5,7 +5,7 @@
 
 SelectTestDialog::SelectTestDialog(bool ipv4, bool ipv6, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SelectTestDialog)
+    ui(new Ui::SelectTestDialog), accepted(false)
 {
     ui->setupUi(this);
     ui->durationComboBox->addItem("10 seconds", 10);

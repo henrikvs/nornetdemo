@@ -5,7 +5,8 @@
 
 PlotWindow::PlotWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PlotWindow)
+    ui(new Ui::PlotWindow),
+    colorIndex(0), mbpsAxis(0), pingAxis(0), pingGraphs(0), mbpsGraphs(0)
 {
     ui->setupUi(this);
 

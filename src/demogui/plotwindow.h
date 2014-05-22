@@ -44,11 +44,11 @@ private:
     QString name;
     QList<Qt::GlobalColor> colorCycle;
     QHash<QListWidgetItem*, GraphData*> itemToGraph;
-    int colorIndex = 0;
-    int mbpsAxis = 0;
-    int pingAxis = 0;
-    int pingGraphs = 0;
-    int mbpsGraphs = 0;
+    int colorIndex;
+    int mbpsAxis;
+    int pingAxis;
+    int pingGraphs;
+    int mbpsGraphs;
     QString createYAxisLabel();
 };
 
