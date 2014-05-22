@@ -14,6 +14,17 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
+linux {
+    relayprogpath = $$OUT_PWD/src/relayprog
+    #myfile.path = $$OUT_PWD/tools
+}
+
+target.path = $$OUT_PWD/../../bins/relayprog
+
+
+
+INSTALLS += target
+
 HEADERS += $$files($$PWD/*.h)
 
 SOURCES += $$files($$PWD/*.cpp)

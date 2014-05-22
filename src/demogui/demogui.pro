@@ -49,8 +49,15 @@ win32 {
 
 }
 linux {
-    #myfile.path = $$OUT_PWD/tools
+    nornetdemopath = $$OUT_PWD/src/demogui
 }
+
+
+target.path = $$OUT_PWD/../../bins/nornetdemo
+
+
+INSTALLS += target
+
 
 #message($$LIB_FILES)
 libfiles_install.files = $$LIB_FILES

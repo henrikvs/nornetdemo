@@ -6,6 +6,9 @@
 
 CONFIG += ordered
 TEMPLATE = subdirs
+
+installdirectory = $$OUT_PWD
+
 SUBDIRS = src
 test = 5
 #include(src/nodeprog/nodeprog.pri)
@@ -20,29 +23,15 @@ test = 5
 #RCC_DIR = ${buildDir}/.qrc
 #UI_DIR = ${buildDir}/.ui
 
-linux {
-    nornetdemopath = $$OUT_PWD/src/demogui
-    nodeprogpath = $$OUT_PWD/src/nodeprog
-    relayprogpath = $$OUT_PWD/src/relayprog
-    #myfile.path = $$OUT_PWD/tools
-}
-
-demoguifiles.files = $$demoguipath/nornetdemo
-demoguifiles.path = bins/nornetdemo
-
-nodeprogfiles.files += $$nodeprogpath/nodeprog
-nodeprogfiles.path = bins/nodeprog
 
 nodeproginstall.files = $$PWD/src/nodeprog/install.sh
-nodeproginstall.path = bins/nodeprog
+nodeproginstall.path = $$OUT_PWD/bins/nodeprog
 
-relayprogfiles.files = $$relayprogpath/relayprog
-relayprogfiles.path = bins/relayprog
 
 message($$nodeprogpath/install.sh)
 
 #message($$libfiles_install.files)
-INSTALLS += demoguifiles nodeprogfiles relayprogfiles nodeproginstall
+INSTALLS += nodeproginstall
 
 
 RESOURCES += \

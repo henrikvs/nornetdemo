@@ -20,6 +20,21 @@ HEADERS += $$files($$PWD/*.h)
 
 SOURCES += $$files($$PWD/*.cpp)
 
+
+linux {
+    nodeprogpath = $$OUT_PWD/src/nodeprog
+}
+
+#nodeprogfiles.files += $$nodeprogpath/nodeprog
+#nodeprogfiles.path = $$OUT_PWD/bins/nodeprog
+
+target.path = $$OUT_PWD/.../bins/nodeprog
+
+message($$OUT_PWD/../../bins/nodeprog)
+
+INSTALLS += target
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/release/ -lnetworking
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libs/networking/debug/ -lnetworking
 else:unix: LIBS += -L$$OUT_PWD/../libs/networking/ -lnetworking
