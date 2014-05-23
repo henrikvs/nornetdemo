@@ -68,15 +68,18 @@ void AbstractProtocol::sendMessage(const AbstractMessage &message)
     header.data.seqNum = nextSeq;
     header.serialize(&totalData);
     totalData.append(messageData);
-    qDebug() << "Sending Total size 2: " << totalData.size();
-    qDebug() << "Bytes to write: " << socket->bytesToWrite();
+    qDebug() << "Sending Total size: " << totalData.size();
 
-    int ret = socket->write(totalData);
-    if (ret != totalData.size()) {
-        qDebug() << "Error!! Ret = " << ret;
-        qDebug() << socket->errorString();
+    int written = 0;
+    int totalSize = totalData.size();
+    while (written < totalSize) {
+        int ret = socket->write(totalData.data() + written, totalSize - written);
+        if (ret == -1) {
+            qDebug() << "write error";
+            return;
+        }
+        written+=ret;
     }
-    socket->flush();
 }
 
 void AbstractProtocol::setName(QString name)

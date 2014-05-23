@@ -32,7 +32,8 @@ NetworkEntity::~NetworkEntity()
 
 void NetworkEntity::addConnection(QString ip, int port, int type, QString username, QString hostname)
 {
-    MyQTcpSocket *socket = new MyQTcpSocket(this);
+    qDebug() << "Adding connection 123123";
+    MyQTcpSocket *socket = new MyQTcpSocket;
     ConnectionInfo info(ip, port, true,type, hostname, username);
     socket->setConnectionInfo(info);
 
@@ -359,10 +360,10 @@ void NetworkEntity::removeSocket(int socketId)
     connect(socket, &MyQTcpSocket::destroyed, []() {
        qDebug() << "Socket got destroyed";
     });
-
     AbstractProtocol *protocol = socket->getProtocol();
+    socket->deleteLater(); //test123
     if (protocol != NULL) {
-        connect(protocol, &MyQTcpSocket::destroyed, []() {
+        connect(protocol, &AbstractProtocol::destroyed, []() {
            qDebug() << "protocol got destroyed";
         });
         protocol->deleteLater();

@@ -295,10 +295,10 @@ Sliver *DemoCore::getSliver(MyQTcpSocket *socket)
 
 AbstractProtocol *DemoCore::createProtocol(HandshakeMessage message, MyQTcpSocket *socket)
 {
-    this->setParent(socket);
     if (message.data.connectionType == CONNECTION_TYPE_DEMO || message.data.connectionType == CONNECTION_TYPE_RELAY || message.data.connectionType == CONNECTION_TYPE_REPLY) {
         DemoProtocol *protocol = new DemoProtocol(this);
         protocol->setSocket(socket);
+        //protocol->setParent(socket);
         protocolHash[socket->getConnectionInfo().getHostName()] = protocol;
         connect(protocol, SIGNAL(newPingReply(PingReply,MyQTcpSocket*)), this, SLOT(handleNewPingReply(PingReply,MyQTcpSocket*)));
         connect(protocol, SIGNAL(nodeUpdating(MyQTcpSocket*)), this, SLOT(handleNodeUpdating(MyQTcpSocket*)));
