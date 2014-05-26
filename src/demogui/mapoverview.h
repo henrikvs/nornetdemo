@@ -54,7 +54,6 @@ private:
     void addGraphData(QString id, qreal data);
     void showGraph(QString id);
 
-    QWidget *createNodeInfoBox();
     QCustomPlot *createGraph(QString label);
 
     Ui::MapOverview *ui;
@@ -63,7 +62,7 @@ private:
     QList <PlotWindow*> plotWindows;
     QStringList nodesDealtWith;
     QHash<QString, NodeStruct> nodeHash;
-    QHash<QString, GraphData> graphHash;
+    QHash<QString, GraphData*> graphHash;
     QHash<QString, QString> ipToProviderIdHash;
     QHash<QString, QString> ipToNodeIdHash;
     QCustomPlot *pingPlot;
