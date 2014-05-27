@@ -111,6 +111,14 @@ bool DemoProtocol::handleMessage(int type)
         TransferStatusMessage message;
         message.read(socket);
         emit newTransferStatus(message, socket);
+
+    } else if (type == AbstractMessage::MSGTYPE_STRINGMESSAGE) {
+        StringMessage message;
+        message.read(socket);
+        QString command = message.data.text;
+        if (command == "heartbeat") {
+            qDebug() << "Received new heartbeat";
+        }
     } else {
         return false;
     }

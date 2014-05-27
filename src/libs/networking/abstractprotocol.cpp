@@ -1,6 +1,8 @@
 #include "abstractprotocol.h"
 #include "abstractmessage.h"
 #include "messageheader.h"
+#include "stringmessage.h"
+#include <QTimer>
 
 /**
  * @brief AbstractProtocol::AbstractProtocol
@@ -8,6 +10,12 @@
  */
 AbstractProtocol::AbstractProtocol(QObject *parent) : QObject(parent), headerRead(false)
 {
+    QTimer *timer = new QTimer(this);
+    //Send out a message every now and then, to keep the tcp connection alive
+    connect(timer, &QTimer::timeout, [this]() {
+       sendHeartbeat();
+    });
+    timer->start(30000);
     isRelay = false;
     active = true;
 }
@@ -82,6 +90,13 @@ void AbstractProtocol::sendMessage(const AbstractMessage &message)
     }
 }
 
+void AbstractProtocol::sendHeartbeat()
+{
+    StringMessage message("heartbeat");
+    qDebug() << "Sent heartbeat";
+    sendMessage(message);
+}
+
 void AbstractProtocol::setName(QString name)
 {
     this->name = name;
@@ -118,6 +133,7 @@ qint32 AbstractProtocol::getType()
 
 bool AbstractProtocol::handleMessage(int type)
 {
+
     return false;
 
 }

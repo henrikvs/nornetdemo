@@ -51,6 +51,7 @@ private:
     qint32 type;
     QString name;
     bool active;
+    void sendHeartbeat();
 
 };
 
