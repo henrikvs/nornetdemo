@@ -28,7 +28,7 @@ linux {
 #nodeprogfiles.files += $$nodeprogpath/nodeprog
 #nodeprogfiles.path = $$OUT_PWD/bins/nodeprog
 
-target.path = $$OUT_PWD/.../bins/nodeprog
+target.path = $$OUT_PWD/../../bins/nodeprog
 
 message($$OUT_PWD/../../bins/nodeprog)
 

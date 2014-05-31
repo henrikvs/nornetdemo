@@ -190,7 +190,7 @@
                     <item row="0" column="0">
                      <widget class="QLabel" name="label_2">
                       <property name="text">
-                       <string>Site:</string>
+                       <string>Node</string>
                       </property>
                      </widget>
                     </item>
@@ -229,7 +229,7 @@
                     <item row="0" column="0">
                      <widget class="QLabel" name="label_5">
                       <property name="text">
-                       <string>Site:</string>
+                       <string>Node</string>
                       </property>
                      </widget>
                     </item>
@@ -263,7 +263,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">

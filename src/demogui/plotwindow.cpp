@@ -74,6 +74,9 @@ void PlotWindow::addGraph(GraphData *graph)
     }
     ui->plotWidget->yAxis->setLabel(createYAxisLabel());
     graphs << graph;
+    if (ui->experimentsWidget->count() == 1) {
+        handleExperimentSelected(item);
+    }
 }
 
 QString PlotWindow::getName()
