@@ -9,6 +9,14 @@ DemoCore::DemoCore(): NetworkEntity(), gateKeeperEnabled(false)
 {
 }
 
+/**
+ * @brief Attempts to connect to the given nodes.
+ * If there's no IP address associated with a node, an ssh connection will first be
+ * established to fetch a globally available IPv6 address, and also deploy the connection
+ * program on the node. It will register timers, to keep trying to connection regularly.
+ *
+ * @param slivers A list of slivers, including at least the hostname of the node.
+ */
 void DemoCore::connectToSlivers(QList<Sliver*> slivers)
 {
     foreach (Sliver *sliver, slivers) {
@@ -65,6 +73,12 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
 
 }
 
+/**
+ * @brief Establishes SSH connection with the given slivers, and forcefully shuts
+ * down any running nodeprog instances on these. It is intended to be used only if normal shut down is
+ * not possible.
+ * @param slivers Slivers to connect to.
+ */
 void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
 {
     foreach (Sliver *sliver, slivers) {
@@ -83,7 +97,11 @@ void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
     }
 
 }
-
+/**
+ * @brief Handles a disconnected socket. Will do cleanup and emit a signal that may
+ * be handles by the GUI to do it's clean-up
+ * @param socket socket that is disconnected
+ */
 void DemoCore::disconnected(MyQTcpSocket *socket)
 {
     qDebug() << "Disconnecting nodeprog";
@@ -111,6 +129,11 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
     }
 }
 
+/**
+ * @brief Returns a list of all IPv4 addresses for a node.
+ * @param The name of the node
+ * @return A list of all IPv4 addresses
+ */
 QStringList DemoCore::getIpv4List(QString name)
 {
     QStringList addresses;
@@ -128,6 +151,11 @@ QStringList DemoCore::getIpv4List(QString name)
     return addresses;
 }
 
+/**
+ * @brief  Returns a list of all IPv6 addresses for a node.
+ * @param The name of the node
+ * @return A list of all IPv6 addresses.
+ */
 QStringList DemoCore::getIpv6List(QString name)
 {
     QStringList addresses;
@@ -147,7 +175,10 @@ QStringList DemoCore::getIpv6List(QString name)
 
 
 
-
+/**
+ * @brief Deploys nodeprog and it's dependencies on a node.
+ * @param The sliver to depoy on.
+ */
 void DemoCore::installProgram(Sliver *sliver)
 {
     sliver->status = Sliver::STATUS_INSTALLING;
@@ -174,17 +205,33 @@ void DemoCore::installProgram(Sliver *sliver)
     });
 }
 
+/**
+ * @brief Sets the url of the install script and nodeprog program.
+ * @param Should point to the directory where the install script and nodeprog
+ * is located, excluding trailing /
+ */
 void DemoCore::setnodeprogRootUrl(QString url)
 {
     this->nodeprogRootUrl = url;
 }
 
+/**
+ * @brief Connects to a sliver. The sliver should be running nodeprog.
+ * @param sliver to connect to.
+ */
 void DemoCore::addSliverConnection(Sliver *sliver)
 {
     qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->name;
     addSliverConnection(sliver->IPv6, sliver->port, sliver->sliceName, sliver->hostName);
 }
 
+/**
+ * @brief Connects to a sliver. The sliver should be running nodeprog.
+ * @param ip
+ * @param port
+ * @param sliceName
+ * @param hostName
+ */
 void DemoCore::addSliverConnection(QString ip, int port, QString sliceName, QString hostName)
 {
     if (relayEnabled()) {
@@ -194,11 +241,17 @@ void DemoCore::addSliverConnection(QString ip, int port, QString sliceName, QStr
     }
 }
 
+/**
+ * @brief Initializations upon starting
+ */
 void DemoCore::start()
 {
     //connectToSlivers();
 }
 
+/**
+ * @brief Send a shut down command to the connected nodes, instructing them to disconnect and shut down themselves.
+ */
 void DemoCore::shutDownNodes()
 {
     foreach (DemoProtocol *protocol, protocolHash) {
@@ -206,6 +259,11 @@ void DemoCore::shutDownNodes()
     }
 }
 
+/**
+ * @brief Uses SSH to get the IPv6 address of a sliver. The address is asynchronously saved in the given sliver
+ * object when the address is found.
+ * @param sliver
+ */
 void DemoCore::getIpAddress(Sliver *sliver)
 {
     SSHConnection *ssh = new SSHConnection;
@@ -233,6 +291,14 @@ void DemoCore::getIpAddress(Sliver *sliver)
     ssh->executeCommand("ip addr show eth0 | grep 'inet6 2001:700' | awk 'NR==1 {print \"ip:\"$2\"pi\"}'");
 }
 
+/**
+ * @brief Sends a request to start a ping session with the given node
+ * @param sliverName Name of the node
+ * @param host Remote address to ping. Should be an IPv6 or IPv4 address.
+ * @param localIp Local ip to bind to.
+ * @param seconds Duration of the ping experiment.
+ * @return The unique id of this session. Used to identify this session later.
+ */
 int DemoCore::pingHost(QString sliverName, QString host, QString localIp, int seconds)
 {
     if (!protocolHash.contains(sliverName)) {
@@ -245,6 +311,16 @@ int DemoCore::pingHost(QString sliverName, QString host, QString localIp, int se
     return id;
 }
 
+/**
+ * @brief Sends a request to start a new transfer session with the given node
+ * @param sliverName Name of the node.
+ * @param host IP address to start the transfer session with. Can be IPv6 or Ipv4, but no host name.
+ * @param localIp Local ip to bind to.
+ * @param transferType What kind of transfer to make. Currently, only TransferRequestMessage::TRANSFER_TYPE_TCP
+ * is supported.
+ * @param seconds Duration of the transfer test in seconds.
+ * @return The unique session id that is used to identify this session.
+ */
 int DemoCore::transferRequest(QString sliverName, QString host, QString localIp, int transferType, int seconds)
 {
     if (!protocolHash.contains(sliverName)) {
@@ -258,6 +334,13 @@ int DemoCore::transferRequest(QString sliverName, QString host, QString localIp,
     return id;
 }
 
+/**
+ * @brief Used to stop a running experiment.(Ping or TCP)
+ * @param sliverName Name of the sliver.
+ * @param sessionId Unique ID of the session to close.
+ * Session ID is the id returned when the experiment is first started.
+ *
+ */
 void DemoCore::stopExperiment(QString sliverName, int sessionId)
 {
     if (!protocolHash.contains(sliverName)) {
@@ -268,7 +351,11 @@ void DemoCore::stopExperiment(QString sliverName, int sessionId)
     DemoProtocol *protocol = protocolHash[sliverName];
     protocol->sendStopTask(sessionId);
 }
-
+/**
+ * @brief Enables the gatekeeper.
+ * @param username Username to connect with.
+ * @param hostname The hostname of the gatekeeper
+ */
 void DemoCore::enableGatekeeper(QString username, QString hostname)
 {
     qDebug() << "Gatekeeper enabled" << username << hostname;
@@ -277,22 +364,41 @@ void DemoCore::enableGatekeeper(QString username, QString hostname)
     gateKeeperEnabled = true;
 }
 
+/**
+ * @brief Disables the gatekeeper
+ */
 void DemoCore::disableGatekeeper()
 {
     gateKeeperEnabled = false;
 }
 
+/**
+ * @brief Get the sliver object from the sliver name
+ * @param name Name of the node
+ * @return Sliver object
+ */
 Sliver* DemoCore::getSliver(QString name)
 {
     Sliver *sliver = sliverHash[name];
     return sliver;
 }
 
+/**
+ * @brief Get the sliver associated with the socket
+ * @param socket
+ * @return
+ */
 Sliver *DemoCore::getSliver(MyQTcpSocket *socket)
 {
     return sliverHash[socket->getConnectionInfo().getHostName()];
 }
 
+/**
+ * @brief Create a protocol based on the handshake
+ * @param message The handhake message
+ * @param socket connected socket
+ * @return
+ */
 AbstractProtocol *DemoCore::createProtocol(HandshakeMessage message, MyQTcpSocket *socket)
 {
     if (message.data.connectionType == CONNECTION_TYPE_DEMO || message.data.connectionType == CONNECTION_TYPE_RELAY || message.data.connectionType == CONNECTION_TYPE_REPLY) {
@@ -311,6 +417,9 @@ AbstractProtocol *DemoCore::createProtocol(HandshakeMessage message, MyQTcpSocke
     }
 }
 
+/**
+ * @brief Called when a connection to a sliver is established
+ */
 void DemoCore::connected()
 {
     NetworkEntity::connected();
@@ -340,17 +449,32 @@ bool DemoCore::newStdIn(QString input)
     return true;
 }
 
+/**
+ * @brief Handles what to do when receiving information that a node is updating
+ * @param socket socket of the node connection.
+ */
 void DemoCore::handleNodeUpdating(MyQTcpSocket *socket)
 {
     Sliver *sliver = getSliver(socket);
     sliver->status = Sliver::STATUS_UPDATING;
 }
 
+/**
+ * @brief Passes a new ping message along by emitting it as a signal.
+ * The GUI can then tap into this signal and handle it.
+ * @param message Message containing the ping data.
+ * @param socket Socket the data was received on.
+ */
 void DemoCore::handleNewPingReply(PingReply message, MyQTcpSocket *socket)
 {
     emit newPingReply(*getSliver(socket), message);
 }
 
+/**
+ * @brief Passes node info along to the GUI by emitting it as a signal.
+ * @param message
+ * @param socket
+ */
 void DemoCore::handleNewNodeInfo(NodeInfoMessage message, MyQTcpSocket *socket)
 {
     /*
@@ -371,11 +495,21 @@ void DemoCore::handleNewNodeInfo(NodeInfoMessage message, MyQTcpSocket *socket)
     emit newStatusMessage(*getSliver(socket), message);
 }
 
+/**
+ * @brief Passes transfer info along to the GUI by emitting it as a signal.
+ * @param message
+ * @param socket
+ */
 void DemoCore::handleNewTransferStatus(TransferStatusMessage message, MyQTcpSocket *socket)
 {
     emit newTransferStatus(*getSliver(socket), message);
 }
 
+/**
+ * @brief Returns the entity type of this NetworkEntity derived class. Used when sending the handshake,
+ * which is dealing with the abstract NetworkEntity.
+ * @return The type of entity. Either NetworkEntity::ENTITY_TYPE_DEMO or NetworkEntity::ENTITY_TYPE_NODE.
+ */
 int DemoCore::getEntityType()
 {
     return NetworkEntity::ENTITY_TYPE_DEMO;
