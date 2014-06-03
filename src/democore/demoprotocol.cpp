@@ -10,6 +10,12 @@
 #include "transferstatusmessage.h"
 #include "taskcontrollermessage.h"
 #include <QTimer>
+
+/** \class DemoProtocol
+ * \brief This class contains the communication protocol for the NorNet Demo progam. It assumes a node and a NodeProtocol
+ * on the other side of the socket.
+ */
+
 DemoProtocol::DemoProtocol(QObject *parent) : AbstractProtocol(parent)
 {
 
