@@ -97,6 +97,7 @@ bool NodeProtocol::handleMessage(int type)
         message.read(socket);
         QString command = message.data.text;
         if (command == "exit") {
+            qDebug() << "Received exit message";
             emit exitProgram(NetworkEntity::EXIT_TYPE_NORMAL);
         }
     } else if (type == AbstractMessage::MSGTYPE_NODEINFOREQUEST) {

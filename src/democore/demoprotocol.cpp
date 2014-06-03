@@ -15,6 +15,10 @@ DemoProtocol::DemoProtocol(QObject *parent) : AbstractProtocol(parent)
 
 }
 
+/**
+ * @brief Sends a message with the status of the NorNet demo program. This is currently only the version of the
+ * communication protocol suite.
+ */
 void DemoProtocol::sendDemoStatus()
 {
     qDebug() << "Sending demo status";
@@ -22,6 +26,9 @@ void DemoProtocol::sendDemoStatus()
     sendMessage(message);
 }
 
+/**
+ * @brief Sends a message telling the node conneced to shut down.
+ */
 void DemoProtocol::sendExit()
 {
     StringMessage message("exit");
@@ -29,16 +36,34 @@ void DemoProtocol::sendExit()
 
 }
 
+/**
+ * @brief Sends a request to receive information about the connected node.
+ */
 void DemoProtocol::sendNodeInfoRequest() {
     NodeInfoRequest request;
     sendMessage(request);
 }
 
+/**
+ * @brief Sends a ping request through the socket associated with this protocol instance.
+ * @param sessionId A unique sessionId.
+ * @param remoteIp The IP (v6 or v4) to connect to.
+ * @param localIp The local IP(v6 or v4) to bind to.
+ * @param seconds The duration of the ping in seconds
+ */
 void DemoProtocol::sendPingRequest(int sessionId, QString remoteIp, QString localIp, int seconds) {
     PingRequest message(sessionId, remoteIp, localIp, seconds);
     sendMessage(message);
 }
 
+/**
+ * @brief Sends a transfer request through the socket associated with thi protocol instance.
+ * @param id A unique sessionId.
+ * @param host IPv4 or IPv6 of the host to start the transfer test with.
+ * @param localIp The local IPv4 or IPv6 to bind to.
+ * @param transferType The type of transfer. See the static consts of TransferRequestMessage.
+ * @param seconds Duration of the experiment.
+ */
 void DemoProtocol::sendTransferRequest(int id, QString host, QString localIp, int transferType, int seconds)
 {
     //int id = TransferRequestMessage::nextId();
@@ -47,17 +72,27 @@ void DemoProtocol::sendTransferRequest(int id, QString host, QString localIp, in
     sendMessage(message);
 }
 
+/**
+ * @brief Asks the connected node to stop a task(ping or tcp) with the sessionId specified.
+ * @param sessionId The id of the task to stop.
+ */
 void DemoProtocol::sendStopTask(int sessionId)
 {
     TaskControllerMessage message(sessionId, TaskControllerMessage::COMMAND_STOP);
     sendMessage(message);
 }
 
+/**
+ * @brief  Currently not used.
+ */
 void DemoProtocol::sendKeepAlive() {
     StringMessage message("keepalive");
     sendMessage(message);
 }
 
+/**
+ * @brief Initialization done upon starting the protocol instance.
+ */
 void DemoProtocol::start()
 {
     qDebug() << "Starting protocol";
@@ -73,7 +108,11 @@ void DemoProtocol::cleanUp()
 }
 
 
-
+/**
+ * @brief Reads and handles responses to incoming messages.
+ * @param type The message type. Used to read the parse the data of the socket correctly.
+ * @return Returns true if the message was handled, otherwise false.
+ */
 bool DemoProtocol::handleMessage(int type)
 {
     if (AbstractProtocol::handleMessage(type)) {

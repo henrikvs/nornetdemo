@@ -131,7 +131,7 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
 
 /**
  * @brief Returns a list of all IPv4 addresses for a node.
- * @param The name of the node
+ * @param name The name of the node
  * @return A list of all IPv4 addresses
  */
 QStringList DemoCore::getIpv4List(QString name)
@@ -153,7 +153,7 @@ QStringList DemoCore::getIpv4List(QString name)
 
 /**
  * @brief  Returns a list of all IPv6 addresses for a node.
- * @param The name of the node
+ * @param name The name of the node
  * @return A list of all IPv6 addresses.
  */
 QStringList DemoCore::getIpv6List(QString name)
@@ -177,7 +177,7 @@ QStringList DemoCore::getIpv6List(QString name)
 
 /**
  * @brief Deploys nodeprog and it's dependencies on a node.
- * @param The sliver to depoy on.
+ * @param sliver The sliver to depoy on.
  */
 void DemoCore::installProgram(Sliver *sliver)
 {
@@ -207,7 +207,7 @@ void DemoCore::installProgram(Sliver *sliver)
 
 /**
  * @brief Sets the url of the install script and nodeprog program.
- * @param Should point to the directory where the install script and nodeprog
+ * @param url Should point to the directory where the install script and nodeprog
  * is located, excluding trailing /
  */
 void DemoCore::setnodeprogRootUrl(QString url)
@@ -217,7 +217,7 @@ void DemoCore::setnodeprogRootUrl(QString url)
 
 /**
  * @brief Connects to a sliver. The sliver should be running nodeprog.
- * @param sliver to connect to.
+ * @param sliver Sliver to connect to.
  */
 void DemoCore::addSliverConnection(Sliver *sliver)
 {
@@ -314,7 +314,7 @@ int DemoCore::pingHost(QString sliverName, QString host, QString localIp, int se
 /**
  * @brief Sends a request to start a new transfer session with the given node
  * @param sliverName Name of the node.
- * @param host IP address to start the transfer session with. Can be IPv6 or Ipv4, but no host name.
+ * @param host IP Address to start the transfer session with. Can be IPv6 or Ipv4, but no host name.
  * @param localIp Local ip to bind to.
  * @param transferType What kind of transfer to make. Currently, only TransferRequestMessage::TRANSFER_TYPE_TCP
  * is supported.
