@@ -221,8 +221,11 @@ void DemoCore::setnodeprogRootUrl(QString url)
  */
 void DemoCore::addSliverConnection(Sliver *sliver)
 {
-    qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->name;
-    addSliverConnection(sliver->IPv6, sliver->port, sliver->sliceName, sliver->hostName);
+    if (sliver->status != Sliver::STATUS_CONNECTED && sliver->status != Sliver::STATUS_CONNECTING) {
+        sliver->status = Sliver::STATUS_CONNECTING;
+        qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->name;
+        addSliverConnection(sliver->IPv6, sliver->port, sliver->sliceName, sliver->hostName);
+    }
 }
 
 /**

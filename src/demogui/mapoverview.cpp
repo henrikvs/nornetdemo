@@ -208,6 +208,9 @@ qreal MapOverview::dmsToDecimal(qreal degrees, qreal minutes, qreal seconds)
  */
 void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
 {
+    if (message.data.lat.isEmpty() || message.data.lng.isEmpty()) {
+        return;
+    }
     qDebug() << "lat: " <<  message.data.lat;
     qDebug() << "lng: " <<  message.data.lng;
     QStringList lat = message.data.lat.split(QRegExp("\\s"));
