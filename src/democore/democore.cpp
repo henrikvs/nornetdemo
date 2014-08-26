@@ -13,7 +13,7 @@ DemoCore::DemoCore(): NetworkEntity(), gateKeeperEnabled(false)
  * @brief Attempts to connect to the given nodes.
  * If there's no IP address associated with a node, an ssh connection will first be
  * established to fetch a globally available IPv6 address, and also deploy the connection
- * program on the node. It will register timers, to keep trying to connection regularly.
+ * program on the node. It will register timers, to keep trying to connect regularly.
  *
  * @param slivers A list of slivers, including at least the hostname of the node.
  */
