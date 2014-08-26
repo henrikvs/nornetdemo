@@ -85,7 +85,6 @@ RESOURCES += \
 OTHER_FILES += \
     main.js \
     index.html \
-    markerlight.js \
     leaflet.polylineDecorator.js
 
 
