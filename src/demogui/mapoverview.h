@@ -67,7 +67,7 @@ private:
     QHash<QString, QString> ipToNodeIdHash;
     QCustomPlot *pingPlot;
     DemoCore core;
-    qreal dmsToDecimal(qreal degrees, qreal minutes, qreal seconds);
+    qreal dmsToDecimal(qreal degrees, qreal minutes, qreal seconds, QString dir);
     bool isConnected;
 public slots:
     void handleAboutToQuit();
