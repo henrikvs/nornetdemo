@@ -137,7 +137,7 @@ void InfoTask::dnsFinished(int retvalue)
         dnsProcess.close();
     }
 
-    QStringList result = RegexHelper::getFirstGroup(dnsResult, "LOC\\s*(\\d.*)\\s+N\\s*(\\d.*)\\s+E");
+    QStringList result = RegexHelper::getFirstGroup(dnsResult, "LOC\\s*(\\d.*\\s+[NS])\\s*(\\d.*\\s+[EW])");
     qDebug() << "Location string: " << dnsResult;
     if (result.size() == 3) {
         qDebug() << "location found: " << result[1] << result[2];

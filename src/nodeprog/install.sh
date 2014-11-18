@@ -35,10 +35,10 @@ function prepareNodeProg
 function runNodeProg
 {
 	while true; do
-		if [ -z "$1" ]; then
+		if [ -z "$2" ]; then
 			./nodeprog -p 33555
 		else
-			./nodeprog -p 33555 -r $1
+			./nodeprog -p 33555 -r $2
 		fi
 		exitCode=$?
 		if [ $exitCode -eq 1 ]; then
@@ -46,7 +46,7 @@ function runNodeProg
 			break;
 		elif [ $exitCode -eq 2 ]; then
 			echo "Doing a reinstall"
-			installNodeProg
+			installNodeProg $1
 		elif [ $exitCode -eq 3 ]; then
 			echo "Doing a restart:"$exitCode
 		else
@@ -66,6 +66,6 @@ fi
 
 prepareNodeProg $1 $2
 
-runNodeProg $3
+runNodeProg $2 $3
 
 echo "install script finished"

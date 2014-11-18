@@ -195,9 +195,13 @@ void MapOverview::addGraphData(QString id, qreal data)
  * @param seconds
  * @return
  */
-qreal MapOverview::dmsToDecimal(qreal degrees, qreal minutes, qreal seconds)
+qreal MapOverview::dmsToDecimal(qreal degrees, qreal minutes, qreal seconds, QString dir)
 {
-    return degrees+(minutes/60)+(seconds/3600);
+    qreal res = degrees+(minutes/60)+(seconds/3600);
+    if (dir == "S" || dir == "W") {
+        res = -res;
+    }
+    return res;
 }
 
 /**
@@ -215,8 +219,8 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
     qDebug() << "lng: " <<  message.data.lng;
     QStringList lat = message.data.lat.split(QRegExp("\\s"));
     QStringList lng = message.data.lng.split(QRegExp("\\s"));
-    qreal decLat = dmsToDecimal(lat[0].toDouble(), lat[1].toDouble(), lat[2].toDouble()); //change the location format
-    qreal decLng = dmsToDecimal(lng[0].toDouble(), lng[1].toDouble(), lng[2].toDouble());
+    qreal decLat = dmsToDecimal(lat[0].toDouble(), lat[1].toDouble(), lat[2].toDouble(), lat[3]); //change the location format
+    qreal decLng = dmsToDecimal(lng[0].toDouble(), lng[1].toDouble(), lng[2].toDouble(), lng[3]);
     gmap->addNodeMarker(sliver.name, decLat, decLng);
     ui->connectedList->addItem(sliver.hostName);
 
