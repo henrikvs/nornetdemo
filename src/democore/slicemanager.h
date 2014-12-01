@@ -2,22 +2,29 @@
 #define SLICEMANAGER_H
 
 #include "sliver.h"
+#include "nodemodel.h"
 #include <QList>
 
-class SliceManager
+class SliceManager : public QObject
 {
+    Q_OBJECT
 public:
     SliceManager();
     QList<Sliver*> getSlivers();
     int sliverCount();
-    QHash<QString, Sliver*> slivers;
-    void createSliver(QString hostname, QString sliceName, int port);
+    void createSliver(QString hostname, int port);
     void removeSliver(QString name);
     bool sliverExists(QString hostname);
     void readSliversFromFile(QString file = "slivers.data");
     void writeSliversToFile(QString file = "slivers.data");
     Sliver * getSliver(QString siteName);
-    void editSliver(QString siteName, QString sliceName, QString ipv6Addr, int port);
+    NodeModel* getModel();
+    void editSliver(QString nodeName, Sliver newNode);
+    void setStatus(QString nodeName, Sliver newNode);
+private:
+    NodeModel model;
+signals:
+    void newNodeUpdate(QString originalName, Sliver sliver);
 };
 
 #endif // SLICEMANAGER_H

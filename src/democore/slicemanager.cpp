@@ -3,18 +3,18 @@
 #include <QFile>
 #include <QDir>
 
-QDataStream &operator<<(QDataStream &out, const Sliver *sliver)
+QDataStream &operator<<(QDataStream &out, Sliver *sliver)
 {
-    qDebug() << "outing";
-    out << sliver->hostName << sliver->IPv4 << sliver->IPv6 << sliver->name << sliver->port << sliver->sliceName << sliver->status;
+    out << sliver->hostName << sliver->IPv4 << sliver->IPv6 << sliver->name << sliver->port <<  sliver->getStatus();
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, Sliver *&sliver)
 {
-    qDebug() << "Inning";
     sliver = new Sliver();
-    in >> sliver->hostName >> sliver->IPv4 >> sliver->IPv6 >> sliver->name >> sliver->port >> sliver->sliceName >>sliver->status;
+    int status;
+    in >> sliver->hostName >> sliver->IPv4 >> sliver->IPv6 >> sliver->name >> sliver->port >> status;
+    sliver->setStatus(Sliver::STATUS_OFFLINE);
     return in;
 }
 
@@ -30,38 +30,38 @@ SliceManager::SliceManager()
     sliver->port = 33555;
     slivers << sliver;
 */
+    readSliversFromFile();
 
 }
 
 QList<Sliver*> SliceManager::getSlivers()
 {
-    return slivers.values();
+    return model.getNodes();
 }
 
 int SliceManager::sliverCount()
 {
-    return slivers.size();
+    return model.getNodes().size();
 }
 
-void SliceManager::createSliver(QString hostname, QString sliceName, int port)
+void SliceManager::createSliver(QString hostname, int port)
 {
     Sliver *sliver = new Sliver();
-    sliver->sliceName = sliceName;
     sliver->name = hostname;
     sliver->hostName = hostname;
     sliver->port = port;
-    slivers[hostname] = sliver;
+    model.addNode(sliver);
 
 }
 
 void SliceManager::removeSliver(QString name)
 {
-    slivers.remove(name);
+    model.removeNode(name);
 }
 
 bool SliceManager::sliverExists(QString hostname)
 {
-    return slivers.contains(hostname);
+    return model.contains(hostname);
 }
 
 void SliceManager::readSliversFromFile(QString file)
@@ -72,8 +72,9 @@ void SliceManager::readSliversFromFile(QString file)
     }
     QDataStream in(&readfile);
     in.setVersion(QDataStream::Qt_5_0);
-
+    QList<Sliver*> slivers;
     in >> slivers;
+    model.setNodes(slivers);
     readfile.close();
     qDebug() << "Read from file";
 }
@@ -87,25 +88,22 @@ void SliceManager::writeSliversToFile(QString file)
     }
     QDataStream out(&writefile);
     out.setVersion(QDataStream::Qt_5_0);
-    out << slivers;
+    out << model.getNodes();
     writefile.close();
     qDebug() << "Wrote to file";
 }
 
 Sliver *SliceManager::getSliver(QString siteName)
 {
-    return slivers[siteName];
+    return model.getNode(siteName);
 }
 
-void SliceManager::editSliver(QString siteName, QString sliceName, QString ipv6Addr, int port)
+NodeModel* SliceManager::getModel()
 {
-    if (!slivers.contains(siteName)) {
-        qDebug() << "sliver not found";
-        return;
-    }
-    Sliver *sliver = slivers[siteName];
-    sliver->hostName = siteName;
-    sliver->sliceName = sliceName;
-    sliver->IPv6 = ipv6Addr;
-    sliver->port = port;
+    return &model;
+}
+
+void SliceManager::editSliver(QString nodeName, Sliver newNode)
+{
+    model.editNode(nodeName, newNode);
 }

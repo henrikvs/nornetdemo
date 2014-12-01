@@ -20,9 +20,9 @@ NodeMapWidget::NodeMapWidget(QWidget *parent) : MapWidget(parent)
  * @param lat
  * @param lng
  */
-void NodeMapWidget::addNodeMarker(QString nodeName, qreal lat, qreal lng)
+void NodeMapWidget::addNodeMarker(QString nodeName, int providers, qreal lat, qreal lng)
 {
-    nodeMarkers[nodeName] = new Node(nodeName, lat, lng);
+    nodeMarkers[nodeName] = new Node(nodeName, providers, lat, lng);
     //addCustomMarker("test", "nodeName" lat, lng, 0,0);
     addCustomMarker(nodeName, nodeName, lat, lng, "node.png", 30, 30, 15, 15, 0, 100);
     //addCustomMarker(nodeName, lat, lng, "ipv6.png", 25, 25, 0, 0);
@@ -46,7 +46,7 @@ void NodeMapWidget::addProviderMarker(QString nodeName, QString providerId)
 
     double angle = node->lastAngle;
 
-    angle = angle+2;
+    angle = angle + ((3.14 * 2)/node->providerCount);
 
 
     qreal xOffset = cos(angle) * 20;

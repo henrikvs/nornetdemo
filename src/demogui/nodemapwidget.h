@@ -28,13 +28,14 @@ struct Node {
     qreal lat;
     qreal lng;
     qreal lastAngle;
+    int providerCount;
     QList<Provider> providers;
     bool connectionsVisible;
     Node() {
 
     }
 
-    Node(QString name, qreal lat, qreal lng) : name(name), lat(lat), lng(lng)
+    Node(QString name, int providers, qreal lat, qreal lng) : name(name), providerCount(providers), lat(lat), lng(lng)
     {
         lastAngle = 0;
         connectionsVisible = false;
@@ -67,7 +68,7 @@ class NodeMapWidget : public MapWidget
     Q_OBJECT
 public:
     explicit NodeMapWidget(QWidget *parent = 0);
-    void addNodeMarker(QString nodeName, qreal lat, qreal lng);
+    void addNodeMarker(QString nodeName, int providers,  qreal lat, qreal lng);
     void addProviderMarker(QString nodeName, QString addressName);
     void addConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
     void removeConnectionLine(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);

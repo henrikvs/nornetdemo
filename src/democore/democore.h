@@ -37,6 +37,8 @@ public:
 
     QStringList getIpv4List(QString name);
     QStringList getIpv6List(QString name);
+    QString getSliceName();
+    void setActiveSlice(QString sliceName);
 private:
     QString nodeprogRootUrl;
     QString gatekeeperUsername;
@@ -47,7 +49,9 @@ private:
     QHash<QString, DemoProtocol*> protocolHash;
     Sliver* getSliver(QString name);
     Sliver *getSliver(MyQTcpSocket *socket);
+    QString sliceName;
     virtual int getEntityType();
+    void setStatus(Sliver *sliver, int status);
 protected:
     virtual AbstractProtocol *createProtocol(HandshakeMessage message, MyQTcpSocket *socket);
 private slots:
@@ -65,6 +69,7 @@ signals:
     void newTransferStatus(Sliver sliver, TransferStatusMessage message);
     void sliverDisonnected(Sliver sliver);
     void sliverUpdating(Sliver sliver);
+    void nodeStatusChanged(QString name);
 };
 
 #endif // DEMOCORE_H

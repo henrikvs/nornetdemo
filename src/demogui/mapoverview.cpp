@@ -35,7 +35,7 @@ MapOverview::MapOverview(QWidget *parent) :
 
 
     applySettings();
-
+    addNodesToTable();
     gmap = ui->mapWidget;
     connect(gmap, SIGNAL(mapLoaded()), this, SLOT(handleMapLoaded()));
 
@@ -43,7 +43,9 @@ MapOverview::MapOverview(QWidget *parent) :
 
     //setCentralWidget(gmap);
 
+    connect(&core, SIGNAL(nodeStatusChanged(QString)), Settings::sliceManager.getModel(), SLOT(onStatusChanged(QString)));
 
+    connect(&Settings::sliceManager, SIGNAL(newNodeUpdate(QString,Sliver)), this, SLOT(handleNewNodeStatus(QString,Sliver)));
     connect(&core, SIGNAL(shutDownComplete(int)), this, SLOT(handleShutDownComplete(int)));
     //connect(gmap, SIGNAL(markerSelected(QString)), this, SLOT(markerSelected(QString)));
 
@@ -81,6 +83,22 @@ MapOverview::~MapOverview()
     Settings::sliceManager.writeSliversToFile();
 
     qDeleteAll(graphHash.values());
+}
+
+
+void MapOverview::addNodesToTable()
+{
+
+    ui->nodeView->setModel(Settings::sliceManager.getModel());
+
+}
+
+
+
+void MapOverview::handleRefresh()
+{
+    qDebug() << "Doing refresh";
+    gmap->repaint();
 }
 
 /**
@@ -127,6 +145,8 @@ void MapOverview::connectToSlivers()
     }
 }
 
+
+
 /**
  * @brief Forcefully shuts down all nodes by connecting via SSH and killing the processes.
  */
@@ -143,13 +163,14 @@ void MapOverview::killNodes()
  */
 void MapOverview::applySettings()
 {
-    Settings::sliceManager.readSliversFromFile();
     QSettings settings(Settings::programName, Settings::company);
     bool gatekeeperEnabled = settings.value(Settings::gatekeeperEnabled, false).toBool();
     if (gatekeeperEnabled) {
         QString username = settings.value(Settings::gatekeeperUsername, QString()).toString();
         QString hostname = settings.value(Settings::gatekeeperHostname, QString()).toString();
         QString nodeprogRootUrl = settings.value(Settings::nodeprogRootUrl, QString()).toString();
+        QString sliceName = settings.value(Settings::sliceName, QString()).toString();
+        core.setActiveSlice(sliceName);
         core.setnodeprogRootUrl(nodeprogRootUrl);
         qDebug() << "root url:" << nodeprogRootUrl;
         if (username.isEmpty() || hostname.isEmpty()) {
@@ -174,6 +195,7 @@ void MapOverview::applySettings()
     if (isConnected) { //if we're already connected, we connect any new slivers added from the preference screen
         connectToSlivers();
     }
+
 }
 
 /**
@@ -221,7 +243,6 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
     QStringList lng = message.data.lng.split(QRegExp("\\s"));
     qreal decLat = dmsToDecimal(lat[0].toDouble(), lat[1].toDouble(), lat[2].toDouble(), lat[3]); //change the location format
     qreal decLng = dmsToDecimal(lng[0].toDouble(), lng[1].toDouble(), lng[2].toDouble(), lng[3]);
-    gmap->addNodeMarker(sliver.name, decLat, decLng);
     ui->connectedList->addItem(sliver.hostName);
 
     int sliverCount = Settings::sliceManager.sliverCount();
@@ -267,6 +288,8 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
             break;
         }
     }
+
+   gmap->addNodeMarker(sliver.name,nodeHash[sliver.hostName].providers.size(), decLat, decLng);
    QMapIterator<int, QStringList> i(nodeHash[sliver.hostName].providers);
     while (i.hasNext()) {
         i.next();
@@ -460,11 +483,6 @@ void MapOverview::showGraph(QString id)
     plotWindows << window;
 }
 
-void MapOverview::handleRefresh()
-{
-    qDebug() << "Doing refresh";
-    gmap->repaint();
-}
 
 /**
  * @brief This slot handles a request to start a new connection experiment between two nodes with specified providers.
@@ -663,7 +681,12 @@ void MapOverview::handleProviderHoveredOff(QString nodeId, QString address)
 void MapOverview::handleShutDownComplete(int status)
 {
     qDebug() << "Shut down complete";
+    
+}
 
+void MapOverview::handleNewNodeStatus(QString originalName, Sliver sliver)
+{
+   qDebug() << "New name here";
 }
 
 void MapOverview::handleAboutToQuit()
@@ -685,7 +708,7 @@ void MapOverview::showNodeInfo(QString nodeId)
     //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
     NodeStruct &node = nodeHash[nodeId];
     ui->stackedWidget->setCurrentWidget(ui->nodePage);
-    ui->sliceNameEdit->setText(node.sliver.sliceName);
+    ui->sliceNameEdit->setText("nothing");
     ui->siteNameEdit->setText(node.sliver.hostName);
     qDebug() << "Node hovered";
 }

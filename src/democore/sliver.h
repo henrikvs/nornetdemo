@@ -10,11 +10,15 @@ public:
     QString name;
     QString IPv4;
     QString IPv6;
-    QString sliceName;
     QString hostName;
     NodeInfoMessage infoMessage;
-    int status;
     int port;
+    bool enabled;
+    void setStatus(int status);
+    QString getStatusString();
+    int getStatus();
+private:
+    int status;
 };
 
 #endif // SLIVER_H

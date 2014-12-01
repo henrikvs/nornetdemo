@@ -182,7 +182,7 @@ void SettingsDialog::on_addHostButton_clicked()
         QListWidgetItem *item = new QListWidgetItem(hostname, ui->sliversWidget);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
-        Settings::sliceManager.createSliver(hostname, ui->sliceNameEdit->text(), NetworkEntity::PORT);
+        Settings::sliceManager.createSliver(hostname, NetworkEntity::PORT);
     } else {
         qDebug() << "Host already exists";
     }
@@ -203,13 +203,14 @@ void SettingsDialog::on_editSiteButton_clicked()
 {
     QList<QListWidgetItem*> items = ui->sliversWidget->selectedItems();
     foreach (QListWidgetItem *item, items) {
-        qDebug() << "Removing " << item->text();
+        qDebug() << "Editing" << item->text();
         Sliver *sliver = Settings::sliceManager.getSliver(item->text());
         EditSliverDialog *dialog = new EditSliverDialog(sliver);
         dialog->exec();
         Sliver edittedSliver = dialog->getSliver();
         //qDebug() << edittedSliver->name << edittedSliver->sliceName << edittedSliver->IPv6 << edittedSliver->port;
-        Settings::sliceManager.editSliver(edittedSliver.name, edittedSliver.sliceName, edittedSliver.IPv6, edittedSliver.port);
+        Settings::sliceManager.editSliver(sliver->hostName, edittedSliver);
+        item->setText(edittedSliver.hostName);
 qDebug() << "Test";
 
     }

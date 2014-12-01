@@ -11,6 +11,7 @@
 #include "democore.h"
 #include "qcustomplot.h"
 #include "graphdata.h"
+#include "nodemodel.h"
 
 class QCustomPlot;
 class QCPGraph;
@@ -53,6 +54,8 @@ private:
     void applySettings();
     void addGraphData(QString id, qreal data);
     void showGraph(QString id);
+    void addNodesToTable();
+    NodeModel nodeModel;
 
     QCustomPlot *createGraph(QString label);
 
@@ -99,6 +102,8 @@ private slots:
     void handleProviderHoveredOff(QString nodeId, QString address);
 
     void handleShutDownComplete(int status);
+    
+    void handleNewNodeStatus(QString originalName, Sliver sliver);
 
 
 

@@ -7,6 +7,7 @@
 #include "regexhelper.h"
 DemoCore::DemoCore(): NetworkEntity(), gateKeeperEnabled(false)
 {
+
 }
 
 /**
@@ -20,7 +21,7 @@ DemoCore::DemoCore(): NetworkEntity(), gateKeeperEnabled(false)
 void DemoCore::connectToSlivers(QList<Sliver*> slivers)
 {
     foreach (Sliver *sliver, slivers) {
-        sliver->status = Sliver::STATUS_OFFLINE;
+        setStatus(sliver, Sliver::STATUS_OFFLINE);
         sliverHash[sliver->name] = sliver;
         if (relayEnabled()) {
             installProgram(sliver);
@@ -36,7 +37,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
                 //if there's a specified IP address, give the connection some time before running the script setting things up.
                 connect(timer, &QTimer::timeout, [timer, sliver, this]() {
                     qDebug() << "Checking connection status";
-                    if (sliver->status == sliver->STATUS_OFFLINE) {
+                    if (sliver->getStatus() == sliver->STATUS_OFFLINE) {
                         qDebug() << "Still offline, reinstalling";
                         installProgram(sliver);
                     }
@@ -52,7 +53,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
 
         //Will try to connect as long as the sliver is not connected
         connect(timer, &QTimer::timeout, [timer, sliver, this]() {
-            if (sliver->status != sliver->STATUS_CONNECTED) {
+            if (sliver->getStatus() != sliver->STATUS_CONNECTED) {
                 qDebug() << "Retryign connection";
                 addSliverConnection(sliver);
             } else {
@@ -86,7 +87,7 @@ void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
         if (gateKeeperEnabled) {
             ssh->addHost(gatekeeperUsername, gatekeeperHostname);
         }
-        ssh->addHost(sliver->sliceName, sliver->hostName);
+        ssh->addHost(getSliceName(), sliver->hostName);
 
         ssh->executeCommand(QString("'sudo kill -INT nodeprog'"));
         connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
@@ -113,18 +114,18 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
     Sliver *sliver= getSliver(socket);
     protocolHash.remove(sliver->name);
     qDebug() << "Failed to connect: " << sliver->name;
-    if (sliver->status == Sliver::STATUS_CONNECTED) { //if the node was connected, we give a notice that it has now disconnected
+    if (sliver->getStatus() == Sliver::STATUS_CONNECTED) { //if the node was connected, we give a notice that it has now disconnected
         emit sliverDisonnected(*sliver);
     }
-    if (sliver->status == Sliver::STATUS_UPDATING) {
+    if (sliver->getStatus() == Sliver::STATUS_UPDATING) {
         emit sliverUpdating(*sliver);
         qDebug()<< "Retrying connection";
         //addSliverConnection(sliver); //retry connection
-    } else if (sliver->status == Sliver::STATUS_INSTALLING) {
+    } else if (sliver->getStatus() == Sliver::STATUS_INSTALLING) {
         //addSliverConnection(sliver);
     } else {
         //installProgram(sliver);
-        sliver->status = Sliver::STATUS_OFFLINE;
+        setStatus(sliver, Sliver::STATUS_OFFLINE);
         //addSliverConnection(sliver);
     }
 }
@@ -173,6 +174,16 @@ QStringList DemoCore::getIpv6List(QString name)
     return addresses;
 }
 
+QString DemoCore::getSliceName()
+{
+   return sliceName;
+}
+
+void DemoCore::setActiveSlice(QString sliceName)
+{
+    this->sliceName = sliceName;
+}
+
 
 
 /**
@@ -181,12 +192,12 @@ QStringList DemoCore::getIpv6List(QString name)
  */
 void DemoCore::installProgram(Sliver *sliver)
 {
-    sliver->status = Sliver::STATUS_INSTALLING;
+    setStatus(sliver, Sliver::STATUS_INSTALLING);
     SSHConnection *ssh = new SSHConnection;
     if (gateKeeperEnabled) {
         ssh->addHost(gatekeeperUsername, gatekeeperHostname);
     }
-    ssh->addHost(sliver->sliceName, sliver->hostName);
+    ssh->addHost(getSliceName(), sliver->hostName);
     QString relayString = "";
     if (relayEnabled()) {
         relayString = getRelayAddress() + ":" + QString::number(getRelayPort());
@@ -221,10 +232,10 @@ void DemoCore::setnodeprogRootUrl(QString url)
  */
 void DemoCore::addSliverConnection(Sliver *sliver)
 {
-    if (sliver->status != Sliver::STATUS_CONNECTED && sliver->status != Sliver::STATUS_CONNECTING) {
-        sliver->status = Sliver::STATUS_CONNECTING;
+    if (sliver->getStatus() != Sliver::STATUS_CONNECTED && sliver->getStatus() != Sliver::STATUS_CONNECTING) {
+        setStatus(sliver, Sliver::STATUS_CONNECTING);
         qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->name;
-        addSliverConnection(sliver->IPv6, sliver->port, sliver->sliceName, sliver->hostName);
+        addSliverConnection(sliver->IPv6, sliver->port, getSliceName(), sliver->hostName);
     }
 }
 
@@ -273,7 +284,7 @@ void DemoCore::getIpAddress(Sliver *sliver)
     if (gateKeeperEnabled) {
         ssh->addHost(gatekeeperUsername, gatekeeperHostname);
     }
-    ssh->addHost(sliver->sliceName, sliver->hostName);
+    ssh->addHost(getSliceName(), sliver->hostName);
     connect(ssh, &SSHConnection::outputSignal,[sliver, this](QString text) mutable {
        qDebug() << "Current thread: " << QThread::currentThread();
        qDebug() << "output: " + text;
@@ -428,7 +439,7 @@ void DemoCore::connected()
     NetworkEntity::connected();
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
     Sliver *sliver = getSliver(socket);
-    sliver->status = Sliver::STATUS_CONNECTED;
+    setStatus(sliver, Sliver::STATUS_CONNECTED);
     qDebug() << "Connected: " << sliver->name;
 }
 
@@ -459,7 +470,7 @@ bool DemoCore::newStdIn(QString input)
 void DemoCore::handleNodeUpdating(MyQTcpSocket *socket)
 {
     Sliver *sliver = getSliver(socket);
-    sliver->status = Sliver::STATUS_UPDATING;
+    setStatus(sliver, Sliver::STATUS_UPDATING);
 }
 
 /**
@@ -516,5 +527,11 @@ void DemoCore::handleNewTransferStatus(TransferStatusMessage message, MyQTcpSock
 int DemoCore::getEntityType()
 {
     return NetworkEntity::ENTITY_TYPE_DEMO;
+}
+
+void DemoCore::setStatus(Sliver *sliver, int status)
+{
+    sliver->setStatus(status);
+    emit nodeStatusChanged(sliver->hostName);
 }
 
