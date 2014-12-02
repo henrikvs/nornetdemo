@@ -51,6 +51,7 @@ private:
     QString getIpv6Address(QStringList adrs);
     void connectToSlivers();
     void killNodes();
+    void disconnectFromNodes();
     void applySettings();
     void addGraphData(QString id, qreal data);
     void showGraph(QString id);
@@ -112,6 +113,8 @@ private slots:
     void on_actionSettings_triggered();
     void on_actionConnect_to_slivers_triggered();
     void on_actionKill_nodes_2_triggered();
+    void on_addNodeButton_clicked();
+    void on_removeNodeButton_clicked();
 };
 
 #endif // MAPOVERVIEW_H

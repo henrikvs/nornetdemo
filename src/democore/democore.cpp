@@ -80,7 +80,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
  * not possible.
  * @param slivers Slivers to connect to.
  */
-void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
+void DemoCore::shutDownNodesSSH(QList<Sliver *> slivers)
 {
     foreach (Sliver *sliver, slivers) {
         SSHConnection *ssh = new SSHConnection;
@@ -97,6 +97,16 @@ void DemoCore::shutDownNodeprogs(QList<Sliver *> slivers)
         });
     }
 
+}
+
+void DemoCore::disconnectNodes(QList<Sliver *> slivers)
+{
+    foreach (Sliver *sliver, slivers) {
+        if (protocolHash.contains(sliver->hostName)) {
+            DemoProtocol *protocol  = protocolHash.take(sliver->hostName);
+            protocol->disconnectSocket();
+        }
+    }
 }
 /**
  * @brief Handles a disconnected socket. Will do cleanup and emit a signal that may

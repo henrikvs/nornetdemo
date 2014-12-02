@@ -34,6 +34,7 @@ MapOverview::MapOverview(QWidget *parent) :
     ui->statusbar->showMessage(tr("Disconnected"));
 
 
+    ui->nodeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     applySettings();
     addNodesToTable();
     gmap = ui->mapWidget;
@@ -153,7 +154,12 @@ void MapOverview::connectToSlivers()
 void MapOverview::killNodes()
 {
     QList<Sliver*> slivers = Settings::sliceManager.getSlivers();
-    core.shutDownNodeprogs(slivers);
+    core.shutDownNodesSSH(slivers);
+}
+
+void MapOverview::disconnectFromNodes()
+{
+    core.disconnectNodes(Settings::sliceManager.getSlivers());
 }
 
 
@@ -832,6 +838,7 @@ void MapOverview::on_actionConnect_to_slivers_triggered()
 {
     isConnected = true;
     ui->actionConnect_to_slivers->setEnabled(false);
+    ui->actionKill_nodes_2->setEnabled(true);
     connectToSlivers();
 }
 
@@ -839,6 +846,32 @@ void MapOverview::on_actionKill_nodes_2_triggered()
 {
     isConnected = false;
     ui->actionConnect_to_slivers->setEnabled(true);
-    killNodes();
+    ui->actionKill_nodes_2->setEnabled(false);
+    disconnectFromNodes();
     qDebug() << "Killing nodes";
+}
+
+void MapOverview::on_addNodeButton_clicked()
+{
+    bool ok;
+    QString hostname = QInputDialog::getText(this, tr("Settings"), tr("Enter hostname"),QLineEdit::Normal,QString(), &ok);
+
+    if (!ok) return;
+
+    if (!Settings::sliceManager.sliverExists(hostname)) {
+        qDebug() << "host does not exist, adding";
+        Settings::sliceManager.createSliver(hostname, NetworkEntity::PORT);
+    } else {
+        qDebug() << "Host already exists";
+    }
+}
+
+void MapOverview::on_removeNodeButton_clicked()
+{
+    QModelIndexList selectedList = ui->nodeView->selectionModel()->selectedRows();
+    for (int i = 0; i < selectedList.count(); i++) {
+        qDebug() << "Removing row";
+        QModelIndex index = selectedList.at(i);
+        Settings::sliceManager.getModel()->removeRows(index.row(), 1, QModelIndex());
+    }
 }

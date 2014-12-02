@@ -117,6 +117,11 @@ void AbstractProtocol::setType(qint32 type)
     this->type = type;
 }
 
+void AbstractProtocol::disconnectSocket()
+{
+    socket->disconnectFromHost();
+}
+
 qint32 AbstractProtocol::getType()
 {
     return type;

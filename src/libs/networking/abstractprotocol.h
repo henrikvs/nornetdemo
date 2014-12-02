@@ -31,6 +31,7 @@ public:
 
     void setSocket(MyQTcpSocket *socket);
     void setType(qint32 type);
+    void disconnectSocket();
     virtual void cleanUp() = 0;
     virtual void start() {};
     qint32 getType();

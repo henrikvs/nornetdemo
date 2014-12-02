@@ -155,3 +155,12 @@ QVariant NodeModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
+bool NodeModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows(QModelIndex(), row, row);
+    Sliver *sliver = sliversList.takeAt(row);
+    slivers.remove(sliver->hostName);
+    delete sliver;
+    endRemoveRows();
+}
+

@@ -50,6 +50,10 @@ public:
         // QAbstractItemModel interface
 public:
         QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+        // QAbstractItemModel interface
+public:
+        bool removeRows(int row, int count, const QModelIndex &parent);
 };
 
 #endif // NODEMODEL_H

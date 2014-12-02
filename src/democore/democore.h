@@ -17,7 +17,8 @@ class DemoCore : public NetworkEntity
 public:
     DemoCore();
     void connectToSlivers(QList<Sliver*> slivers);
-    void shutDownNodeprogs(QList<Sliver*> slivers);
+    void shutDownNodesSSH(QList<Sliver*> slivers);
+    void disconnectNodes(QList<Sliver*> slivers);
     void installProgram(Sliver *sliver);
     void setnodeprogRootUrl(QString url);
     void addSliverConnection(Sliver *sliver);
