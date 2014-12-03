@@ -174,11 +174,6 @@ void MapOverview::applySettings()
     if (gatekeeperEnabled) {
         QString username = settings.value(Settings::gatekeeperUsername, QString()).toString();
         QString hostname = settings.value(Settings::gatekeeperHostname, QString()).toString();
-        QString nodeprogRootUrl = settings.value(Settings::nodeprogRootUrl, QString()).toString();
-        QString sliceName = settings.value(Settings::sliceName, QString()).toString();
-        core.setActiveSlice(sliceName);
-        core.setnodeprogRootUrl(nodeprogRootUrl);
-        qDebug() << "root url:" << nodeprogRootUrl;
         if (username.isEmpty() || hostname.isEmpty()) {
             qDebug() << "Gatekeeper hostname or username not defined";
         } else {
@@ -187,6 +182,12 @@ void MapOverview::applySettings()
     } else {
         qDebug() << "Gatekeeper not enabled";
     }
+
+    QString nodeprogRootUrl = settings.value(Settings::nodeprogRootUrl, QString()).toString();
+    qDebug() << "root url:" << nodeprogRootUrl;
+    QString sliceName = settings.value(Settings::sliceName, QString()).toString();
+    core.setActiveSlice(sliceName);
+    core.setnodeprogRootUrl(nodeprogRootUrl);
 
 
     bool relayEnabled = settings.value(Settings::relayEnabled, false).toBool();
@@ -198,9 +199,9 @@ void MapOverview::applySettings()
         core.enableRelay(relayHostname, relayPort.toInt());
     }
 
-    if (isConnected) { //if we're already connected, we connect any new slivers added from the preference screen
+    /*if (isConnected) { //if we're already connected, we connect any new slivers added from the preference screen
         connectToSlivers();
-    }
+    }*/
 
 }
 
@@ -450,6 +451,7 @@ void MapOverview::showGraph(QString id)
     qDebug() << "Showing: " << id;
     GraphData *graph = graphHash[id];
     QCPDataMap &data = graph->data;
+
     /*if (graphHash.contains(id)) {
         qDebug() << "Getting old";
         graph = graphHash[id];
@@ -463,6 +465,7 @@ void MapOverview::showGraph(QString id)
         graphHash[id] = graph;
     }*/
     PlotWindow *window = new PlotWindow(this);
+
     window->setAttribute(Qt::WA_DeleteOnClose);
     graph->bindToWindow(window);
     connect(window, &PlotWindow::destroyed, [this, window]() {
@@ -484,8 +487,9 @@ void MapOverview::showGraph(QString id)
 
 
     window->setWindowTitle(window->getName());
-    window->show();
-    QDialog *dialog = new QDialog(this);
+    //window->show();
+
+    ui->tabWidget->addTab(window, "Something");
     plotWindows << window;
 }
 
