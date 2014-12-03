@@ -21,6 +21,7 @@ public:
     NodeModel* getModel();
     void editSliver(QString nodeName, Sliver newNode);
     void setStatus(QString nodeName, Sliver newNode);
+    void importNodesFromFile(QString filename);
 private:
     NodeModel model;
 signals:

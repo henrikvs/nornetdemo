@@ -56,7 +56,6 @@ private:
     void addGraphData(QString id, qreal data);
     void showGraph(QString id);
     void addNodesToTable();
-    NodeModel nodeModel;
 
     QCustomPlot *createGraph(QString label);
 
@@ -115,6 +114,7 @@ private slots:
     void on_actionKill_nodes_2_triggered();
     void on_addNodeButton_clicked();
     void on_removeNodeButton_clicked();
+    void on_importButton_clicked();
 };
 
 #endif // MAPOVERVIEW_H

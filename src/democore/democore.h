@@ -45,11 +45,11 @@ private:
     QString gatekeeperUsername;
     QString gatekeeperHostname;
     bool gateKeeperEnabled;
-    SliceManager sliceManager;
     QHash<QString, Sliver*> sliverHash;
     QHash<QString, DemoProtocol*> protocolHash;
     Sliver* getSliver(QString name);
     Sliver *getSliver(MyQTcpSocket *socket);
+
     QString sliceName;
     virtual int getEntityType();
     void setStatus(Sliver *sliver, int status);

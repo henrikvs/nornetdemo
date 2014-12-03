@@ -17,7 +17,10 @@ public:
     void setStatus(int status);
     QString getStatusString();
     int getStatus();
+    bool isActive();
+    void setActive(bool active);
 private:
+    bool active;
     int status;
 };
 

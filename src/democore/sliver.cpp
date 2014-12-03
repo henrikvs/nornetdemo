@@ -3,6 +3,7 @@
 Sliver::Sliver()
 {
     status = STATUS_OFFLINE;
+    active = true;
 }
 
 void Sliver::setStatus(int status)
@@ -37,4 +38,14 @@ QString Sliver::getStatusString()
 int Sliver::getStatus()
 {
     return status;
+}
+
+bool Sliver::isActive()
+{
+    return active;
+}
+
+void Sliver::setActive(bool active)
+{
+    this->active = active;
 }

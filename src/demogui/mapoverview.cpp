@@ -714,7 +714,7 @@ void MapOverview::showNodeInfo(QString nodeId)
     //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
     NodeStruct &node = nodeHash[nodeId];
     ui->stackedWidget->setCurrentWidget(ui->nodePage);
-    ui->sliceNameEdit->setText("nothing");
+    ui->sliceNameEdit->setText(core.getSliceName());
     ui->siteNameEdit->setText(node.sliver.hostName);
     qDebug() << "Node hovered";
 }
@@ -874,4 +874,10 @@ void MapOverview::on_removeNodeButton_clicked()
         QModelIndex index = selectedList.at(i);
         Settings::sliceManager.getModel()->removeRows(index.row(), 1, QModelIndex());
     }
+}
+
+void MapOverview::on_importButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Import file");
+    Settings::sliceManager.importNodesFromFile(fileName);
 }

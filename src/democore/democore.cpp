@@ -37,7 +37,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
                 //if there's a specified IP address, give the connection some time before running the script setting things up.
                 connect(timer, &QTimer::timeout, [timer, sliver, this]() {
                     qDebug() << "Checking connection status";
-                    if (sliver->getStatus() == sliver->STATUS_OFFLINE) {
+                    if (sliver->isActive() && sliver->getStatus() == sliver->STATUS_OFFLINE) {
                         qDebug() << "Still offline, reinstalling";
                         installProgram(sliver);
                     }
@@ -48,12 +48,14 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
             }
         }
 
+
+
         QTimer *timer = new QTimer(this);
 
 
         //Will try to connect as long as the sliver is not connected
         connect(timer, &QTimer::timeout, [timer, sliver, this]() {
-            if (sliver->getStatus() != sliver->STATUS_CONNECTED) {
+            if (sliver->isActive() && sliver->getStatus() != sliver->STATUS_CONNECTED) {
                 qDebug() << "Retryign connection";
                 addSliverConnection(sliver);
             } else {

@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="map_tab">
        <property name="sizePolicy">
@@ -310,6 +310,13 @@
            <widget class="QPushButton" name="removeNodeButton">
             <property name="text">
              <string>Remove node</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="importButton">
+            <property name="text">
+             <string>Import</string>
             </property>
            </widget>
           </item>

@@ -9,6 +9,7 @@ class NodeModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit NodeModel(QObject *parent = 0);
+    ~NodeModel();
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     void addNode(Sliver *node);
@@ -27,6 +28,8 @@ private:
     const static int STATUS_INDEX = 1;
     const static int IP_INDEX = 2;
     int findIndex(QString name);
+
+    QList<Sliver*> inactiveSlivers;
 signals:
 
 

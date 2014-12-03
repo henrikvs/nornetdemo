@@ -1,4 +1,5 @@
 #include "slicemanager.h"
+#include "networkentity.h"
 #include <QList>
 #include <QFile>
 #include <QDir>
@@ -106,4 +107,29 @@ NodeModel* SliceManager::getModel()
 void SliceManager::editSliver(QString nodeName, Sliver newNode)
 {
     model.editNode(nodeName, newNode);
+}
+
+void SliceManager::importNodesFromFile(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QTextStream in(&file);
+
+    QList<Sliver*> slivers;
+    while(!in.atEnd()) {
+        QString hostName = in.readLine().trimmed();
+        Sliver *sliver = new Sliver();
+        sliver->hostName = hostName;
+        sliver->name = hostName;
+        sliver->port = NetworkEntity::PORT;
+        slivers << sliver;
+    }
+
+    if (!slivers.empty()) {
+        model.setNodes(slivers);
+    }
+
+    file.close();
 }

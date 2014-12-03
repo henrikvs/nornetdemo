@@ -4,6 +4,13 @@ NodeModel::NodeModel(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
+NodeModel::~NodeModel()
+{
+    qDebug() << "Deconstruting nodeModel ";
+    qDeleteAll(inactiveSlivers);
+    qDeleteAll(sliversList);
+}
+
 int NodeModel::rowCount(const QModelIndex &parent) const
 {
     return sliversList.size();
@@ -56,6 +63,14 @@ Sliver* NodeModel::getNode(QString name)
 
 void NodeModel::setNodes(QList<Sliver *> nodes)
 {
+    foreach (Sliver *sliver, sliversList) {
+        inactiveSlivers << sliver;
+    }
+
+    sliversList.clear();
+    slivers.clear();
+
+    beginResetModel();
 
    foreach (Sliver *sliver, nodes) {
        if (!slivers.contains(sliver->hostName)) {
@@ -63,6 +78,8 @@ void NodeModel::setNodes(QList<Sliver *> nodes)
             slivers.insert(sliver->hostName, sliver);
        }
    }
+
+   endResetModel();
 }
 
 QList<Sliver *> NodeModel::getNodes()
@@ -82,7 +99,8 @@ void NodeModel::removeNode(QString name)
     Sliver *sliver = slivers.take(name);
     int removed = sliversList.removeAll(sliver);
     qDebug() << "Removed: " << removed;
-    delete sliver;
+    sliver->setActive(false);
+    inactiveSlivers << sliver;
     endRemoveRows();
 }
 
@@ -159,8 +177,9 @@ bool NodeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows(QModelIndex(), row, row);
     Sliver *sliver = sliversList.takeAt(row);
+    sliver->setActive(false);
     slivers.remove(sliver->hostName);
-    delete sliver;
+    inactiveSlivers << sliver;
     endRemoveRows();
 }
 
