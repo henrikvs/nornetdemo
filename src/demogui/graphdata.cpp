@@ -93,6 +93,15 @@ void GraphData::bindToWindow(PlotWindow *plotwin)
     newBox->setKey(boxPlotKey);
     statBoxes << newBox;
     plotwin->addGraph(this);
+    plot->replot();
+    boxPlot->replot();
+    plot->rescaleAxes(false);
+
+
+
+    BoxPlotData boxData = generateBoxPlotData();
+    newBox->setData(newBox->key(), boxData.min, boxData.firstQuartile, boxData.median, boxData.thirdQuartile, boxData.max);
+    boxPlot->rescaleAxes(false);
 }
 
 void GraphData::unbindWindow(PlotWindow *plotwin)
