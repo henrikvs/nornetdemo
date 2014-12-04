@@ -30,6 +30,11 @@ MapWidget::MapWidget(QWidget *parent)
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(handleLoadFinished(bool)));
 }
 
+void MapWidget::panToLocation(qreal lat, qreal lng)
+{
+    runScript(QString("panToLocation(%1, %2);").arg(lat).arg(lng));
+}
+
 void MapWidget::hideMarker(QString id)
 {
     qDebug() << "Hiding marker";
@@ -78,40 +83,6 @@ void MapWidget::handleLoadFinished(bool ok)
     //}
 }
 
-// geocode location strings to Latitude / Longitude positions
-void MapWidget::setGMapCenter(const QString &location)
-{
-    /*
-    QUrlQuery q;
-    QUrl url("http://maps.googleapis.com/maps/api/geocode/xml");
-    q.addQueryItem("address", location);
-    q.addQueryItem("sensor", "false");
-    url.setQuery(q);
-    QNetworkRequest request(url);
-
-    m_accessManager->get(request);
-*/
-}
-
-// overload with QPointF
-void MapWidget::setGMapCenter(const QPointF &pos)
-{
-    setGMapCenter(pos.x(), pos.y());
-}
-
-// overload with qreal
-void MapWidget::setGMapCenter(qreal lat, qreal lng)
-{
-    //runScript(QString("setGMapCenter(%1,%2)").arg(lat).arg(lng));
-    //addMarker("Test", lat, lng);
-    //addMarker("Test2", 59.897573, 9.596022);
-}
-
-// set a zoom level on the map
-void MapWidget::setGMapZoom(int zoomLevel)
-{
-    //runScript(QString("setGMapZoom(%1)").arg(zoomLevel));
-}
 
 void MapWidget::setLineColor(QString id, QString color)
 {

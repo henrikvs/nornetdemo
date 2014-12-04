@@ -134,6 +134,15 @@ void NodeMapWidget::removeConnectionLine(QString connectionId)
     removeLine(connectionId);
 }
 
+void NodeMapWidget::panToNode(QString nodeName)
+{
+    if (!nodeMarkers.contains(nodeName)) {
+        return;
+    }
+    Node *node = nodeMarkers[nodeName];
+    panToLocation(node->lat, node->lng);
+}
+
 void NodeMapWidget::drawConnectionTraffic(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId)
 {
 /*

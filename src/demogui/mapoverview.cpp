@@ -35,6 +35,7 @@ MapOverview::MapOverview(QWidget *parent) :
 
 
     ui->nodeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+
     applySettings();
     addNodesToTable();
     gmap = ui->mapWidget;
@@ -43,6 +44,10 @@ MapOverview::MapOverview(QWidget *parent) :
     gmap->start();
 
     //setCentralWidget(gmap);
+
+
+    connect(ui->experimentsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(experimentItemRightClicked(QListWidgetItem*)));
+    connect(ui->connectedList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(handleConnectedNodeClicked(QListWidgetItem*)));
 
     connect(&core, SIGNAL(nodeStatusChanged(QString)), Settings::sliceManager.getModel(), SLOT(onStatusChanged(QString)));
 
@@ -487,9 +492,8 @@ void MapOverview::showGraph(QString id)
 
 
     window->setWindowTitle(window->getName());
-    //window->show();
+    window->show();
 
-    ui->tabWidget->addTab(window, "Something");
     plotWindows << window;
 }
 
@@ -639,6 +643,12 @@ void MapOverview::handleConnectionHoveredOff(QString address)
  */
 void MapOverview::handleConnectionRightClicked(QString id)
 {
+
+    showExperimentMenu(id);
+    qDebug() << "Connectino was right clicked in mapoverview";
+}
+
+void MapOverview::showExperimentMenu(QString id) {
     QMenu menu(this);
     QPoint point = QCursor::pos();
     GraphData *graphData = graphHash[id];
@@ -652,7 +662,6 @@ void MapOverview::handleConnectionRightClicked(QString id)
         QAction *action = graphMenu->addAction(window->getName());
         connect(action, &QAction::triggered, [window, &graphData]() {
             graphData->bindToWindow(window);
-            qDebug() << "Opened window";
         });
     }
     QAction *action = menu.addAction("Remove");
@@ -663,8 +672,6 @@ void MapOverview::handleConnectionRightClicked(QString id)
     });
 
     QAction *selectedItem = menu.exec(point);
-
-    qDebug() << "Connectino was right clicked in mapoverview";
 }
 
 void MapOverview::handleAddressSelected(QString nodeId, QString address)
@@ -711,6 +718,17 @@ void MapOverview::handleAboutToQuit()
         qDebug() << "Gmap destroyed";
     });
     qDebug() << "shutting down core";
+}
+
+void MapOverview::experimentItemRightClicked(QListWidgetItem *item)
+{
+    qDebug() << "Double clicked item ";
+    showExperimentMenu(item->data(Qt::UserRole).toString());
+}
+
+void MapOverview::handleConnectedNodeClicked(QListWidgetItem *item)
+{
+    gmap->panToNode(item->text());
 }
 
 void MapOverview::showNodeInfo(QString nodeId)
@@ -865,6 +883,7 @@ void MapOverview::on_addNodeButton_clicked()
     if (!Settings::sliceManager.sliverExists(hostname)) {
         qDebug() << "host does not exist, adding";
         Settings::sliceManager.createSliver(hostname, NetworkEntity::PORT);
+        ui->actionConnect_to_slivers->setEnabled(true);
     } else {
         qDebug() << "Host already exists";
     }

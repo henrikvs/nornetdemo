@@ -75,6 +75,7 @@ public:
     void drawConnectionTraffic(QString srcNodeId, QString srcProviderId, QString destNodeId, QString destProviderId, QString sessionId);
     void removeNodeMarker(QString nodeName);
     void removeConnectionLine(QString connectionId);
+    void panToNode(QString nodeName);
 
 private:
     QHash<QString, Node*> nodeMarkers;

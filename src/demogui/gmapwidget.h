@@ -12,6 +12,7 @@ class MapWidget : public QWebView
 public:
     explicit MapWidget(QWidget *parent = 0);
 
+    void panToLocation(qreal lat, qreal lng);
     void hideMarker(QString id);
     void showMarker(QString id);
     void removeMarker(QString id);
@@ -21,11 +22,6 @@ public:
     void setLineColor(QString id, QString color);
 
 public slots:
-    void setGMapCenter(const QString &location);
-    void setGMapCenter(const QPointF &pos);
-    void setGMapCenter(qreal lat, qreal lng);
-
-    void setGMapZoom(int zoomLevel);
 
 
     void addMarker(QString name, qreal lat, qreal lng);

@@ -371,6 +371,10 @@ function removeLine(id) {
     mapWidget.doRefresh();
 }
 
+function panToLocation(lat, lng) {
+    map.panTo(L.latLng(lat, lng));
+}
+
 function hideMarker(id) {
     console.log(id);
     map.removeLayer(markers[id]);

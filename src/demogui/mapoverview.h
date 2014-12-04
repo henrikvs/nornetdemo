@@ -57,6 +57,8 @@ private:
     void showGraph(QString id);
     void addNodesToTable();
 
+    void showExperimentMenu(QString experimentId);
+
     QCustomPlot *createGraph(QString label);
 
     Ui::MapOverview *ui;
@@ -75,6 +77,10 @@ private:
 public slots:
     void handleAboutToQuit();
 private slots:
+
+    void experimentItemRightClicked(QListWidgetItem *item);
+    void handleConnectedNodeClicked(QListWidgetItem *item);
+
     void showNodeInfo(QString nodeId);
     void showProviderInfo(QString nodeId, QString providerIndex);
     void showConnectionInfo(QString connectionId);
