@@ -14,9 +14,11 @@ PlotWindow::PlotWindow(QWidget *parent) :
     QCustomPlot *customPlot = ui->plotWidget;
     customPlot->xAxis->setLabel("Time");
     customPlot->yAxis->setLabel("Mbps");
+    customPlot->yAxis2->setLabel("MS");
     customPlot->xAxis->setDateTimeFormat("mm:ss");
+    customPlot->axisRect()->setRangeDragAxes(customPlot->xAxis, customPlot->yAxis2);
     customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables | QCP::iSelectAxes);
     customPlot->setProperty("autoresize", ui->graphAutoResize->isChecked());
 
     customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft | Qt::AlignTop); // align the legend top left corner
@@ -72,7 +74,10 @@ void PlotWindow::addGraph(GraphData *graph)
     } else if (graph->expType == GraphData::TCP) {
         mbpsGraphs++;
     }
-    ui->plotWidget->yAxis->setLabel(createYAxisLabel());
+
+    setVisibleAxes();
+    //ui->plotWidget->yAxis->setLabel(createYAxisLabel());
+    setVisibleAxes();
     graphs << graph;
     if (ui->experimentsWidget->count() == 1) {
         handleExperimentSelected(item);
@@ -161,7 +166,7 @@ void PlotWindow::on_removeExperimentButton_clicked()
 {
 
 
-    ui->plotWidget->yAxis->setLabel(createYAxisLabel());
+    //ui->plotWidget->yAxis->setLabel(createYAxisLabel());
     qDebug() << "Trying to remove";
     QListWidgetItem *item = ui->experimentsWidget->currentItem();
     delete item;
@@ -173,7 +178,9 @@ void PlotWindow::on_removeExperimentButton_clicked()
     } else if (graph->expType == GraphData::TCP) {
         mbpsGraphs--;
     }
-    ui->plotWidget->yAxis->setLabel(createYAxisLabel());
+
+    setVisibleAxes();
+    //ui->plotWidget->yAxis->setLabel(createYAxisLabel());
 
     graph->unbindWindow(this);
     graphs.removeAll(graph);
@@ -191,6 +198,21 @@ QString PlotWindow::createYAxisLabel()
         labels << "Mbps";
     }
     return labels.join(" / ");
+}
+
+void PlotWindow::setVisibleAxes()
+{
+    if (pingGraphs > 0) {
+        ui->plotWidget->yAxis2->setVisible(true);
+    } else {
+        ui->plotWidget->yAxis2->setVisible(false);
+    }
+
+    if (mbpsGraphs > 0) {
+        ui->plotWidget->yAxis->setVisible(true);
+    } else {
+        ui->plotWidget->yAxis->setVisible(false);
+    }
 }
 
 void PlotWindow::on_boxPlotAutoResize_clicked(bool checked)

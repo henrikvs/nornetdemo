@@ -61,7 +61,12 @@ void GraphData::bindToWindow(PlotWindow *plotwin)
 {
     Qt::GlobalColor color = plotwin->nextColor();
     QCustomPlot *plot = plotwin->getPlotWidget();
-    QCPGraph *newGraph = plot->addGraph();
+    QCPGraph *newGraph;
+    if (expType == PING) {
+        newGraph = plot->addGraph(plot->xAxis, plot->yAxis2);
+    } else if (expType == TCP) {
+        newGraph = plot->addGraph();
+    }
     newGraph->setPen(QPen(color));
 
     QCustomPlot *boxPlot = plotwin->getBoxPlotWidget();

@@ -50,6 +50,7 @@ private:
     int pingGraphs;
     int mbpsGraphs;
     QString createYAxisLabel();
+    void setVisibleAxes();
 };
 
 #endif // PLOTWINDOW_H

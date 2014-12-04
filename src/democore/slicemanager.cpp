@@ -6,7 +6,7 @@
 
 QDataStream &operator<<(QDataStream &out, Sliver *sliver)
 {
-    out << sliver->hostName << sliver->IPv4 << sliver->IPv6 << sliver->name << sliver->port <<  sliver->getStatus();
+    out << sliver->hostName << sliver->IPv4 << sliver->IPv6 << sliver->port <<  sliver->getStatus();
     return out;
 }
 
@@ -14,7 +14,7 @@ QDataStream &operator>>(QDataStream &in, Sliver *&sliver)
 {
     sliver = new Sliver();
     int status;
-    in >> sliver->hostName >> sliver->IPv4 >> sliver->IPv6 >> sliver->name >> sliver->port >> status;
+    in >> sliver->hostName >> sliver->IPv4 >> sliver->IPv6 >>  sliver->port >> status;
     sliver->setStatus(Sliver::STATUS_OFFLINE);
     return in;
 }
@@ -48,7 +48,6 @@ int SliceManager::sliverCount()
 void SliceManager::createSliver(QString hostname, int port)
 {
     Sliver *sliver = new Sliver();
-    sliver->name = hostname;
     sliver->hostName = hostname;
     sliver->port = port;
     model.addNode(sliver);
@@ -122,7 +121,6 @@ void SliceManager::importNodesFromFile(QString filename)
         QString hostName = in.readLine().trimmed();
         Sliver *sliver = new Sliver();
         sliver->hostName = hostName;
-        sliver->name = hostName;
         sliver->port = NetworkEntity::PORT;
         slivers << sliver;
     }

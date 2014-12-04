@@ -16,7 +16,7 @@ EditSliverDialog::EditSliverDialog(Sliver *sliver, QWidget *parent) :
     localSliver.infoMessage = sliver->infoMessage;
     localSliver.IPv4 = sliver->IPv4;
     localSliver.IPv6 = sliver->IPv6;
-    localSliver.name = sliver->name;
+    localSliver.hostName = sliver->hostName;
     localSliver.setStatus(sliver->getStatus());
     localSliver.port = sliver->port;
 }
@@ -35,6 +35,6 @@ void EditSliverDialog::on_buttonBox_accepted()
 {
     localSliver.hostName = ui->siteNameEdit->text();
     localSliver.IPv6 = ui->addressEdit->text();
-    localSliver.name = ui->siteNameEdit->text();
+    localSliver.hostName = ui->siteNameEdit->text();
     localSliver.port = ui->portEdit->text().toInt();
 }

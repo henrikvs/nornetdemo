@@ -22,7 +22,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
 {
     foreach (Sliver *sliver, slivers) {
         setStatus(sliver, Sliver::STATUS_OFFLINE);
-        sliverHash[sliver->name] = sliver;
+        sliverHash[sliver->hostName] = sliver;
         if (relayEnabled()) {
             installProgram(sliver);
             addSliverConnection(sliver);
@@ -56,8 +56,12 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
         //Will try to connect as long as the sliver is not connected
         connect(timer, &QTimer::timeout, [timer, sliver, this]() {
             if (sliver->isActive() && sliver->getStatus() != sliver->STATUS_CONNECTED) {
-                qDebug() << "Retryign connection";
-                addSliverConnection(sliver);
+                if (!sliver->IPv6.isEmpty()) {
+                    qDebug() << "Attempting to connect";
+                    addSliverConnection(sliver);
+                } else {
+                    qDebug() << "No IPv6 found yet for " << sliver->hostName;
+                }
             } else {
                 timer->stop();
                 timer->deleteLater();
@@ -93,7 +97,7 @@ void DemoCore::shutDownNodesSSH(QList<Sliver *> slivers)
 
         ssh->executeCommand(QString("'sudo kill -INT nodeprog'"));
         connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
-        qDebug() << "Killing nodeprog" << sliver->name;
+        qDebug() << "Killing nodeprog" << sliver->hostName;
         connect(ssh, &SSHConnection::destroyed, []() {
             qDebug() << "Object deleted";
         });
@@ -124,8 +128,8 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
 
     qDebug() << "COnnection problem";
     Sliver *sliver= getSliver(socket);
-    protocolHash.remove(sliver->name);
-    qDebug() << "Failed to connect: " << sliver->name;
+    protocolHash.remove(sliver->hostName);
+    qDebug() << "Failed to connect: " << sliver->hostName;
     if (sliver->getStatus() == Sliver::STATUS_CONNECTED) { //if the node was connected, we give a notice that it has now disconnected
         emit sliverDisonnected(*sliver);
     }
@@ -246,7 +250,7 @@ void DemoCore::addSliverConnection(Sliver *sliver)
 {
     if (sliver->getStatus() != Sliver::STATUS_CONNECTED && sliver->getStatus() != Sliver::STATUS_CONNECTING) {
         setStatus(sliver, Sliver::STATUS_CONNECTING);
-        qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->name;
+        qDebug() << "Connecting to sliver" << sliver->IPv6 << sliver->port << sliver->hostName;
         addSliverConnection(sliver->IPv6, sliver->port, getSliceName(), sliver->hostName);
     }
 }
@@ -452,7 +456,7 @@ void DemoCore::connected()
     MyQTcpSocket *socket = (MyQTcpSocket*) sender();
     Sliver *sliver = getSliver(socket);
     setStatus(sliver, Sliver::STATUS_CONNECTED);
-    qDebug() << "Connected: " << sliver->name;
+    qDebug() << "Connected: " << sliver->hostName;
 }
 
 void DemoCore::handleSSHDisconnect()

@@ -106,7 +106,7 @@ void NodeModel::removeNode(QString name)
 
 void NodeModel::editNode(QString nodeName, Sliver node)
 {
-    if (slivers.contains(node.name)) {
+    if (slivers.contains(node.hostName)) {
         return;
     }
    Sliver *sliver = slivers[nodeName];

@@ -143,9 +143,9 @@ QString MapOverview::getIpv6Address(QStringList adrs)
 void MapOverview::connectToSlivers()
 {
     foreach(Sliver *sliver, Settings::sliceManager.getSlivers()) {
-        if (!nodesDealtWith.contains(sliver->name)) {
+        if (!nodesDealtWith.contains(sliver->hostName)) {
             core.connectToSlivers(QList<Sliver*>() << sliver);
-            nodesDealtWith << sliver->name;
+            nodesDealtWith << sliver->hostName;
             ui->statusbar->showMessage(QString("Connecting"));
         }
     }
@@ -182,7 +182,7 @@ void MapOverview::applySettings()
         if (username.isEmpty() || hostname.isEmpty()) {
             qDebug() << "Gatekeeper hostname or username not defined";
         } else {
-            core.enableGatekeeper("henrik", "gatekeeper.nntb.no");
+            core.enableGatekeeper(username, hostname);
         }
     } else {
         qDebug() << "Gatekeeper not enabled";
@@ -301,16 +301,16 @@ void MapOverview::handleNewStatusMessage(Sliver sliver, NodeInfoMessage message)
         }
     }
 
-   gmap->addNodeMarker(sliver.name,nodeHash[sliver.hostName].providers.size(), decLat, decLng);
+   gmap->addNodeMarker(sliver.hostName,nodeHash[sliver.hostName].providers.size(), decLat, decLng);
    QMapIterator<int, QStringList> i(nodeHash[sliver.hostName].providers);
     while (i.hasNext()) {
         i.next();
         qDebug() << "Adding marker:";
-        gmap->addProviderMarker(sliver.name, QString::number(i.key()));
+        gmap->addProviderMarker(sliver.hostName, QString::number(i.key()));
     }
 
-    nodeHash[sliver.name].nodeInfo = message;
-    nodeHash[sliver.name].sliver = sliver;
+    nodeHash[sliver.hostName].nodeInfo = message;
+    nodeHash[sliver.hostName].sliver = sliver;
 }
 
 /**
@@ -404,7 +404,7 @@ void MapOverview::handleMapLoaded()
 
     message.data.interfaces << interfaces;
     Sliver sliver;
-    sliver.name = "Test";
+    sliver.hostName = "Test";
 
     NodeInfoMessage message2;
     message2.data.lat = "60.550564";
@@ -415,7 +415,7 @@ void MapOverview::handleMapLoaded()
 
     message2.data.interfaces << interfaces2;
     Sliver sliver2;
-    sliver.name = "Test2";
+    sliver.hostName = "Test2";
 
     //handleNewStatusMessage(sliver, message);
     //handleNewStatusMessage(sliver2, message2);
@@ -785,12 +785,12 @@ void MapOverview::handleMapHovered()
 void MapOverview::handleNodeDisconnected(Sliver sliver)
 {
     qDebug() << "Problem connecting to " << sliver.hostName << sliver.IPv6 << sliver.port;
-    nodesDealtWith.removeAll(sliver.name);
+    nodesDealtWith.removeAll(sliver.hostName);
     QList<QListWidgetItem*> items = ui->connectedList->findItems(sliver.hostName, Qt::MatchExactly);
     qDeleteAll(items);
 
     gmap->removeNodeMarker(sliver.hostName);
-    nodeHash.remove(sliver.name);
+    nodeHash.remove(sliver.hostName);
     int sliverCount = Settings::sliceManager.sliverCount();
     int connected = ui->connectedList->count();
     ui->statusbar->showMessage(QString("Connected to %1 out of %2 nodes").arg(connected).arg(sliverCount));
