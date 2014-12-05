@@ -84,7 +84,7 @@ bool NodeProtocol::handleMessage(int type)
         qDebug() << "Received demostatus";
         DemoStatusMessage message;
         message.read(socket);
-        if (message.data.version != NetworkEntity::VERSION) {
+        if (message.data.version > NetworkEntity::VERSION) {
             qDebug() << "Wrong version, updating";
             sendUpdatingStatus();
             emit exitProgram(NetworkEntity::EXIT_TYPE_UPDATE);
@@ -120,9 +120,9 @@ bool NodeProtocol::handleMessage(int type)
         tasks[message.data.transferId] = task;
         int id = message.data.transferId;
         connect(task, &TransferTask::newStatus, this, &AbstractProtocol::sendMessage);
-        connect(task, &AbstractTask::finished,[id, this]() {
+        connect(task, &AbstractTask::finished,[id, this, task]() {
             tasks.remove(id);
-            this->deleteLater();
+            task->deleteLater();
         });
 
         tasks[message.data.transferId] = task;

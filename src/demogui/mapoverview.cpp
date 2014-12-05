@@ -909,7 +909,10 @@ void MapOverview::on_removeNodeButton_clicked()
     for (int i = 0; i < selectedList.count(); i++) {
         qDebug() << "Removing row";
         QModelIndex index = selectedList.at(i);
+        Sliver *sliver = Settings::sliceManager.getModel()->getNode(index.row());
         Settings::sliceManager.getModel()->removeRows(index.row(), 1, QModelIndex());
+        nodesDealtWith.removeAll(sliver->hostName);
+        core.disconnectNodes(QList<Sliver*>() << sliver);
     }
 }
 

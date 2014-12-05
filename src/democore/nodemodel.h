@@ -14,6 +14,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     void addNode(Sliver *node);
     Sliver* getNode(QString name);
+    Sliver* getNode(int index);
     QVariant data(const QModelIndex &index, int role) const;
     void setNodes(QList <Sliver*> nodes);
     QList<Sliver*> getNodes();

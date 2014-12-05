@@ -61,6 +61,11 @@ Sliver* NodeModel::getNode(QString name)
     return slivers[name];
 }
 
+Sliver *NodeModel::getNode(int index)
+{
+    return sliversList[index];
+}
+
 void NodeModel::setNodes(QList<Sliver *> nodes)
 {
     foreach (Sliver *sliver, sliversList) {
