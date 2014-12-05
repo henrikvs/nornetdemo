@@ -125,6 +125,7 @@ private slots:
     void on_addNodeButton_clicked();
     void on_removeNodeButton_clicked();
     void on_importButton_clicked();
+    void on_killButton_clicked();
 };
 
 #endif // MAPOVERVIEW_H

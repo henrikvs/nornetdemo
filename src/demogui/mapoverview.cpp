@@ -921,3 +921,8 @@ void MapOverview::on_importButton_clicked()
     QString fileName = QFileDialog::getOpenFileName(this, "Import file");
     Settings::sliceManager.importNodesFromFile(fileName);
 }
+
+void MapOverview::on_killButton_clicked()
+{
+    core.shutDownNodesSSH(Settings::sliceManager.getSlivers());
+}
