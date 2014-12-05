@@ -15,5 +15,7 @@
         <file>marker3.png</file>
         <file>leaflet.polylineDecorator.js</file>
         <file>network_ethernet.png</file>
+        <file>nornetapi-constants</file>
+        <file>nornet_sites</file>
     </qresource>
 </RCC>

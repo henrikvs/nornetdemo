@@ -25,7 +25,7 @@ public:
     static const int CONNECTION_TYPE_REPLY = 4;
     static const int ENTITY_TYPE_DEMO = 1;
     static const int ENTITY_TYPE_NODE = 2;
-    static const int VERSION = 31;
+    static const int VERSION = 32;
     static const int EXIT_TYPE_NORMAL = 1;
     static const int EXIT_TYPE_UPDATE = 2;
     static const int EXIT_TYPE_RESTART = 3;

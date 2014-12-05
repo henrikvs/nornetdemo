@@ -12,6 +12,7 @@
 #include "qcustomplot.h"
 #include "graphdata.h"
 #include "nodemodel.h"
+#include "nornetconstants.h"
 
 class QCustomPlot;
 class QCPGraph;
@@ -65,6 +66,8 @@ private:
     NodeMapWidget *gmap;
 
     QList <PlotWindow*> plotWindows;
+
+    QString getSiteAbbr(QString nodeName);
     QStringList nodesDealtWith;
     QHash<QString, NodeStruct> nodeHash;
     QHash<QString, GraphData*> graphHash;
@@ -72,6 +75,7 @@ private:
     QHash<QString, QString> ipToNodeIdHash;
     QCustomPlot *pingPlot;
     DemoCore core;
+    NorNetConstants constants;
     qreal dmsToDecimal(qreal degrees, qreal minutes, qreal seconds, QString dir);
     bool isConnected;
 public slots:

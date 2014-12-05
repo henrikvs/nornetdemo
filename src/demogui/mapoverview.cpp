@@ -42,6 +42,8 @@ MapOverview::MapOverview(QWidget *parent) :
     connect(gmap, SIGNAL(mapLoaded()), this, SLOT(handleMapLoaded()));
 
     gmap->start();
+    constants.loadISPsFromFile(":/nornetapi-constants");
+    constants.loadSitenamesFromFile(":/nornet_sites");
 
     //setCentralWidget(gmap);
 
@@ -735,8 +737,9 @@ void MapOverview::showNodeInfo(QString nodeId)
 {
     //QToolTip::showText(point, hostname,gmap, QRect(point, QSize(10,10)));
     NodeStruct &node = nodeHash[nodeId];
+    QString siteAbbr = getSiteAbbr(node.sliver.hostName);
     ui->stackedWidget->setCurrentWidget(ui->nodePage);
-    ui->sliceNameEdit->setText(core.getSliceName());
+    ui->sliceNameEdit->setText(constants.getFullSiteName(siteAbbr));
     ui->siteNameEdit->setText(node.sliver.hostName);
     qDebug() << "Node hovered";
 }
@@ -744,7 +747,7 @@ void MapOverview::showNodeInfo(QString nodeId)
 void MapOverview::showProviderInfo(QString nodeId, QString providerIndex)
 {
     ui->stackedWidget->setCurrentWidget(ui->providerPage);
-    ui->providerName->setText(providerIndex);
+    ui->providerName->setText(constants.getFullISPName(providerIndex.toInt()));
 
     NodeStruct &srcNode = nodeHash[nodeId];
     QStringList srcAdrs = srcNode.providers.value(providerIndex.toInt());
@@ -838,6 +841,17 @@ QCustomPlot *MapOverview::createGraph(QString label)
     customPlot->setMinimumHeight(150);
     customPlot->setMaximumHeight(200);
     return customPlot;
+}
+
+QString MapOverview::getSiteAbbr(QString nodeName)
+{
+    QRegularExpression re("\\.([^.]+)\\.nornet");
+    QRegularExpressionMatch match = re.match(nodeName);
+    if (match.hasMatch()) {
+        return match.captured(1);
+    } else {
+        return "site";
+    }
 }
 
 /**

@@ -118,8 +118,12 @@ bool NodeProtocol::handleMessage(int type)
         }
         TransferTask *task = new TransferTask(message.data.transferId, message.data.transferType, message.data.localIp, message.data.remoteHost, message.data.seconds, port, this);
         tasks[message.data.transferId] = task;
+        int id = message.data.transferId;
         connect(task, &TransferTask::newStatus, this, &AbstractProtocol::sendMessage);
-        connect(task, SIGNAL(finished()), task, SLOT(deleteLater()));
+        connect(task, &AbstractTask::finished,[id, this]() {
+            tasks.remove(id);
+            this->deleteLater();
+        });
 
         tasks[message.data.transferId] = task;
         task->start();

@@ -100,7 +100,7 @@
                <string notr="true"/>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="mapPage"/>
               <widget class="QWidget" name="providerPage">
@@ -116,7 +116,7 @@
                      <item>
                       <widget class="QLabel" name="label_3">
                        <property name="text">
-                        <string>Name:</string>
+                        <string>Provider:</string>
                        </property>
                       </widget>
                      </item>
@@ -166,7 +166,7 @@
                      <item>
                       <widget class="QLabel" name="label">
                        <property name="text">
-                        <string>Slice name:</string>
+                        <string>Site name:</string>
                        </property>
                       </widget>
                      </item>
