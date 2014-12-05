@@ -131,6 +131,7 @@ void DemoCore::disconnected(MyQTcpSocket *socket)
     protocolHash.remove(sliver->hostName);
     qDebug() << "Failed to connect: " << sliver->hostName;
     if (sliver->getStatus() == Sliver::STATUS_CONNECTED) { //if the node was connected, we give a notice that it has now disconnected
+        setStatus(sliver, Sliver::STATUS_OFFLINE);
         emit sliverDisonnected(*sliver);
     }
     if (sliver->getStatus() == Sliver::STATUS_UPDATING) {
@@ -308,6 +309,7 @@ void DemoCore::getIpAddress(Sliver *sliver)
        if (!res.isEmpty()) {
            sliver->IPv6 = res;
            qDebug() << "Ip address set";
+           emit nodeStatusChanged(sliver->hostName);
            addSliverConnection(sliver); //We got the ip, now we try to reconnect. This is not thread safe. Needs to be invoked to be safe with different threads
        }
        qDebug() << "Result: " << res;
