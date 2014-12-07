@@ -101,6 +101,7 @@ void DemoProtocol::sendKeepAlive() {
  */
 void DemoProtocol::start()
 {
+    AbstractProtocol::start();
     qDebug() << "Starting protocol";
     sendDemoStatus();
     /*QTimer *timer = new QTimer(this);

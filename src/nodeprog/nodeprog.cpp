@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "nodeprog.h"
 #include <QProcess>
+#include <QTimer>
 #include <QStringList>
 
 NodeProg::NodeProg() : NetworkEntity(), iperf4Process(NULL), iperf6Process(NULL)
@@ -18,13 +19,22 @@ void NodeProg::start(int port)
         startListening6(port);
         startListening(port);
     }
+
 }
 
 void NodeProg::disconnected(MyQTcpSocket *socket)
 {
     qDebug() << "Disconnecting nodeprog";
-    if (socket->isRelay) { //if this connection is a relay connection, we reconnect when disconnected, to always make this node available on the relayserver
-        addConnection(getRelayAddress(), getRelayPort(), CONNECTION_TYPE_RELAY, "any", "any");
+
+    QTimer *timer = new QTimer(this);
+    if (relayEnabled()) {
+        connect(timer, &QTimer::timeout, [timer,this]() {
+
+            addConnection(getRelayAddress(), getRelayPort(), CONNECTION_TYPE_RELAY, "any", "any");
+            timer->stop();
+            timer->deleteLater();
+        });
+        timer->start(3000);
     }
 }
 

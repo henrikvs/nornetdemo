@@ -46,6 +46,7 @@ void NodeProtocol::sendNormalStatus()
 
 void NodeProtocol::start()
 {
+    AbstractProtocol::start();
     this->iperfIpv4Port = iperfIpv4Port;
     this->iperfIpv6Port = iperfIpv6Port;
 }

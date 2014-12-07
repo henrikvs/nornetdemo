@@ -56,7 +56,7 @@ void DemoCore::connectToSlivers(QList<Sliver*> slivers)
         //Will try to connect as long as the sliver is not connected
         connect(timer, &QTimer::timeout, [timer, sliver, this]() {
             if (sliver->isActive() && sliver->getStatus() != sliver->STATUS_CONNECTED) {
-                if (!sliver->IPv6.isEmpty()) {
+                if (!sliver->IPv6.isEmpty() || relayEnabled()) {
                     qDebug() << "Attempting to connect";
                     addSliverConnection(sliver);
                 } else {

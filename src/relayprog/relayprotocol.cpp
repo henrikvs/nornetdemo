@@ -94,3 +94,8 @@ void RelayProtocol::setHandshakeMessage(HandshakeMessage message)
 {
     handshakeMessage = message;
 }
+
+bool RelayProtocol::heartBeatsEnabled()
+{
+    return false;
+}

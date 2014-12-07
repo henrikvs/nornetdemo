@@ -33,7 +33,7 @@ public:
     void setType(qint32 type);
     void disconnectSocket();
     virtual void cleanUp() = 0;
-    virtual void start() {};
+    virtual void start();
     virtual bool finishedReading();
 
     qint32 getType();
@@ -55,6 +55,10 @@ private:
     QString name;
     bool active;
     void sendHeartbeat();
+    virtual bool heartBeatsEnabled();
+
+    void startHeartbeats(int ms);
+
 
 };
 

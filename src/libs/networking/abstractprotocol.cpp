@@ -10,12 +10,6 @@
  */
 AbstractProtocol::AbstractProtocol(QObject *parent) : QObject(parent), headerRead(false)
 {
-    QTimer *timer = new QTimer(this);
-    //Send out a message every now and then, to keep the tcp connection alive
-    connect(timer, &QTimer::timeout, [this]() {
-       sendHeartbeat();
-    });
-    timer->start(30000);
     isRelay = false;
     active = true;
 }
@@ -104,6 +98,23 @@ void AbstractProtocol::sendHeartbeat()
     sendMessage(message);
 }
 
+bool AbstractProtocol::heartBeatsEnabled()
+{
+    return true;
+}
+
+void AbstractProtocol::startHeartbeats(int ms)
+{
+    QTimer *timer = new QTimer(this);
+    //Send out a message every now and then, to keep the tcp connection alive
+    connect(timer, &QTimer::timeout, [this]() {
+       sendHeartbeat();
+    });
+    connect(this, SIGNAL(destroyed()), timer, SLOT(stop()));
+    connect(this, SIGNAL(destroyed()), timer, SLOT(deleteLater()));
+    timer->start(ms);
+}
+
 void AbstractProtocol::setName(QString name)
 {
     this->name = name;
@@ -127,6 +138,14 @@ void AbstractProtocol::setType(qint32 type)
 void AbstractProtocol::disconnectSocket()
 {
     socket->disconnectFromHost();
+}
+
+void AbstractProtocol::start()
+{
+    if (heartBeatsEnabled()) {
+        startHeartbeats(30000);
+    }
+
 }
 
 bool AbstractProtocol::finishedReading()

@@ -26,6 +26,10 @@ private:
 signals:
     void newConnection(HandshakeMessage message, RelayProtocol *protocol);
 public slots:
+
+    // AbstractProtocol interface
+private:
+    virtual bool heartBeatsEnabled();
 };
 
 #endif // RELAYPROTOCOL_H

@@ -18,6 +18,7 @@ HandshakeProtocol::HandshakeProtocol(int connectionType, int entityType, QString
 
 void HandshakeProtocol::start()
 {
+    AbstractProtocol::start();
     QHostInfo info;
     qDebug() << "host info: " << info.localDomainName() << info.localHostName();
     QString hostName = info.localHostName();
