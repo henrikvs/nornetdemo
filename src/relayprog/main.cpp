@@ -4,6 +4,7 @@
 
 #include <QThread>
 #include <QDebug>
+#include "shell.h"
 int main(int argc, char *argv[])
 {
 
@@ -23,15 +24,15 @@ int main(int argc, char *argv[])
     }
     qDebug() << argc;
     relayprog.startListening(port.toInt());
-    //Shell shell;
-    //QThread thread;
-    //shell.moveToThread(&thread);
-    //QObject::connect(&thread, SIGNAL(started()), &shell, SLOT(start()));
-    //QObject::connect(&shell, SIGNAL(newOutput(QString)), &nodeprog, SLOT(newStdIn(QString)), Qt::QueuedConnection);
+    Shell shell;
+    QThread thread;
+    shell.moveToThread(&thread);
+    QObject::connect(&thread, SIGNAL(started()), &shell, SLOT(start()));
+    QObject::connect(&shell, SIGNAL(newOutput(QString)), &relayprog, SLOT(newKeyboardInput(QString)), Qt::QueuedConnection);
 
-    //QObject::connect(&shell, SIGNAL(shellClosing()), &thread, SLOT(quit()));
-    //QObject::connect(&thread, SIGNAL(finished()), &nodeprog, SLOT(shutDown()));
-    //thread.start();
+    QObject::connect(&shell, SIGNAL(shellClosing()), &thread, SLOT(quit()));
+    //QObject::connect(&thread, SIGNAL(finished()), &relayprog, SLOT(shutDown()));
+    thread.start();
     qDebug()<< "Started";
     return a.exec();
 }

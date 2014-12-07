@@ -21,7 +21,7 @@ linux {
 
 target.path = $$OUT_PWD/../../bins/relayprog
 
-
+include (../utils/utils.pri)
 
 INSTALLS += target
 

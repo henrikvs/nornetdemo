@@ -15,11 +15,14 @@ public:
     void remoteDisconnected();
     virtual void cleanUp();
     void sendData(QByteArray &buffer, MyQTcpSocket *sock);
+    HandshakeMessage getHandshakeMessage();
 protected:
     virtual bool handleMessage(int type);
 private:
     RelayProtocol *remoteProtocol;
     QByteArray buffer;
+    HandshakeMessage handshakeMessage;
+    void setHandshakeMessage(HandshakeMessage message);
 signals:
     void newConnection(HandshakeMessage message, RelayProtocol *protocol);
 public slots:

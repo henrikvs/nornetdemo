@@ -30,13 +30,15 @@ void AbstractProtocol::newData()
         return;
     }
 
+    qDebug() << "**** Start data ****";
+
     while (1) {
 
 
         qDebug() << "new data total size: " << socket->bytesAvailable();
         if (!headerRead) {
             if (socket->bytesAvailable() < SIZE_HEADER) {
-                return;
+                break;
             } else {
                 header.read(socket);
                 headerRead = true;
@@ -47,13 +49,18 @@ void AbstractProtocol::newData()
 
 
         if (socket->bytesAvailable() < header.data.size) {
-            return;
+            break;
         }
 
         headerRead = false;
         int type = header.data.type;
         handleMessage(type);
+        if (finishedReading()) {
+            break;
+        }
     }
+
+    qDebug() << "**** End data *****";
 
 }
 /*
@@ -93,7 +100,7 @@ void AbstractProtocol::sendMessage(const AbstractMessage &message)
 void AbstractProtocol::sendHeartbeat()
 {
     StringMessage message("heartbeat");
-    qDebug() << "Sent heartbeat";
+    qDebug() << "Sent heartbeat to " << getName();
     sendMessage(message);
 }
 
@@ -120,6 +127,11 @@ void AbstractProtocol::setType(qint32 type)
 void AbstractProtocol::disconnectSocket()
 {
     socket->disconnectFromHost();
+}
+
+bool AbstractProtocol::finishedReading()
+{
+    return false;
 }
 
 qint32 AbstractProtocol::getType()

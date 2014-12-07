@@ -4,6 +4,7 @@
 RelayProg::RelayProg()
 {
     connect(this, SIGNAL(shutDownComplete(int)), this, SLOT(exitProgram(int)));
+
 }
 
 /*
@@ -28,6 +29,7 @@ void RelayProg::disconnected(MyQTcpSocket* socket)
     qDebug() << "Disconnecting";
     RelayProtocol *protocol = (RelayProtocol*)socket->getProtocol();
     protocol->cleanUp();
+    connected.removeAll(protocol->getHandshakeMessage().data.hostname);
     {
     QHashIterator<QString, RelayProtocol*> i(pendingNodes);
     QString remove;
@@ -41,8 +43,10 @@ void RelayProg::disconnected(MyQTcpSocket* socket)
     }
     if (!remove.isEmpty()) {
         pendingNodes.remove(remove);
-    }
         return;
+    }
+
+
     }
     {
     QHashIterator<QString, RelayProtocol*> i(pendingDemos);
@@ -61,6 +65,16 @@ void RelayProg::disconnected(MyQTcpSocket* socket)
     }
 
 }
+
+void RelayProg::newKeyboardInput(QString text)
+{
+    if (text == "list") {
+        qDebug() << "Pending nodes: " << pendingNodes.keys();
+        qDebug() << "Pending GUI: " << pendingDemos.keys();
+        qDebug() << " Connected: " << connected;
+    }
+}
+
 
 int RelayProg::getEntityType()
 {
@@ -90,6 +104,7 @@ void RelayProg::handleNewConnection(HandshakeMessage message, RelayProtocol *pro
             pendingNodes.remove(id);
             protocol->setRemoteProtocol(remoteProtocol);
             remoteProtocol->setRemoteProtocol(protocol);
+            connected << message.data.hostname << remoteProtocol->getHandshakeMessage().data.hostname;
         } else {
             pendingDemos[id]= protocol;
         }
@@ -101,6 +116,7 @@ void RelayProg::handleNewConnection(HandshakeMessage message, RelayProtocol *pro
             pendingDemos.remove(id);
             protocol->setRemoteProtocol(remoteProtocol);
             remoteProtocol->setRemoteProtocol(protocol);
+            connected << message.data.hostname << remoteProtocol->getHandshakeMessage().data.hostname;
         } else {
             pendingNodes[id]= protocol;
         }

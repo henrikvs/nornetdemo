@@ -23,7 +23,7 @@ DemoProtocol::DemoProtocol(QObject *parent) : AbstractProtocol(parent)
 
 /**
  * @brief Sends a message with the status of the NorNet demo program. This is currently only the version of the
- * communication protocol suite.
+ * communication protocol.
  */
 void DemoProtocol::sendDemoStatus()
 {

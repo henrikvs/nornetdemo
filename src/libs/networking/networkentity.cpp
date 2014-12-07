@@ -331,11 +331,15 @@ void NetworkEntity::shutDown(int exitValue)
 
 void NetworkEntity::handleNewHandshake(HandshakeMessage message, MyQTcpSocket *socket)
 {
+    qDebug() << "New handshake: " << message.data.hostname;
     AbstractProtocol *protocol = createProtocol(message, socket);
     socket->setProtocol(protocol);
     connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
     protocol->setSocket(socket);
     protocol->start();
+    if (socket->bytesAvailable()) {
+        QMetaObject::invokeMethod(protocol, "newData", Qt::QueuedConnection);
+    }
 }
 
 

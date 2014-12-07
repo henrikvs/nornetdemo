@@ -13,6 +13,7 @@ public:
     explicit HandshakeProtocol(int connectionType, int entityType,  QString expectedUsername, QString expectedHostname, QObject *parent = 0);
     virtual void start();
     virtual void cleanUp();
+    virtual bool finishedReading();
 protected:
     virtual bool handleMessage(int type);
 private:
@@ -25,6 +26,8 @@ signals:
     void newHandShake(HandshakeMessage message, MyQTcpSocket *socket);
 
 public slots:
+
+    // AbstractProtocol interface
 };
 
 #endif // HANDSHAKEPROTOCOL_H

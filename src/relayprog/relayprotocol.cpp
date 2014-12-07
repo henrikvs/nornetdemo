@@ -41,7 +41,21 @@ void RelayProtocol::sendData(QByteArray &buffer, MyQTcpSocket *sock)
 {
     qDebug() << "Writing data size: " << buffer.size();
 
-    sock->write(buffer);
+    int written = 0;
+    int totalSize = buffer.size();
+    while (written < totalSize) {
+        int ret = sock->write(buffer + written, totalSize - written);
+        if (ret == -1) {
+            qDebug() << "write error";
+            return;
+        }
+        written+=ret;
+    }
+}
+
+HandshakeMessage RelayProtocol::getHandshakeMessage()
+{
+    return handshakeMessage;
 }
 
 void RelayProtocol::remoteDisconnected()
@@ -63,6 +77,7 @@ bool RelayProtocol::handleMessage(int type)
         qDebug() << "New handshake message:" << message.data.connectionType << message.data.entityType << message.data.username << message.data.hostname
                     << message.data.expectedUsername << message.data.expectedHostname;
         message.serialize(&buffer);
+        setHandshakeMessage(message);
         emit newConnection(message, this);
     } else {
         buffer.append(socket->read(dataSize));
@@ -73,4 +88,9 @@ bool RelayProtocol::handleMessage(int type)
         buffer.clear();
     }
     return true;
+}
+
+void RelayProtocol::setHandshakeMessage(HandshakeMessage message)
+{
+    handshakeMessage = message;
 }

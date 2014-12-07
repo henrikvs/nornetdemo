@@ -34,6 +34,8 @@ public:
     void disconnectSocket();
     virtual void cleanUp() = 0;
     virtual void start() {};
+    virtual bool finishedReading();
+
     qint32 getType();
     bool isRelay;
     void setName(QString name);

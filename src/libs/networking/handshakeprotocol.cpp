@@ -47,6 +47,11 @@ void HandshakeProtocol::cleanUp()
 
 }
 
+bool HandshakeProtocol::finishedReading()
+{
+    return true;
+}
+
 
 bool HandshakeProtocol::handleMessage(int type)
 {
@@ -58,8 +63,8 @@ bool HandshakeProtocol::handleMessage(int type)
         message.read(socket);
         active = false;
         disconnect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
-        deleteLater();
         emit newHandShake(message, socket);
+        deleteLater();
     }
     return true;
 }

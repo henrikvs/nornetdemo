@@ -223,7 +223,7 @@ void DemoCore::installProgram(Sliver *sliver)
 
     QString checkExistsCommand = "ps aux | grep install.sh | grep -v grep | wc -l";
 
-    ssh->executeCommand(QString("'sudo nohup wget --cache=off -N %3/install.sh >> nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %3 %2>> nodeprog.out 2>&1 &'").arg(VERSION).arg(relayString).arg(nodeprogRootUrl));
+    ssh->executeCommand(QString("'sudo nohup 'wget' --cache=off -N %3/install.sh >> nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %3 %2>> nodeprog.out 2>&1 &'").arg(VERSION).arg(relayString).arg(nodeprogRootUrl));
     qDebug() << "install script: " << QString("'sudo nohup wget --cache=off -N %3/install.sh >> nodeprog.out 2>&1; sudo nohup sh ./install.sh %1 %2>> nodeprog.out 2>&1 &'").arg(VERSION).arg(relayString).arg(nodeprogRootUrl);
     connect(ssh, SIGNAL(disconnected()), ssh, SLOT(deleteLater()));
     //addSliverConnection(sliver);

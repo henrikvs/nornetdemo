@@ -161,6 +161,7 @@ bool NodeProtocol::handleMessage(int type)
         }
 
     } else {
+        qDebug() << "Unrecongized message type";
         return false;
     }
     return true;

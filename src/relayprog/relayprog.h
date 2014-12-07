@@ -15,9 +15,11 @@ public:
     virtual void startHandshakeProtocol(int connectionType, QString name, QString remoteName, MyQTcpSocket *socket);
 public slots:
     virtual void disconnected(MyQTcpSocket *socket);
+    void newKeyboardInput(QString text);
 private:
     QHash<QString, RelayProtocol*> pendingNodes;
     QHash<QString, RelayProtocol*> pendingDemos;
+    QList<QString> connected;
     virtual int getEntityType();
 protected:
     virtual AbstractProtocol *createProtocol(HandshakeMessage message,  MyQTcpSocket *socket);
