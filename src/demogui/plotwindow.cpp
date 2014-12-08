@@ -234,9 +234,16 @@ void PlotWindow::handleExperimentSelected(QListWidgetItem *item)
 {
     GraphData *graph = itemToGraph[item];
     ui->fromSiteEdit->setText(graph->getSrcNode());
+    ui->fromSiteEdit->setCursorPosition(0);
+
     ui->toSiteEdit->setText(graph->getDestNode());
+    ui->toSiteEdit->setCursorPosition(0);
+
     ui->fromIpEdit->setText(graph->getSrcAddr());
+    ui->fromIpEdit->setCursorPosition(0);
+
     ui->toIpEdit->setText(graph->getDestAddr());
+    ui->toIpEdit->setCursorPosition(0);
 }
 
 void PlotWindow::handleAxisSelected()

@@ -37,6 +37,21 @@ void GraphData::addData(qreal key, qreal value)
         if (variant.isValid() && variant.toBool()) {
             plot->rescaleAxes(false);
         }
+        QCPRange range = plot->xAxis->range();
+
+        double lower = range.lower;
+        double upper = range.upper;
+        double range2 = upper - lower;
+
+        if (key > upper) {
+            if (expType == PING) {
+                plot->xAxis->setRangeLower(key - (range2));
+                plot->xAxis->setRangeUpper(key);
+            } else if (expType == TCP) {
+                plot->xAxis->setRangeLower(key - (range2));
+                plot->xAxis->setRangeUpper(key);
+            }
+        }
     }
 
 

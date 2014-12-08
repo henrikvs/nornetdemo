@@ -740,6 +740,8 @@ void MapOverview::showNodeInfo(QString nodeId)
     ui->stackedWidget->setCurrentWidget(ui->nodePage);
     ui->sliceNameEdit->setText(constants.getFullSiteName(siteAbbr));
     ui->siteNameEdit->setText(node.sliver.hostName);
+    ui->sliceNameEdit->setCursorPosition(0);
+    ui->siteNameEdit->setCursorPosition(0);
     qDebug() << "Node hovered";
 }
 
@@ -747,6 +749,7 @@ void MapOverview::showProviderInfo(QString nodeId, QString providerIndex)
 {
     ui->stackedWidget->setCurrentWidget(ui->providerPage);
     ui->providerName->setText(constants.getFullISPName(providerIndex.toInt()));
+    ui->providerName->setCursorPosition(0);
 
     NodeStruct &srcNode = nodeHash[nodeId];
     QStringList srcAdrs = srcNode.providers.value(providerIndex.toInt());
