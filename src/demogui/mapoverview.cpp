@@ -47,7 +47,6 @@ MapOverview::MapOverview(QWidget *parent) :
 
     //setCentralWidget(gmap);
 
-
     connect(ui->experimentsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(experimentItemRightClicked(QListWidgetItem*)));
     connect(ui->connectedList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(handleConnectedNodeClicked(QListWidgetItem*)));
 

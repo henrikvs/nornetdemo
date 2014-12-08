@@ -1978,7 +1978,9 @@ public:
   void setRangeDrag(Qt::Orientations orientations);
   void setRangeZoom(Qt::Orientations orientations);
   void setRangeDragAxes(QCPAxis *horizontal, QCPAxis *vertical);
+  void setRangeDragAxes(QCPAxis *horizontal, QCPAxis *horizontal2, QCPAxis *vertical, QCPAxis *vertical2);
   void setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *vertical);
+  void setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *horizontal2, QCPAxis *vertical2, QCPAxis *vertical);
   void setRangeZoomFactor(double horizontalFactor, double verticalFactor);
   void setRangeZoomFactor(double factor);
   
@@ -2024,10 +2026,10 @@ protected:
   Qt::AspectRatioMode mBackgroundScaledMode;
   QCPLayoutInset *mInsetLayout;
   Qt::Orientations mRangeDrag, mRangeZoom;
-  QPointer<QCPAxis> mRangeDragHorzAxis, mRangeDragVertAxis, mRangeZoomHorzAxis, mRangeZoomVertAxis;
+  QPointer<QCPAxis> mRangeDragHorzAxis, mRangeDragHorzAxis2, mRangeDragVertAxis, mRangeDragVertAxis2, mRangeZoomHorzAxis, mRangeZoomHorzAxis2, mRangeZoomVertAxis2, mRangeZoomVertAxis;
   double mRangeZoomFactorHorz, mRangeZoomFactorVert;
   // non-property members:
-  QCPRange mDragStartHorzRange, mDragStartVertRange;
+  QCPRange mDragStartHorzRange, mDragStartVertRange, mDragStartHorzRange2, mDragStartVertRange2;
   QCP::AntialiasedElements mAADragBackup, mNotAADragBackup;
   QPoint mDragStart;
   bool mDragging;

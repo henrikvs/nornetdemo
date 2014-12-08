@@ -17,5 +17,6 @@
         <file>network_ethernet.png</file>
         <file>nornetapi-constants</file>
         <file>nornet_sites</file>
+        <file>norneticon.png</file>
     </qresource>
 </RCC>

@@ -38,6 +38,7 @@ private slots:
     void on_graphAutoResize_clicked(bool checked);
 
     void handleExperimentSelected(QListWidgetItem *item);
+    void handleAxisSelected();
 
 private:
     Ui::PlotWindow *ui;

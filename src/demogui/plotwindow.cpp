@@ -12,13 +12,20 @@ PlotWindow::PlotWindow(QWidget *parent) :
 
     connect(ui->experimentsWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(handleExperimentSelected(QListWidgetItem*)));
     QCustomPlot *customPlot = ui->plotWidget;
+
+    ui->plotWidget->axisRect()->setRangeZoomAxes( ui->plotWidget->xAxis, NULL, ui->plotWidget->yAxis2, ui->plotWidget->yAxis);
+        ui->plotWidget->axisRect()->setRangeDragAxes( ui->plotWidget->xAxis, ui->plotWidget->xAxis2, ui->plotWidget->yAxis, ui->plotWidget->yAxis2);
+
+
     customPlot->xAxis->setLabel("Time");
     customPlot->yAxis->setLabel("Mbps");
     customPlot->yAxis2->setLabel("MS");
     customPlot->xAxis->setDateTimeFormat("mm:ss");
-    customPlot->axisRect()->setRangeDragAxes(customPlot->xAxis, customPlot->yAxis2);
     customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables | QCP::iSelectAxes);
+    connect(customPlot, SIGNAL(selectionChangedByUser()), this, SLOT(handleAxisSelected()));
+
+
     customPlot->setProperty("autoresize", ui->graphAutoResize->isChecked());
 
     customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft | Qt::AlignTop); // align the legend top left corner
@@ -42,9 +49,6 @@ PlotWindow::PlotWindow(QWidget *parent) :
     colorCycle << Qt::darkBlue;
     colorCycle << Qt::darkGreen;
     ui->plotWindowNameLabel->setText(name);
-
-
-
 }
 
 QCustomPlot *PlotWindow::getPlotWidget()
@@ -77,7 +81,6 @@ void PlotWindow::addGraph(GraphData *graph)
 
     setVisibleAxes();
     //ui->plotWidget->yAxis->setLabel(createYAxisLabel());
-    setVisibleAxes();
     graphs << graph;
     if (ui->experimentsWidget->count() == 1) {
         handleExperimentSelected(item);
@@ -206,12 +209,14 @@ void PlotWindow::setVisibleAxes()
         ui->plotWidget->yAxis2->setVisible(true);
     } else {
         ui->plotWidget->yAxis2->setVisible(false);
+         //ui->plotWidget->axisRect()->setRangeDragAxes( ui->plotWidget->xAxis,  ui->plotWidget->yAxis);
     }
 
     if (mbpsGraphs > 0) {
         ui->plotWidget->yAxis->setVisible(true);
     } else {
         ui->plotWidget->yAxis->setVisible(false);
+         //ui->plotWidget->axisRect()->setRangeDragAxes(ui->plotWidget->xAxis,  ui->plotWidget->yAxis2);
     }
 }
 
@@ -232,4 +237,33 @@ void PlotWindow::handleExperimentSelected(QListWidgetItem *item)
     ui->toSiteEdit->setText(graph->getDestNode());
     ui->fromIpEdit->setText(graph->getSrcAddr());
     ui->toIpEdit->setText(graph->getDestAddr());
+}
+
+void PlotWindow::handleAxisSelected()
+{
+    QList<QCPAxis*> axes = ui->plotWidget->selectedAxes();
+
+    if (axes.size() > 0) {
+        foreach (QCPAxis *axis, axes) {
+            if (axis == ui->plotWidget->yAxis) {
+                ui->plotWidget->axisRect()->setRangeZoom(Qt::Vertical);
+                ui->plotWidget->axisRect()->setRangeDragAxes(ui->plotWidget->xAxis, ui->plotWidget->yAxis);
+                ui->plotWidget->axisRect()->setRangeZoomAxes(ui->plotWidget->xAxis2,  ui->plotWidget->yAxis);
+            }
+            if (axis == ui->plotWidget->yAxis2) {
+                ui->plotWidget->axisRect()->setRangeZoom(Qt::Vertical);
+                ui->plotWidget->axisRect()->setRangeDragAxes(ui->plotWidget->xAxis, ui->plotWidget->yAxis2);
+                ui->plotWidget->axisRect()->setRangeZoomAxes(ui->plotWidget->xAxis2,  ui->plotWidget->yAxis2);
+            }
+
+            if (axis == ui->plotWidget->xAxis) {
+                ui->plotWidget->axisRect()->setRangeZoom(Qt::Horizontal);
+                ui->plotWidget->axisRect()->setRangeZoomAxes(ui->plotWidget->xAxis,  ui->plotWidget->yAxis2);
+            }
+        }
+    } else {
+        ui->plotWidget->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+        ui->plotWidget->axisRect()->setRangeZoomAxes( ui->plotWidget->xAxis, NULL, ui->plotWidget->yAxis2, ui->plotWidget->yAxis);
+        ui->plotWidget->axisRect()->setRangeDragAxes( ui->plotWidget->xAxis, ui->plotWidget->xAxis2, ui->plotWidget->yAxis, ui->plotWidget->yAxis2);
+    }
 }

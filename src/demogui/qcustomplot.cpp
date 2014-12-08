@@ -12346,6 +12346,18 @@ void QCPAxisRect::setRangeDragAxes(QCPAxis *horizontal, QCPAxis *vertical)
 {
   mRangeDragHorzAxis = horizontal;
   mRangeDragVertAxis = vertical;
+
+  mRangeDragVertAxis2 = NULL;
+  mRangeDragHorzAxis2 = NULL;
+}
+
+void QCPAxisRect::setRangeDragAxes(QCPAxis *horizontal, QCPAxis *horizontal2, QCPAxis *vertical, QCPAxis *vertical2)
+{
+  mRangeDragHorzAxis = horizontal;
+  mRangeDragVertAxis = vertical;
+
+  mRangeDragHorzAxis2 = horizontal2;
+  mRangeDragVertAxis2 = vertical2;
 }
 
 /*!
@@ -12359,6 +12371,17 @@ void QCPAxisRect::setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *vertical)
 {
   mRangeZoomHorzAxis = horizontal;
   mRangeZoomVertAxis = vertical;
+  mRangeZoomVertAxis2 = NULL;
+  mRangeZoomHorzAxis2 = NULL;
+}
+
+void QCPAxisRect::setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *horizontal2, QCPAxis *vertical2, QCPAxis *vertical)
+{
+    mRangeZoomHorzAxis = horizontal;
+    mRangeZoomHorzAxis2 = horizontal2;
+    mRangeZoomVertAxis2 = vertical2;
+    mRangeZoomVertAxis = vertical;
+
 }
 
 /*!
@@ -12505,6 +12528,10 @@ void QCPAxisRect::mousePressEvent(QMouseEvent *event)
         mDragStartHorzRange = mRangeDragHorzAxis.data()->range();
       if (mRangeDragVertAxis)
         mDragStartVertRange = mRangeDragVertAxis.data()->range();
+      if (mRangeDragHorzAxis2)
+        mDragStartHorzRange2 = mRangeDragHorzAxis2.data()->range();
+      if (mRangeDragVertAxis2)
+        mDragStartVertRange2 = mRangeDragVertAxis2.data()->range();
     }
   }
 }
@@ -12535,6 +12562,20 @@ void QCPAxisRect::mouseMoveEvent(QMouseEvent *event)
           rangeDragHorzAxis->setRange(mDragStartHorzRange.lower*diff, mDragStartHorzRange.upper*diff);
         }
       }
+
+      if (QCPAxis *rangeDragHorzAxis2 = mRangeDragHorzAxis2.data())
+      {
+        if (rangeDragHorzAxis2->mScaleType == QCPAxis::stLinear)
+        {
+          double diff = rangeDragHorzAxis2->pixelToCoord(mDragStart.x()) - rangeDragHorzAxis2->pixelToCoord(event->pos().x());
+          rangeDragHorzAxis2->setRange(mDragStartHorzRange2.lower+diff, mDragStartHorzRange2.upper+diff);
+        } else if (rangeDragHorzAxis2->mScaleType == QCPAxis::stLogarithmic)
+        {
+          double diff = rangeDragHorzAxis2->pixelToCoord(mDragStart.x()) / rangeDragHorzAxis2->pixelToCoord(event->pos().x());
+          rangeDragHorzAxis2->setRange(mDragStartHorzRange2.lower*diff, mDragStartHorzRange2.upper*diff);
+        }
+      }
+
     }
     if (mRangeDrag.testFlag(Qt::Vertical))
     {
@@ -12550,6 +12591,20 @@ void QCPAxisRect::mouseMoveEvent(QMouseEvent *event)
           rangeDragVertAxis->setRange(mDragStartVertRange.lower*diff, mDragStartVertRange.upper*diff);
         }
       }
+
+      if (QCPAxis *rangeDragVertAxis2 = mRangeDragVertAxis2.data())
+      {
+        if (rangeDragVertAxis2->mScaleType == QCPAxis::stLinear)
+        {
+          double diff = rangeDragVertAxis2->pixelToCoord(mDragStart.y()) - rangeDragVertAxis2->pixelToCoord(event->pos().y());
+          rangeDragVertAxis2->setRange(mDragStartVertRange2.lower+diff, mDragStartVertRange2.upper+diff);
+        } else if (rangeDragVertAxis2->mScaleType == QCPAxis::stLogarithmic)
+        {
+          double diff = rangeDragVertAxis2->pixelToCoord(mDragStart.y()) / rangeDragVertAxis2->pixelToCoord(event->pos().y());
+          rangeDragVertAxis2->setRange(mDragStartVertRange2.lower*diff, mDragStartVertRange2.upper*diff);
+        }
+      }
+
     }
     if (mRangeDrag != 0) // if either vertical or horizontal drag was enabled, do a replot
     {
@@ -12600,12 +12655,18 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
         factor = pow(mRangeZoomFactorHorz, wheelSteps);
         if (mRangeZoomHorzAxis.data())
           mRangeZoomHorzAxis.data()->scaleRange(factor, mRangeZoomHorzAxis.data()->pixelToCoord(event->pos().x()));
+
+        if (mRangeZoomHorzAxis2.data())
+          mRangeZoomHorzAxis2.data()->scaleRange(factor, mRangeZoomHorzAxis2.data()->pixelToCoord(event->pos().x()));
       }
       if (mRangeZoom.testFlag(Qt::Vertical))
       {
         factor = pow(mRangeZoomFactorVert, wheelSteps);
         if (mRangeZoomVertAxis.data())
           mRangeZoomVertAxis.data()->scaleRange(factor, mRangeZoomVertAxis.data()->pixelToCoord(event->pos().y()));
+
+        if (mRangeZoomVertAxis2.data())
+          mRangeZoomVertAxis2.data()->scaleRange(factor, mRangeZoomVertAxis2.data()->pixelToCoord(event->pos().y()));
       }
       mParentPlot->replot();
     }

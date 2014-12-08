@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>NorNet Demo</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/norneticon.png</normaloff>:/norneticon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <property name="spacing">
