@@ -131,3 +131,4 @@ void SliceManager::importNodesFromFile(QString filename)
 
     file.close();
 }
+

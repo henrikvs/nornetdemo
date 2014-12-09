@@ -169,6 +169,7 @@ void NetworkEntity::startHandshakeProtocol(int connectionType, QString expectedU
     HandshakeProtocol *protocol = new HandshakeProtocol(connectionType, getEntityType(), expectedUsername, expectedHostname, this);
     protocol->setParent(this);
     protocol->setSocket(socket);
+    socket->setProtocol(protocol);
     connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));
     connect(protocol, SIGNAL(newHandShake(HandshakeMessage,MyQTcpSocket*)), this, SLOT(handleNewHandshake(HandshakeMessage, MyQTcpSocket*)));
     connect(socket, SIGNAL(readyRead()), protocol, SLOT(newData()));

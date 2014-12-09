@@ -10,6 +10,7 @@
 #include <QCursor>
 #include <QPoint>
 #include <QRect>
+#include <QTime>
 #include "qcustomplot.h"
 #include "settings.h"
 #include "settingsdialog.h"
@@ -144,6 +145,10 @@ QString MapOverview::getIpv6Address(QStringList adrs)
 void MapOverview::connectToSlivers()
 {
     foreach(Sliver *sliver, Settings::sliceManager.getSlivers()) {
+        QTime dieTime = QTime::currentTime().addMSecs(100);
+        while (QTime::currentTime() < dieTime) {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
         if (!nodesDealtWith.contains(sliver->hostName)) {
             core.connectToSlivers(QList<Sliver*>() << sliver);
             nodesDealtWith << sliver->hostName;
@@ -729,6 +734,7 @@ void MapOverview::experimentItemRightClicked(QListWidgetItem *item)
 
 void MapOverview::handleConnectedNodeClicked(QListWidgetItem *item)
 {
+    showNodeInfo(item->text());
     gmap->panToNode(item->text());
 }
 

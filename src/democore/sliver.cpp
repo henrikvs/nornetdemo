@@ -18,7 +18,7 @@ QString Sliver::getStatusString()
         return "offline";
         break;
     case STATUS_CONNECTED:
-        return "connected";
+        return "awaiting status";
         break;
     case STATUS_CONNECTING:
         return "connecting";
@@ -28,6 +28,10 @@ QString Sliver::getStatusString()
         break;
     case STATUS_UPDATING:
         return "updating";
+        break;
+
+    case STATUS_READY:
+        return "connected";
         break;
     default:
         return "unknown";

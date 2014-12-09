@@ -47,6 +47,7 @@ private:
     bool gateKeeperEnabled;
     QHash<QString, Sliver*> sliverHash;
     QHash<QString, DemoProtocol*> protocolHash;
+    QHash<QString, HandshakeProtocol*> handshakeHash;
     Sliver* getSliver(QString name);
     Sliver *getSliver(MyQTcpSocket *socket);
 
